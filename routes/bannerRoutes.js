@@ -140,7 +140,21 @@ router.put("/:parentId/data/:bannerId/card/:cardId/item/:itemId", async (req, re
     const item = card.items.find((i) => i._id.toString() === itemId);
     if (!item) return res.status(404).json({ message: "Item not found" });
 
+    // -------------------------
+    // 1️⃣ Item update
+    // -------------------------
     Object.assign(item, payload);
+
+    // -------------------------
+    // 2️⃣ Parent category update
+    // -------------------------
+    if (payload.category) {
+      bannerBlock.category = payload.category;
+    }
+    if (payload.subCategory) {
+      bannerBlock.subCategory = payload.subCategory;
+    }
+
     parent.updatedAt = new Date();
     await parent.save();
 
@@ -149,6 +163,7 @@ router.put("/:parentId/data/:bannerId/card/:cardId/item/:itemId", async (req, re
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // ✅ Delete specific item
 router.delete("/:parentId/data/:bannerId/card/:cardId/item/:itemId", async (req, res) => {

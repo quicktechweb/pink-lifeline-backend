@@ -7,6 +7,10 @@ const OrderSchema = new mongoose.Schema(
       phone: { type: String, required: true },
       address: { type: String, required: true },
     },
+    
+    // 📦 Courier Consignment Fields (🚀 Newly Added)
+    consignment_id: { type: String, default: null },
+    tracking_code: { type: String, default: null },
     products: [
       {
         title: String,
@@ -47,7 +51,7 @@ const OrderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["bKash", "Cash on Delivery"],
+      enum: ["bKash", "Cash on Delivery","wallet"],
       required: true,
     },
     paymentInfo: {
@@ -55,6 +59,9 @@ const OrderSchema = new mongoose.Schema(
       amount: { type: Number, default: null }, // Paid amount
       phone: { type: String, default: null },  // Bkash phone number
       date: { type: Date, default: null },
+
+       walletBefore: { type: Number, default: null },
+  walletAfter: { type: Number, default: null }
     },
     userAuth: { type: String, required: false },
   },

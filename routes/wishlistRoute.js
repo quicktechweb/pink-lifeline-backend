@@ -11,8 +11,8 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "User info missing (email or phone required)" });
     }
 
-    // ✅ Check duplicate by either email or phone
-    const existing = await Wishlist.findOne({
+    // ✅ Check existing wishlist item
+    let existing = await Wishlist.findOne({
       productId,
       $or: [
         { "user.email": user.email || null },
@@ -21,9 +21,13 @@ router.post("/", async (req, res) => {
     });
 
     if (existing) {
-      return res.status(200).json({ message: "Already in wishlist" });
+      // If already exists, toggle like to 1
+      existing.like = 1;
+      await existing.save();
+      return res.status(200).json({ message: "Already in wishlist, like updated", wishlist: existing });
     }
 
+    // Create new wishlist item with like:1
     const newItem = new Wishlist({
       productId,
       productTitle,
@@ -31,15 +35,18 @@ router.post("/", async (req, res) => {
       productImg,
       productData,
       user,
+      like: 1,
     });
 
     await newItem.save();
     res.status(201).json({ message: "Wishlist item added", wishlist: newItem });
+
   } catch (err) {
     console.error("Add Wishlist Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // ✅ Get wishlist by email OR phone
 router.get("/", async (req, res) => {
@@ -64,5 +71,24 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+// ❌ REMOVE item from wishlist
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const removed = await Wishlist.findByIdAndDelete(id);
+    if (!removed) return res.status(404).json({ message: "Item not found" });
+
+    res.status(200).json({ message: "Wishlist item deleted", removed });
+  } catch (err) {
+    console.error("Delete Wishlist Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
 
 export default router;

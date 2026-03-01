@@ -11,6 +11,7 @@ const WishlistSchema = new mongoose.Schema({
     email: { type: String },
     phone: { type: String },
   },
+   like: { type: Number, default: 1 },
   addedAt: { type: Date, default: Date.now },
 });
 

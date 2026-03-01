@@ -26,39 +26,37 @@ router.post("/save-token", async (req, res) => {
 });
 
 // Create notification & send
- router.post("/create", async (req, res) => {
+router.post("/create", async (req, res) => {
   try {
     const { userId, title, message } = req.body;
-    if (!userId || !title || !message)
-      return res.status(400).json({ success: false, message: "Missing required fields" });
 
-    // Save notification in DB
-    const notification = await Notification.create({ userId, title, message });
+    if (!title || !message)
+      return res.status(400).json({ success: false, message: "Missing fields" });
 
-    // Fetch only FCM tokens of the target user
-    const tokensDocs = await FcmToken.find({ userId });
-    const fcmTokens = tokensDocs.map(doc => doc.token).filter(Boolean);
+    // userId mandatory না
+    const notification = await Notification.create({
+      userId: userId || null,
+      title,
+      message,
+    });
 
-    if (fcmTokens.length > 0) {
-      const multicastMessage = {
-        notification: { title, body: message },
-        tokens: fcmTokens,
-      };
+    // send FCM only if userId exists
+    if (userId) {
+      const tokens = await FcmToken.find({ userId });
+      const fcmTokens = tokens.map(t => t.token);
 
-      // Check sendMulticast exists
-      if (typeof admin.messaging().sendMulticast !== "function") {
-        console.error("sendMulticast function not found!");
-      } else {
-        const response = await admin.messaging().sendMulticast(multicastMessage);
-        console.log(`Notifications sent: ${response.successCount}/${fcmTokens.length}`);
+      if (fcmTokens.length > 0) {
+        await admin.messaging().sendMulticast({
+          notification: { title, body: message },
+          tokens: fcmTokens,
+        });
       }
-    } else {
-      console.log("No valid FCM tokens found for this user");
     }
 
     res.json({ success: true, notification });
+
   } catch (err) {
-    console.error("Error sending notification:", err);
+    console.error(err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -86,5 +84,20 @@ router.put("/read/:id", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// Mark ALL notifications as read (by user)
+router.put("/read-all/:userId", async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { userId: req.params.userId, read: false },
+      { $set: { read: true } }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 
 export default router;

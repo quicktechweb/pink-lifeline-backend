@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 const withdrawSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "UserData", required: true },
-    username: { type: String, required: true },
+    username: { type: String, required: false },
     email: { type: String },
-    phoneNumber: { type: String, required: true },
+    phoneNumber: { type: String, required: false },
     paymentNumber: { type: String, required: true },
     amount: { type: Number, required: true },
     method: { type: String, enum: ["bKash", "Nagad", "Rocket"], required: true },

@@ -11,6 +11,11 @@ const WinnerSchema = new mongoose.Schema({
   userRegPhone: { type: String }, 
   productImage: { type: String },
    round: { type: Number, default: 1 },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "hold", "cancelled"],
+      default: "pending",
+    },
   createdAt: { type: Date, default: Date.now }
 });
 
