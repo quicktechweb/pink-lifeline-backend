@@ -14,7 +14,8 @@ import {
   walletmobilePayController,
   updateOrderConsignment,
   updateBulkConsignment,
-  deleteOrders
+  deleteOrders,
+  queryBkashPayment
 } from "../controllers/orderController.js";
 
 
@@ -27,6 +28,7 @@ router.delete("/orders/:id", deleteOrder); // Delete order
 router.delete("/ordersdata/:id", deleteOrders); // Delete order
 router.get("/orders/:id", getOrderById); // single id invoice 
 router.get("/my-orders", getMyOrders); // myorder
+router.post("/bkash/query", queryBkashPayment);
 
 // PUT /api/orders/:id
 router.put("/update-consignment/:id", updateOrderConsignment);

@@ -664,28 +664,16 @@ if (brand) {
   };
 }
 
-if (title) {
-  const words = title.trim().split(" ").filter(Boolean);
-  filter.title = {
-    $regex: words.join("|"),
-    $options: "i"
-  };
-}
+
 
 
     // ✅ TITLE (⭐ NEW)
 // ✅ TITLE (2+ words partial match)
 if (title) {
-  const titleText = title
-    .replace(/-/g, " ")
-    .trim();
+  const words = title.replace(/-/g, " ").trim().split(" ").filter(Boolean);
 
-  // split into words
-  const words = titleText.split(" ").filter(Boolean); // ignore empty
-
-  // at least 1 word match (OR condition)
   filter.title = {
-    $regex: words.join("|"), // e.g. "Samsung|Galaxy"
+    $regex: words.join("|"),
     $options: "i",
   };
 }
@@ -819,6 +807,58 @@ router.get("/latestproduct", async (req, res) => {
     res.end();
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+router.get("/newlatestproduct", async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 16;
+    const skip = (page - 1) * limit;
+
+    // 1️⃣ Total product count
+    const totalProducts = await Product.countDocuments();
+
+    // 2️⃣ Fetch products for this page
+    const productsCursor = Product.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .cursor();
+
+    const products = [];
+    for (let product = await productsCursor.next(); product != null; product = await productsCursor.next()) {
+      const coupons = await CouponPurchase.find({ productId: product._id }).lean();
+      const latestRound = coupons.length ? Math.max(...coupons.map(c => c.round || 1)) : 1;
+      let sold = coupons.filter(c => c.round === latestRound).length;
+      const totalcupon = product.totalcupon || 0;
+      if (sold >= totalcupon) sold = 0;
+      const remaining = Math.max(totalcupon - sold, 0);
+      const progress = totalcupon ? Number(((sold / totalcupon) * 100).toFixed(2)) : 0;
+
+      products.push({
+        ...product,
+        stats: { sold, totalcupon, remaining, latestRound, progress },
+      });
+    }
+
+    // 3️⃣ Correct last page detection
+    // Last page will be true **only when no products are returned**
+    const isLastPage = products.length === 0;
+
+    // 4️⃣ Send response
+    res.status(200).json({
+      page,
+      limit,
+      total: totalProducts,
+      isLastPage, // true only when page has no products
+      data: products,
+    });
+
+  } catch (err) {
+    console.error("❌ Error fetching latest products:", err);
     res.status(500).json({ message: "Server Error" });
   }
 });

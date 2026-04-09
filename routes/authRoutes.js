@@ -188,7 +188,7 @@ router.post("/verify-otp", (req, res) => {
 
 
 
-// -------------------- LOGIN ------------------------
+// -------------------- LOGIN parts------------------------
  router.post("/login", async (req, res) => {
   const { identifier, password } = req.body;
 

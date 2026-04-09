@@ -414,6 +414,49 @@ export const bkashCallbackHandler = async (req, res) => {
 };
 
 
+// Quick Check by Transaction ID (trxID)
+export const quickCheckBkashByTrxID = async (req, res) => {
+  try {
+    const { trxID } = req.body;
+
+    if (!trxID) {
+      return res.status(400).json({
+        success: false,
+        message: "trxID is required",
+      });
+    }
+
+    // 1️⃣ Get fresh token
+    const idToken = await getBkashToken();
+
+    // 2️⃣ Call Search Transaction API
+    const response = await axios.post(
+      `${BKASH_BASE_URL}/tokenized/checkout/general/searchTransaction`,
+      { trxID },
+      {
+        headers: {
+          authorization: idToken, // যদি error আসে তাহলে Bearer ${idToken} ব্যবহার করবা
+          "x-app-key": APP_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res.json({
+      success: true,
+      data: response.data,
+    });
+
+  } catch (err) {
+    console.error("SearchTransaction Error:", err.response?.data || err.message);
+
+    return res.status(500).json({
+      success: false,
+      error: err.response?.data || err.message,
+    });
+  }
+};
+
 
 // export const createPurchase = async (req, res) => {
 //   try {

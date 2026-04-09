@@ -12,7 +12,8 @@ import {
   getWinnersMobile,
   getWinnerStats,
   getActiveCouponsmobile,
-  purchaseCouponWithWalletController
+  purchaseCouponWithWalletController,
+  quickCheckBkashByTrxID
 } from "../controllers/couponController.js";
 
 const router = express.Router();
@@ -41,6 +42,7 @@ router.get("/winners/stats", getWinnerStats);
 router.get("/winnersmobile", getActiveCoupons);
 router.get("/my", getsMyPurchases);
 router.delete("/:id", deletePurchase);
+router.post("/bkash/trx-check", quickCheckBkashByTrxID);
 
 router.get("/mydata", getMyPurchasesmobile);
 

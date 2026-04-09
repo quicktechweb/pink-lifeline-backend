@@ -111,7 +111,51 @@ export const bkashCallbackHandler = async (req, res) => {
 };
 
 
+// status check 
 
+// Query Payment Status
+export const queryBkashPayment = async (req, res) => {
+  try {
+    const { paymentID } = req.body;
+
+    if (!paymentID) {
+      return res.status(400).json({
+        success: false,
+        message: "paymentID is required",
+      });
+    }
+
+    // 1️⃣ Get fresh token
+    const idToken = await getBkashToken();
+
+    // 2️⃣ Call Query API
+    const queryRes = await axios.post(
+      `${BKASH_BASE_URL}/tokenized/checkout/payment/status`,
+      { paymentID },
+      {
+        headers: {
+          authorization: idToken,
+          "x-app-key": APP_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // 3️⃣ Return full response
+    return res.json({
+      success: true,
+      data: queryRes.data,
+    });
+
+  } catch (err) {
+    console.error("Query Error:", err.response?.data || err.message);
+
+    return res.status(500).json({
+      success: false,
+      error: err.response?.data || err.message,
+    });
+  }
+};
 
 
 // Cash on Delivery Order
