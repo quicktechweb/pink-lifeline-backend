@@ -1,7 +1,11 @@
-const multer = require("multer");
+import multer from "multer";
 
-// store in memory to send to ImgBB
+// 🔥 memory storage (ImgBB / Cloud upload এর জন্য best)
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
 
-module.exports = upload;
+export const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit (optional but good)
+  },
+});
