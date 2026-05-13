@@ -19,7 +19,6 @@ const qualificationSchema = new mongoose.Schema({
 // 🔹 Main User Schema
 const userSchema = new mongoose.Schema(
   {
-     
     userId: {
       type: String,
       unique: true,
@@ -28,28 +27,28 @@ const userSchema = new mongoose.Schema(
       type: Number,
       enum: [1, 0],
       required: true,
-    },
+    }, //type 1 is doctor and 0 is user
 
     fullName: {
       type: String,
       required: true,
     },
-      isDoctor: { type: Number, default: 0 },
-    isUser: { type: Number, default: 0 },
+    isDoctor: { type: Number, default: 0 }, 
+    isUser: { type: Number, default: 0 }, 
     email: {
       type: String,
       required: true,
     },
     doctorIdCard: {
-  url: {
-    type: String,
-    default: "",
-  },
-  deleteUrl: {
-    type: String,
-    default: "",
-  },
-},
+      url: {
+        type: String,
+        default: "",
+      },
+      deleteUrl: {
+        type: String,
+        default: "",
+      },
+    },
 
     phoneNumber: {
       type: String,
@@ -93,7 +92,7 @@ const userSchema = new mongoose.Schema(
       publicId: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("Doctor", userSchema);

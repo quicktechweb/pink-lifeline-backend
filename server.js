@@ -5,6 +5,7 @@ import axios from "axios";
 import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
+import periodRoutes from "./routes/periodRoutes/periodRoutes.js"
 
 // import adminBadgeRoutes from "./routes/adminBadge.js";
 // import roleRoutes from "./routes/roles.js";
@@ -42,6 +43,7 @@ connectDB();
 // app.use("/roles", roleRoutes);
 // app.use("/api/settings", gtmRoutes);
 app.use("/api/registration", doctorRoutes);
+app.use("/api/period",periodRoutes)
 
 
 

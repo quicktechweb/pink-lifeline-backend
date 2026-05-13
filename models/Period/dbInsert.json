@@ -1,0 +1,46 @@
+{
+    "userId":"asdas",
+  "startDate": "2026-05-01T00:00:00.000Z",
+  "endDate": "2026-05-07T00:00:00.000Z",
+  
+  
+  "period": [
+    {
+      "date": "2026-05-01T00:00:00.000Z",
+      "bleeding": {
+        "id": 1,
+        "title": "Heavy",
+        "flowLevel": 3
+      },
+      "symptoms": [
+        {
+          "title": "Cramps",
+          "id": 101,
+          "isRecent": 1
+        },
+        {
+          "title": "Headache",
+          "id": 102,
+          "isRecent": 0
+        }
+      ],
+      "spotting": [
+        {
+          "title": "Light spotting",
+          "id": 201
+        }
+      ]
+    },
+    {
+      "date": "2026-05-02T00:00:00.000Z",
+      "bleeding": {
+        "id": 0,
+        "title": "Light",
+        "flowLevel": 1
+      },
+      "symptoms": [],
+      "spotting": []
+    }
+  ]
+
+}
