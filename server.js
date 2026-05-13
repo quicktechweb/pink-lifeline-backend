@@ -13,7 +13,6 @@ import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
 import dns from "dns";
 
 import "./firebase-admin.js";
-import routes from "./routes/routes.js";
 
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
@@ -36,13 +35,13 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 connectDB();
 
-// Routes
+// Routes parts
 
 // app.use("/api/message", messageRoutes);
 // app.use("/api/admin/badges", adminBadgeRoutes);
 // app.use("/roles", roleRoutes);
 // app.use("/api/settings", gtmRoutes);
-app.use("/api", routes);
+app.use("/api/registration", doctorRoutes);
 
 
 
