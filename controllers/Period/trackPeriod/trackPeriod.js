@@ -17,16 +17,46 @@ export const trackPeriod = async (req, res) => {
       }
     }
 
-    // ✅bleeding flow check done
-    if (payload.bleeding) {
-      const { flowLevel, id } = payload.bleeding;
-      if (flowLevel && id === 1 && ![1, 2, 3].includes(flowLevel)) {
-        badRequestResponse(res, "Invalid bleeding flow.", "Invalid Flow level requested.");
-      }
+
+    if (payload.isStart === 1) {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      payload.startDate = today.toISOString();
+    }
+
+    if (payload.isEnd === 1) {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      payload.endDate = today.toISOString();
+    } else {
+      payload.period?.forEach((item) => {
+        const { bleeding } = item;
+
+        if (bleeding) {
+          const { flowLevel, id } = bleeding;
+
+          if (![0, 1, 2, 3].includes(flowLevel)) {
+            return badRequestResponse(res, "Invalid bleeding flow.", "Invalid flow level requested.");
+          }
+          // I have to check here if today is in flow or not. What if user never come back here and mark the end in the app. SO it would be my end date.
+          if (flowLevel !== 0) {
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            payload.endDate = today.toISOString();
+          }
+
+          //I have to check if the flow is off and user forgot to entry or did enter doesn't matter it would be my end date.
+          else {
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            payload.endDate = today.toISOString();
+          }
+        }
+      });
     }
 
     // ✅both start date and end date cannot be exist same time
-    if (payload.startDate && payload.endDate) {
+    if (payload.isEnd && payload.isStart) {
       badRequestResponse(res, "Invalid input.", "Passing both startDate and endDate at the same time same date is not valid.");
     }
 

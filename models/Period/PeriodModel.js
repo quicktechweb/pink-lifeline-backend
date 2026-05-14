@@ -171,6 +171,7 @@ const periodSchema = new mongoose.Schema(
       type: [spottingSchema],
       default: [],
     },
+    
   },
   { _id: true }
 );
@@ -203,6 +204,12 @@ const periodTrackerSchema = new mongoose.Schema(
     userId:{
       type:String,
       required:true
+    },
+    isStart:{
+      type:Number,require:false
+    },
+    isEnd:{
+      type:Number,require:false
     },
     startDate: {
       type: Date,
