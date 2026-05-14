@@ -1,12 +1,14 @@
 import express from "express";
-import { trackPeriod } from "../../controllers/Period/trackPeriod/trackPeriod.js";
+import { recordPeriodLog,getPeriodData, getPeriodBasicInsights } from "../../controllers/Period/trackPeriod/trackPeriod.js";
 
 
 const router = express.Router();
 
 
 
-router.post("/v1/insert-period", trackPeriod);
+router.patch("/v1/insert-period", recordPeriodLog);
+router.post("/v1/get-period-info-date-wise",getPeriodData)
+router.post("/v1/get-period-basics-insights",getPeriodBasicInsights)
 
 
 export default router;

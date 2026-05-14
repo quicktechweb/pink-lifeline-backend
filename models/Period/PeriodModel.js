@@ -1,15 +1,8 @@
 import mongoose from "mongoose";
 
-
-
-
-
-
-
-
-
-
-
+/* =========================================================
+   🔹 Reusable Schemas
+========================================================= */
 
 // 🔹 Bleeding Schema
 const bleedingSchema = new mongoose.Schema(
@@ -28,38 +21,17 @@ const bleedingSchema = new mongoose.Schema(
     flowLevel: {
       type: Number,
       enum: [0, 1, 2, 3],
-      required: false,
+      default: 0,
+    },
+
+    // 🔹 Added from DailyLog schema
+    isSpotting: {
+      type: Boolean,
+      default: false,
     },
   },
-  { _id: true }
+  { _id: true },
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 🔹 Symptoms Schema
 const symptomSchema = new mongoose.Schema(
@@ -74,39 +46,21 @@ const symptomSchema = new mongoose.Schema(
       required: false,
     },
 
+    // 🔹 Added from DailyLog schema
+    severity: {
+      type: Number,
+      enum: [1, 2, 3],
+      required: false,
+    },
+
     isRecent: {
       type: Number,
       enum: [0, 1],
       default: 0,
     },
   },
-  { _id: true }
+  { _id: true },
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 🔹 Spotting Schema
 const spottingSchema = new mongoose.Schema(
@@ -121,35 +75,13 @@ const spottingSchema = new mongoose.Schema(
       required: false,
     },
   },
-  { _id: true }
+  { _id: true },
 );
 
+/* =========================================================
+   🔹 Period Day Schema
+========================================================= */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 🔹 Period Schema
 const periodSchema = new mongoose.Schema(
   {
     date: {
@@ -171,67 +103,38 @@ const periodSchema = new mongoose.Schema(
       type: [spottingSchema],
       default: [],
     },
-    
+
+    // 🔹 Added from DailyLog schema
+    notes: {
+      type: String,
+      maxLength: 500,
+      default: "",
+    },
   },
-  { _id: true }
+  { _id: true },
 );
 
+/* =========================================================
+   🔹 Main Period Tracker Schema
+========================================================= */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 🔹 Main Period Tracker Schema
 const periodTrackerSchema = new mongoose.Schema(
   {
-    userId:{
-      type:String,
-      required:true
+    userId: {
+      required: true,
+      type: String,
     },
-    isStart:{
-      type:Number,require:false
-    },
-    isEnd:{
-      type:Number,require:false
-    },
-    startDate: {
-      type: Date,
-      required: false,
-    },
-    currentDate:{
-      type: Date,
-      required: false,
-    },
-    endDate: {
-      type: Date,
-      required: false,
-    },
+
     period: {
       type: [periodSchema],
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.model(
-  "PeriodTracker",
-  periodTrackerSchema
-);
+/* =========================================================
+   🔹 Export Model
+========================================================= */
+
+export default mongoose.model("PeriodTracker", periodTrackerSchema);
