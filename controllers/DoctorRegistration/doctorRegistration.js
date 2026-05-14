@@ -2,6 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
+import { badRequestResponse } from "../../utils/utils.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -10,7 +11,7 @@ const generateUserId = (type) => {
 
 const IMGBB_API_KEY = "61b3c68f784244053d3df422e1c17879";
 
- const uploadToImgBB = async (file) => {
+const uploadToImgBB = async (file) => {
   try {
     const base64Image = file.buffer.toString("base64");
 
@@ -115,7 +116,6 @@ const IMGBB_API_KEY = "61b3c68f784244053d3df422e1c17879";
 //   }
 // };
 
-
 export const registerUser = async (req, res) => {
   try {
     // 🔥 parse qualifications
@@ -143,10 +143,7 @@ export const registerUser = async (req, res) => {
     if (existing) {
       return res.status(200).json({
         success: false,
-        message:
-          existing.email === email
-            ? "User already exists with this email"
-            : "User already exists with this phone number",
+        message: existing.email === email ? "User already exists with this email" : "User already exists with this phone number",
       });
     }
 
@@ -207,9 +204,7 @@ export const registerUser = async (req, res) => {
       qualifications: newUser.qualifications,
       doctorIdCard: newUser.doctorIdCard,
 
-      ...(Number(type) === 1
-        ? { isDoctor: 1 }
-        : { isUser: 0 }),
+      ...(Number(type) === 1 ? { isDoctor: 1 } : { isUser: 0 }),
     };
 
     return res.status(200).json({
@@ -227,7 +222,6 @@ export const registerUser = async (req, res) => {
     });
   }
 };
-
 
 export const loginUser = async (req, res) => {
   try {
@@ -253,7 +247,6 @@ export const loginUser = async (req, res) => {
       token,
       data: user,
     });
-
   } catch (error) {
     return res.status(200).json({
       success: false,

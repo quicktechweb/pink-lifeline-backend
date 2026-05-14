@@ -6,6 +6,7 @@ const router = express.Router();
 
 
 
-router.post("/v1/track-period", trackPeriod);
+router.post("/v1/insert-period", trackPeriod);
+
 
 export default router;

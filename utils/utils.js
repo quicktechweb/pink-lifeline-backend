@@ -12,6 +12,7 @@ export const notFoundResponse = (res, message, logMessage) => {
 
 
 export const badRequestResponse = (res, message, logMessage) => {
+  console.log("🚀 ~ utils.js:15 ~ badRequestResponse ~ message:", message)
   if (logMessage) {
     console.error(logMessage);
   }
@@ -21,3 +22,15 @@ export const badRequestResponse = (res, message, logMessage) => {
     message,
   });
 };
+
+
+
+export const successResponse = (res, data,message,logMessage)=>{
+  console.log(logMessage)
+  return res.status(200).json({
+    success:true,
+    data,
+    message
+  })
+}
+

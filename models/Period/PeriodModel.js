@@ -200,16 +200,22 @@ const periodSchema = new mongoose.Schema(
 // 🔹 Main Period Tracker Schema
 const periodTrackerSchema = new mongoose.Schema(
   {
+    userId:{
+      type:String,
+      required:true
+    },
     startDate: {
       type: Date,
-      required: true,
+      required: false,
     },
-
+    currentDate:{
+      type: Date,
+      required: false,
+    },
     endDate: {
       type: Date,
       required: false,
     },
-
     period: {
       type: [periodSchema],
       default: [],

@@ -23,6 +23,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+
+
     type: {
       type: Number,
       enum: [1, 0],

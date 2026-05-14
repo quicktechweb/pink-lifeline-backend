@@ -1,21 +1,23 @@
-import { badRequestResponse, notFoundResponse } from "../../../utils/utils.js";
+import { badRequestResponse, notFoundResponse, successResponse } from "../../../utils/utils.js";
 import User from "../../../models/DoctorRegistration/DoctorRegistration.js";
 import PeriodTracker from "./../../../models/Period/PeriodModel.js";
 export const trackPeriod = async (req, res) => {
   try {
     const payload = req.body;
 
+    // ✅user exist
     if (!payload.userId) {
       notFoundResponse(res, "User not found");
     } else {
       const isUserExist = await User.findOne({
         userId: payload.userId,
       });
-      if (isUserExist) {
-        notFoundResponse(res, "User does not exist.");
+      if (!isUserExist) {
+        notFoundResponse(res, "User not found.", "User email is not registered.");
       }
     }
 
+    // ✅bleeding flow check done
     if (payload.bleeding) {
       const { flowLevel, id } = payload.bleeding;
       if (flowLevel && id === 1 && ![1, 2, 3].includes(flowLevel)) {
@@ -23,69 +25,20 @@ export const trackPeriod = async (req, res) => {
       }
     }
 
-    if (payload.startDate) {
-      const result = await PeriodTracker.findOne({
-        userId: payload.userId,
-        startDate: payload.startDate,
-      });
-
-      if (result) {
-        if (payload.endDate) {
-          result.endDate = payload.endDate;
-        }
-
-        const newPeriod = {
-          date: payload.currentDate,
-
-          bleeding: payload.bleeding ? payload.bleeding : undefined,
-
-          symptoms: payload.symptoms || [],
-
-          spotting: payload.spotting || [],
-        };
-
-        result.period.push(newPeriod);
-
-        await result.save();
-
-        return res.status(200).json({
-          success: true,
-          message: "Period updated successfully",
-          data: result,
-        });
-      } else {
-        const formattedPayload = {
-          userId: payload.userId,
-
-          startDate: payload.startDate,
-
-          endDate: payload.endDate,
-
-          period: [
-            {
-              date: payload.currentDate,
-
-              bleeding: payload.bleeding ? payload.bleeding : undefined,
-
-              symptoms: payload.symptoms || [],
-
-              spotting: payload.spotting || [],
-            },
-          ],
-        };
-
-        const response = await PeriodTracker.create(formattedPayload);
-        return res.status(200).json({
-          success: true,
-          message: "Log recorded successfully.",
-          data: response,
-        });
-      }
-    } else if (!payload.startDate) {
-      notFoundResponse(res, "Start Date not found.", "start date property is missing.");
+    // ✅both start date and end date cannot be exist same time
+    if (payload.startDate && payload.endDate) {
+      badRequestResponse(res, "Invalid input.", "Passing both startDate and endDate at the same time same date is not valid.");
     }
 
-    // const result = await PeriodTracker.create({payload})
+    // ✅ currentDate assigned
+    if (!payload.currentDate) {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      payload.currentDate = today.toISOString();
+    }
+
+    const result = await PeriodTracker.create(payload);
+    successResponse(res, result, "Period data recorded successfully.", "Successfully period data entered.");
   } catch (error) {
     console.error(error);
 
