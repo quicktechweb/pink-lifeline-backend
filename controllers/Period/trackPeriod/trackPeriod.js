@@ -29,7 +29,6 @@ export const recordPeriodLog = async (req, res) => {
       });
     }
 
-
     for (const item of payload.period) {
       if (!item.date) {
         item.date = new Date();
@@ -55,11 +54,9 @@ export const recordPeriodLog = async (req, res) => {
           ...item,
         };
       } else {
-
         tracker.period.push(item);
       }
     }
-
 
     await tracker.save();
 
@@ -73,13 +70,6 @@ export const recordPeriodLog = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
 
 export const getPeriodData = async (req, res) => {
   try {
@@ -122,97 +112,177 @@ export const getPeriodData = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getPeriodBasicInsights = async (req, res) => {
-  const payload = req.body;
-  const { userId } = payload;
+  try {
+    const { userId } = req.body;
 
-  // ✅ userId required
-  if (!userId) {
-    return notFoundResponse(res, "User not found");
-  }
-
-  // ✅ user exist check
-  const isUserExist = await User.findOne({ userId: userId });
-
-  if (!isUserExist) {
-    return notFoundResponse(res, "User not found.", "User email is not registered.");
-  }
-
-  const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
-
-  // get data
-  const periodData = await PeriodTracker.find({ userId: userId }).sort({ createdAt: -1 });
-
-  // flatten + sort
-  const allPeriods = periodData.flatMap((doc) => doc.period || []).sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  let cycles = [];
-  let currentCycle = [];
-  let lastDate = null;
-
-  allPeriods.forEach((item) => {
-    const currentDate = new Date(item.date);
-
-    if (!lastDate) {
-      currentCycle.push(item);
-    } else {
-      const diffDays = (currentDate - lastDate) / (1000 * 60 * 60 * 24);
-
-      if (diffDays > POST_MENSTRUAL_INTERVAL) {
-        cycles.push(currentCycle);
-        currentCycle = [item];
-      } else {
-        currentCycle.push(item);
-      }
+    if (!userId) {
+      return notFoundResponse(res, "User not found");
     }
 
-    lastDate = currentDate;
-  });
+    const isUserExist = await User.findOne({ userId });
 
-  // push last cycle
-  if (currentCycle.length) {
-    cycles.push(currentCycle);
+    if (!isUserExist) {
+      return notFoundResponse(res, "User not found.", "User is not registered.");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
+
+
+    const periodDocs = await PeriodTracker.find({ userId }).sort({
+      createdAt: 1,
+    });
+
+    const allPeriods = periodDocs
+      .flatMap((doc) => doc.period || [])
+      .map((p) => ({
+        ...p,
+        date: new Date(p.date),
+      }))
+      .sort((a, b) => a.date - b.date);
+
+      if (!allPeriods.length) {
+        return successResponse(res, { cycles: [] }, "No period data found.", "Empty dataset.");
+      }
+      
+
+    
+
+
+    let cycles = [];
+    let currentCycle = [];
+    let lastDate = null;
+    let exceptCurrentCycle = []
+
+
+    //cycle count 1
+    for (const item of allPeriods) {
+      const currentDate = item.date;
+
+      if (!lastDate) {
+        currentCycle.push(item);
+      } else {
+        const diffDays = (currentDate - lastDate) / (1000 * 60 * 60 * 24);
+        if (diffDays > POST_MENSTRUAL_INTERVAL) {
+          cycles.push(currentCycle);
+          currentCycle = [item];
+        } else {
+          currentCycle.push(item);
+        }
+      }
+      lastDate = currentDate;
+    }
+    //cycle count 2
+    if (currentCycle.length) {
+      exceptCurrentCycle = [...cycles ]
+      cycles.push(currentCycle);
+    }
+    
+    // successResponse(res,cycles,"take cycles")
+    
+    const cycleInsights = cycles.map((cycle, index) => {
+      const startDate = cycle[0].date;
+      const endDate = cycle[cycle.length - 1].date;
+
+      const cycleDuration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+
+      const bleedingDays = cycle.filter((d) => d?.bleeding?.flowLevel >= 1);
+
+      const bleedingDuration = bleedingDays.length;
+
+      const symptomFrequency = cycle.reduce((acc, day) => {
+        return acc + (day.symptoms?.length || 0);
+      }, 0);
+
+      return {
+        cycleNumber: index + 1,
+        startDate,
+        endDate,
+        cycleDuration: Math.round(cycleDuration),
+        bleedingDuration,
+        symptomFrequency,
+      };
+    });
+
+
+
+
+
+    return successResponse(
+      res,
+      {
+        totalCycles: cycles.length,
+        cycleInsights,
+      },
+      "Cycle insights generated successfully.",
+      "Insights computed successfully.",
+    );
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
-
-  // ===============================
-  // ANALYTICS PART (NEW)
-  // ===============================
-
-  const cycleInsights = cycles.map((cycle, index) => {
-    const startDate = new Date(cycle[0].date);
-    const endDate = new Date(cycle[cycle.length - 1].date);
-
-    // cycle duration (full cycle days)
-    const cycleDuration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-
-    // bleeding duration (only flowLevel > 0)
-    const bleedingDays = cycle.filter((d) => d.bleeding?.flowLevel > 0);
-
-    const bleedingDuration = bleedingDays.length;
-
-    return {
-      cycleNumber: index + 1,
-      startDate,
-      endDate,
-      cycleDuration,
-      bleedingDuration,
-    };
-  });
-
-  // ===============================
-  // OUTPUT
-  // ===============================
-
-  console.log("Total cycles detected:", cycles.length);
-
-  cycleInsights.forEach((c) => {
-    console.log("\n====================");
-    console.log(`Cycle ${c.cycleNumber}`);
-    console.log("Start:", c.startDate.toISOString());
-    console.log("End:", c.endDate.toISOString());
-    console.log("Cycle Duration (days):", c.cycleDuration);
-    console.log("Bleeding Duration (days):", c.bleedingDuration);
-  });
-
-  process.exit(0);
 };

@@ -9,7 +9,7 @@ const bleedingSchema = new mongoose.Schema(
   {
     id: {
       type: Number,
-      enum: [0, 1],
+      enum: [0, 1, 2, 3],
       required: true,
     },
 
@@ -46,12 +46,12 @@ const symptomSchema = new mongoose.Schema(
       required: false,
     },
 
-    // 🔹 Added from DailyLog schema
-    severity: {
-      type: Number,
-      enum: [1, 2, 3],
-      required: false,
-    },
+    // // 🔹 Added from DailyLog schema
+    // severity: {
+    //   type: Number,
+    //   enum: [1, 2, 3],
+    //   required: false,
+    // },
 
     isRecent: {
       type: Number,
