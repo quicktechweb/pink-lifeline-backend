@@ -43,7 +43,7 @@ router.delete("/v1/delete-answer/:answerId", deleteAnswer);
 
 router.get("/v1/get-all-question-by-steps",getAllStepsQuestionsAnswers)
 
-
+// gg 
 
 // router.get("/v1/questions",getSelfTestQuestions)
 
