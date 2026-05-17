@@ -1,6 +1,7 @@
-import { badRequestResponse, notFoundResponse, successResponse } from "../../../utils/utils.js";
+import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../../utils/utils.js";
 import User from "../../../models/DoctorRegistration/DoctorRegistration.js";
 import PeriodTracker from "./../../../models/Period/PeriodModel.js";
+import PeriodDateNoteModel from "../../../models/Period/PeriodDateNoteModel.js";
 
 export const recordPeriodLog = async (req, res) => {
   try {
@@ -20,7 +21,31 @@ export const recordPeriodLog = async (req, res) => {
       return badRequestResponse(res, "Wrong input.", "Period array is required.");
     }
 
+
+
+    const requestDate = payload?.period?.[0]?.date ? new Date(payload.period[0].date) : new Date();
+
+
+
     let tracker = await PeriodTracker.findOne({ userId: payload.userId });
+
+
+
+    if (tracker && tracker.period.length > 0) {
+      
+      tracker.period.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const latestDate = new Date(tracker.period[0].date);
+      const diffTime = Math.abs(requestDate - latestDate);
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          
+
+      // 🔹 Check if gap is 7 days or more
+      if (diffDays <= process.env.POST_MENSTRUAL_INTERVAL ) {
+        successResponse(res,{diffDays},    `You already recorded a period recently. New period data cannot be added within ${process.env.POST_MENSTRUAL_INTERVAL} days.`,`Last period data is recorded in ${process.env.POST_MENSTRUAL_INTERVAL}`)
+      } 
+
+
+    }
 
     if (!tracker) {
       tracker = new PeriodTracker({
@@ -28,6 +53,8 @@ export const recordPeriodLog = async (req, res) => {
         period: [],
       });
     }
+
+
 
     for (const item of payload.period) {
       if (!item.date) {
@@ -112,48 +139,6 @@ export const getPeriodData = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getPeriodBasicInsights = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -168,26 +153,7 @@ export const getPeriodBasicInsights = async (req, res) => {
       return notFoundResponse(res, "User not found.", "User is not registered.");
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
-
 
     const periodDocs = await PeriodTracker.find({ userId }).sort({
       createdAt: 1,
@@ -201,19 +167,14 @@ export const getPeriodBasicInsights = async (req, res) => {
       }))
       .sort((a, b) => a.date - b.date);
 
-      if (!allPeriods.length) {
-        return successResponse(res, { cycles: [] }, "No period data found.", "Empty dataset.");
-      }
-      
-
-    
-
+    if (!allPeriods.length) {
+      return successResponse(res, { cycles: [] }, "No period data found.", "Empty dataset.");
+    }
 
     let cycles = [];
     let currentCycle = [];
     let lastDate = null;
-    let exceptCurrentCycle = []
-
+    let exceptCurrentCycle = [];
 
     //cycle count 1
     for (const item of allPeriods) {
@@ -234,12 +195,12 @@ export const getPeriodBasicInsights = async (req, res) => {
     }
     //cycle count 2
     if (currentCycle.length) {
-      exceptCurrentCycle = [...cycles ]
+      exceptCurrentCycle = [...cycles];
       cycles.push(currentCycle);
     }
-    
+
     // successResponse(res,cycles,"take cycles")
-    
+
     const cycleInsights = cycles.map((cycle, index) => {
       const startDate = cycle[0].date;
       const endDate = cycle[cycle.length - 1].date;
@@ -264,10 +225,6 @@ export const getPeriodBasicInsights = async (req, res) => {
       };
     });
 
-
-
-
-
     return successResponse(
       res,
       {
@@ -286,3 +243,25 @@ export const getPeriodBasicInsights = async (req, res) => {
     });
   }
 };
+
+
+
+export const addDailyNote = async(req,res) => {
+  const payload = req.body
+  console.log("🚀 ~ trackPeriod.js:250 ~ addDailyNote ~ payload:", payload)
+  const userId = req.params.userId
+  console.log("🚀 ~ trackPeriod.js:251 ~ addDailyNote ~ userId:", userId)
+
+  // process.exit(0)
+
+  const {time,date,note} = payload
+
+  try {
+      const newDailyNote = await PeriodDateNoteModel.create({time,date,note,userId:userId });
+      successResponse(res,newDailyNote,"Note has been created successfully.",`Period day note has been added.`)
+
+  } catch (error) {
+    console.error(error)
+    somethingWentWrong(res,error,"Something went wrong.")
+  }
+}
