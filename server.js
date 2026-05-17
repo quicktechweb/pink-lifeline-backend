@@ -6,13 +6,11 @@ import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
 import periodRoutes from "./routes/periodRoutes/periodRoutes.js"
+import selfTestRoutes from "./routes/selfTestRoutes/selfTestRoutes.js"
 
-// import adminBadgeRoutes from "./routes/adminBadge.js";
-// import roleRoutes from "./routes/roles.js";
-// import gtmRoutes from "./routes/gtmRoutes.js";
+
 
 import dns from "dns";
-
 import "./firebase-admin.js";
 
 
@@ -44,6 +42,7 @@ connectDB();
 // app.use("/api/settings", gtmRoutes);
 app.use("/api/registration", doctorRoutes);
 app.use("/api/period",periodRoutes)
+app.use("/api/self-test",selfTestRoutes)
 
 
 

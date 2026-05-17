@@ -248,9 +248,7 @@ export const getPeriodBasicInsights = async (req, res) => {
 
 export const addDailyNote = async(req,res) => {
   const payload = req.body
-  console.log("🚀 ~ trackPeriod.js:250 ~ addDailyNote ~ payload:", payload)
   const userId = req.params.userId
-  console.log("🚀 ~ trackPeriod.js:251 ~ addDailyNote ~ userId:", userId)
 
   // process.exit(0)
 

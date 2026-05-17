@@ -40,3 +40,13 @@ export const successResponse = (res, data,message,logMessage)=>{
   })
 }
 
+
+export const alreadyExistResponse = (res,data,message,logMessage) => {
+  console.error(logMessage)
+  return res.status(409).json({
+    success:false,
+    data,
+    message
+  })
+}
+
