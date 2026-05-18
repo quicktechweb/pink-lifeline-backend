@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
+import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
+import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
 
 export const getVideoStream = async (req, res) => {
   try {
@@ -268,11 +270,6 @@ export const addSelfTestStep = async (req, res) => {
   }
 };
 
-
-
-
-
-
 export const deleteStep = async (req, res) => {
   try {
     const { stepId } = req.params;
@@ -284,11 +281,7 @@ export const deleteStep = async (req, res) => {
     const step = await SelfTestStep.findById(stepId);
 
     if (!step) {
-      return badRequestResponse(
-        res,
-        "Step not found.",
-        "Step not found."
-      );
+      return badRequestResponse(res, "Step not found.", "Step not found.");
     }
 
     const deletedStepNo = step.stepNo;
@@ -301,21 +294,13 @@ export const deleteStep = async (req, res) => {
       try {
         const parts = step.videoURL.split("/");
         const file = parts[parts.length - 1];
-        const publicId =
-          "self-test-videos/" +
-          file.split(".")[0];
+        const publicId = "self-test-videos/" + file.split(".")[0];
 
-        await cloudinary.uploader.destroy(
-          publicId,
-          {
-            resource_type: "video",
-          }
-        );
+        await cloudinary.uploader.destroy(publicId, {
+          resource_type: "video",
+        });
       } catch (err) {
-        console.log(
-          "Cloudinary delete failed:",
-          err.message
-        );
+        console.log("Cloudinary delete failed:", err.message);
       }
     }
 
@@ -336,43 +321,20 @@ export const deleteStep = async (req, res) => {
       },
       {
         $inc: { stepNo: -1 },
-      }
+      },
     );
 
     // =========================
     // Response
     // =========================
 
-    return successResponse(
-      res,
-      null,
-      "Step deleted successfully.",
-      "Step deleted successfully."
-    );
+    return successResponse(res, null, "Step deleted successfully.", "Step deleted successfully.");
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(
-      res,
-      error.message,
-      "Step deletion failed.",
-      error.message
-    );
+    return somethingWentWrong(res, error.message, "Step deletion failed.", error.message);
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getAllStepsQuestionsAnswers = async (req, res) => {
   try {
@@ -427,8 +389,7 @@ export const getAllStepsQuestionsAnswers = async (req, res) => {
 
       questionMap[sId].push({
         ...q.toObject(),
-        answers:
-          answerMap[q._id.toString()] || [],
+        answers: answerMap[q._id.toString()] || [],
       });
     }
 
@@ -439,9 +400,7 @@ export const getAllStepsQuestionsAnswers = async (req, res) => {
     const result = steps.map((step) => {
       return {
         ...step.toObject(),
-        questions:
-          questionMap[step._id.toString()] ||
-          [],
+        questions: questionMap[step._id.toString()] || [],
       };
     });
 

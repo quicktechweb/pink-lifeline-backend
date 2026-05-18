@@ -9,8 +9,6 @@ export const notFoundResponse = (res, message, logMessage) => {
   });
 };
 
-
-
 export const badRequestResponse = (res, message, logMessage) => {
   if (logMessage) {
     console.error(logMessage);
@@ -22,31 +20,32 @@ export const badRequestResponse = (res, message, logMessage) => {
   });
 };
 
-export const somethingWentWrong = (res,data,message,logMessage) => {
-  console.error(data,logMessage)
+export const somethingWentWrong = (res, data, message, logMessage) => {
+  console.error(data, logMessage);
   return res.status(503).json({
-    success:false,
-    message:message
-  })
-}
+    success: false,
+    message: message,
+  });
+};
 
+export const successResponse = (res, data, message, logMessage) => {
+  console.log(logMessage);
 
-export const successResponse = (res, data,message,logMessage)=>{
-  console.log(logMessage)
+  const isArray = Array.isArray(data);
+
   return res.status(200).json({
-    success:true,
+    success: true,
+    length: isArray ? data.length : undefined,
     data,
-    message
-  })
-}
+    message,
+  });
+};
 
-
-export const alreadyExistResponse = (res,data,message,logMessage) => {
-  console.error(logMessage)
+export const alreadyExistResponse = (res, data, message, logMessage) => {
+  console.error(logMessage);
   return res.status(409).json({
-    success:false,
+    success: false,
     data,
-    message
-  })
-}
-
+    message,
+  });
+};

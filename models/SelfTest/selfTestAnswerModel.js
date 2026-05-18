@@ -6,12 +6,6 @@ import mongoose from "mongoose";
 
 const selfTestAnswerSchema = new mongoose.Schema(
   {
-    answerId: {
-      type: Number,
-      required: true,
-      unique: true,
-    },
-
     title: {
       type: String,
       required: true,
