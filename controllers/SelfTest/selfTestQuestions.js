@@ -1,30 +1,40 @@
+import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
 import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
 import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
 import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { ObjectId } from 'mongodb';
+
+
 
 export const addQuestion = async (req, res) => {
   try {
-    let { questionId, title, stepId, serial } = req.body;
+    let {  title,  stepNo } = req.body;
 
-    const step = await SelfTestStep.findById(stepId);
+    const isSerialExist = await SelfTestStep.findOne({stepNo})
+    
+    if (isSerialExist) {
+      const question = await SelfTestQuestion.create({
+        title,
+        stepNo,
+        stepId:isSerialExist._id.toString()
+      });
 
-    if (!step) {
-      return badRequestResponse(res, "Step not found", "Step not found");
+      
+
+      if (question) {
+           return successResponse(
+              res,
+              question,
+              "Question created successfully.",
+              "Question created successfully."
+            );
+      }
+    } else {
+      return somethingWentWrong(res,undefined,"Step No not found.","Step No not found.")
     }
 
-    const question = await SelfTestQuestion.create({
-      questionId,
-      title,
-      stepId,
-      serial,
-    });
 
-    return successResponse(
-      res,
-      question,
-      "Question created successfully",
-      "Question created successfully"
-    );
+ 
   } catch (error) {
     return somethingWentWrong(res, error.message, "Failed to create question", error.message);
   }
@@ -33,11 +43,15 @@ export const addQuestion = async (req, res) => {
 
 
 
+
+
+
+
 export const getQuestionsByStep = async (req, res) => {
   try {
-    const { stepId } = req.params;
+    const { stepNo } = req.params;
 
-    const questions = await SelfTestQuestion.find({ stepId }).sort({
+    const questions = await SelfTestQuestion.find({ stepNo }).sort({
       serial: 1,
     });
 
@@ -54,19 +68,62 @@ export const getQuestionsByStep = async (req, res) => {
 
 
 
+
+
+
+
+
+export const getAllQuestions = async (req, res) => {
+  try {
+
+    const questions = await SelfTestQuestion.find()
+      // .populate("stepId")
+      .sort({ createdAt: -1 });
+
+    if (!questions || questions.length === 0) {
+      return somethingWentWrong(
+        res,
+        undefined,
+        "No questions found.",
+        "No questions found."
+      );
+    }
+
+    return successResponse(
+      res,
+      questions,
+      "Questions fetched successfully.",
+      "Questions fetched successfully."
+    );
+
+  } catch (error) {
+
+    console.log("🚀 ~ getAllQuestions ~ error:", error);
+
+    return somethingWentWrong(
+      res,
+      error.message,
+      "Failed to fetch questions.",
+      error.message
+    );
+  }
+};
+
+
 export const updateQuestion = async (req, res) => {
   try {
     const { questionId } = req.params;
-    const { title, serial } = req.body;
+    const { title, stepNo } = req.body;
 
-    const question = await SelfTestQuestion.findById(questionId);
+    const question = await SelfTestQuestion.findById( { _id: new ObjectId(questionId) });
+   
 
     if (!question) {
       return badRequestResponse(res, "Question not found", "Question not found");
     }
 
     if (title) question.title = title;
-    if (serial) question.serial = serial;
+    if (stepNo) question.stepNo = stepNo;
 
     await question.save();
 
@@ -87,7 +144,15 @@ export const deleteQuestion = async (req, res) => {
   try {
     const { questionId } = req.params;
 
-    const question = await SelfTestQuestion.findById(questionId);
+    const question = await SelfTestQuestion.findById({ _id: questionId});
+    console.log("🚀 ~ selfTestQuestions.js:147 ~ deleteQuestion ~ question:", question)
+
+
+
+
+
+
+
 
     if (!question) {
       return badRequestResponse(res, "Question not found", "Question not found");

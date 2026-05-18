@@ -6,12 +6,6 @@ import mongoose from "mongoose";
 
 const selfTestQuestionSchema = new mongoose.Schema(
   {
-    questionId: {
-      type: Number,
-      required: true,
-      unique: true,
-    },
-
     title: {
       type: String,
       required: true,
@@ -23,7 +17,7 @@ const selfTestQuestionSchema = new mongoose.Schema(
       required: true,
     },
 
-    serial: {
+    stepNo: {
       type: Number,
       required: true,
     },
