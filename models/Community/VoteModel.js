@@ -11,7 +11,12 @@ const voteSchema = new mongoose.Schema(
     postId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
+      index: true,
+    },
+
+    commentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
       index: true,
     },
 

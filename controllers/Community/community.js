@@ -4,6 +4,7 @@ import { Post } from "../../models/Community/PostModel.js";
 import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import User from "./../../models/DoctorRegistration/DoctorRegistration.js";
 import { Vote } from "../../models/Community/VoteModel.js";
+import { Comment } from "../../models/Community/CommentModel.js";
 
 export const createPost = async (req, res) => {
   try {
@@ -235,3 +236,59 @@ export const postDownVote = async (req, res) => {
     });
   }
 };
+
+
+
+export const postComment = async (req,res) => {
+    const userId = req.params.userId;
+    const { text, postId } = req.body;
+    if (!text) {
+      badRequestResponse(res,"Invalid Comment.","Invalid Comment.")
+    }
+try {
+    if (!userId) {
+      return badRequestResponse(res, "Invalid User.", "Invalid user.");
+    }
+
+    const isUserExist = await User.findOne({ userId });
+    
+
+    
+    if (!isUserExist) {
+      return notFoundResponse(res, "User is not registered.", "User is not register.");
+    }
+
+
+    if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
+      return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
+    }
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return notFoundResponse(res, "Post not found.", "post not found.");
+    }
+
+    const userComment = {
+      name : isUserExist.fullName,
+      userId:userId,
+      postId,
+      text,
+      parentId:null
+    }
+
+    const uploadedComment = await Comment.create(userComment)
+
+    if (uploadedComment) {
+      successResponse(res,uploadedComment,"You have commented in a post.","Comment has been published successfully.")
+    }else{
+      badRequestResponse(res,"Unable to comment.","Comment published failed.")
+    }
+
+
+} catch (error) {
+  console.error(error)
+  somethingWentWrong(res,error,"Unable to comment.","Unable to comment.")
+}
+
+}

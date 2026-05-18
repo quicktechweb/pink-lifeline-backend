@@ -45,10 +45,10 @@ const commentSchema = new mongoose.Schema(
     /**
      * optional but VERY useful
      */
-    depth: {
-      type: Number,
-      default: 0,
-    },
+    // depth: {
+    //   type: Number,
+    //   default: 0,
+    // },
 
     upvote: {
       type: Number,
