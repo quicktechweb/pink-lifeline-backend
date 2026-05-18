@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
 import periodRoutes from "./routes/periodRoutes/periodRoutes.js"
 import selfTestRoutes from "./routes/selfTestRoutes/selfTestRoutes.js"
-
+import communityRoutes from "./routes/communityRoutes/communityRoutes.js"
 
 
 import dns from "dns";
@@ -43,6 +43,7 @@ connectDB();
 app.use("/api/registration", doctorRoutes);
 app.use("/api/period",periodRoutes)
 app.use("/api/self-test",selfTestRoutes)
+app.use("/api/community",communityRoutes)
 
 
 
