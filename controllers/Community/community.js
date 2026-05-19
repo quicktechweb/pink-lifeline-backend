@@ -64,7 +64,6 @@ export const createPost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
   try {
-
     const { userId } = req.params;
 
     if (!userId) {
@@ -76,7 +75,6 @@ export const getAllPosts = async (req, res) => {
     if (!isUserExist) {
       return notFoundResponse(res, "User not found.", "User not found.");
     }
-
 
     // const allPosts = await Post.aggregate([
     //   {
@@ -95,117 +93,109 @@ export const getAllPosts = async (req, res) => {
     //   },
     // ]);
 
-
-
-
-
-const allPosts = await Post.aggregate([
-  // calculate netvote
-  {
-    $addFields: {
-      netvote: {
-        $subtract: ["$upvote", "$downvote"],
-      },
-    },
-  },
-
-  // latest first then netvote
-  {
-    $sort: {
-      createdAt: -1,
-      netvote: -1,
-    },
-  },
-
-  // check current user's vote
-  {
-    $lookup: {
-      from: "votes",
-      let: {
-        postId: "$_id",
-      },
-      pipeline: [
-        {
-          $match: {
-            $expr: {
-              $and: [
-                {
-                  $eq: ["$postId", "$$postId"],
-                },
-                {
-                  $eq: ["$userId", userId],
-                },
-              ],
-            },
+    const allPosts = await Post.aggregate([
+      // calculate netvote
+      {
+        $addFields: {
+          netvote: {
+            $subtract: ["$upvote", "$downvote"],
           },
         },
-      ],
-      as: "userVote",
-    },
-  },
-
-  // create flags
-  {
-    $addFields: {
-      isUpvotedByUser: {
-        $cond: [
-          {
-            $gt: [
-              {
-                $size: {
-                  $filter: {
-                    input: "$userVote",
-                    as: "vote",
-                    cond: {
-                      $eq: ["$$vote.type", "upvote"],
-                    },
-                  },
-                },
-              },
-              0,
-            ],
-          },
-          true,
-          false,
-        ],
       },
 
-      isDownvotedByUser: {
-        $cond: [
-          {
-            $gt: [
-              {
-                $size: {
-                  $filter: {
-                    input: "$userVote",
-                    as: "vote",
-                    cond: {
-                      $eq: ["$$vote.type", "downvote"],
+      // latest first then netvote
+      {
+        $sort: {
+          createdAt: -1,
+          netvote: -1,
+        },
+      },
+
+      // check current user's vote
+      {
+        $lookup: {
+          from: "votes",
+          let: {
+            postId: "$_id",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$postId", "$$postId"],
                     },
-                  },
+                    {
+                      $eq: ["$userId", userId],
+                    },
+                  ],
                 },
               },
-              0,
+            },
+          ],
+          as: "userVote",
+        },
+      },
+
+      // create flags
+      {
+        $addFields: {
+          isUpvotedByUser: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$userVote",
+                        as: "vote",
+                        cond: {
+                          $eq: ["$$vote.type", "upvote"],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
             ],
           },
-          true,
-          false,
-        ],
+
+          isDownvotedByUser: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$userVote",
+                        as: "vote",
+                        cond: {
+                          $eq: ["$$vote.type", "downvote"],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
+        },
       },
-    },
-  },
 
-  // optional cleanup
-  {
-    $project: {
-      userVote: 0,
-    },
-  },
-]);
-
-
-
-
+      // optional cleanup
+      {
+        $project: {
+          userVote: 0,
+        },
+      },
+    ]);
 
     if (allPosts) {
       successResponse(res, allPosts, "All post is fetched", "All posts is fetched.");
@@ -503,25 +493,19 @@ export const getSinglePost = async (req, res) => {
 
     const post = await Post.findById(postId);
 
-    const userVote = await Vote.findOne({userId,postId});
-    
-    
+    const userVote = await Vote.findOne({ userId, postId });
+
     if (!post) {
       return notFoundResponse(res, "Post not found.", "Post not found.");
     }
 
-
     if (userVote) {
       if (userVote.type === "upvote") {
-        post.isUpvotedByUser = true
-        
-      }else if (userVote.type === "downvote") {
+        post.isUpvotedByUser = true;
+      } else if (userVote.type === "downvote") {
         post.isDownvotedByUser = true;
       }
-      
     }
-    
-    
 
     // =========================
     // FETCH ALL COMMENTS
@@ -754,31 +738,26 @@ export const commentUpVote = async (req, res) => {
   }
 };
 
-
 export const getUpvotedPosts = async (req, res) => {
   const userId = req.params.userId;
   const posts = await Vote.find({ userId, type: "upvote", postId: { $exists: true } }).populate("postId");
   successResponse(res, posts, "Upvoted posts fetched successfully.", "Upvoted posts fetched successfully.");
-}
-
+};
 
 export const getDownvotedPosts = async (req, res) => {
   const userId = req.params.userId;
   const posts = await Vote.find({ userId, type: "downvote", postId: { $exists: true } }).populate("postId");
   successResponse(res, posts, "Downvoted posts fetched successfully.", "Downvoted posts fetched successfully.");
-}
-
+};
 
 export const getUpvotedComments = async (req, res) => {
   const userId = req.params.userId;
   const comments = await Vote.find({ userId, type: "upvote", commentId: { $exists: true } }).populate("commentId");
   successResponse(res, comments, "Upvoted comments fetched successfully.", "Upvoted comments fetched successfully.");
-}
-
+};
 
 export const getDownvotedComments = async (req, res) => {
   const userId = req.params.userId;
   const comments = await Vote.find({ userId, type: "downvote", commentId: { $exists: true } }).populate("commentId");
   successResponse(res, comments, "Downvoted comments fetched successfully.", "Downvoted comments fetched successfully.");
-}
-
+};

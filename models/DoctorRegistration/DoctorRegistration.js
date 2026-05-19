@@ -1,87 +1,110 @@
 import mongoose from "mongoose";
 
 // 🔹 Qualification Schema
-const qualificationSchema = new mongoose.Schema({
-  degree: {
-    type: [String], // ["MBBS", "MD"] / ["BDS"]
-    required: true,
-  },
-  institutionName: {
-    type: String,
-    required: true,
-  },
-  passingYear: {
-    type: Number,
-    required: true,
-  },
-});
+const qualificationSchema = new mongoose.Schema(
+  {
+    degree: {
+      type: [String], // Example: ["MBBS", "MD"]
+      required: true,
+    },
 
-// 🔹 Main User Schema
+    institutionName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    passingYear: {
+      type: Number,
+      required: true,
+    },
+  },
+  { _id: false },
+);
+
+// 🔹 Main User / Doctor Schema
 const userSchema = new mongoose.Schema(
   {
+    // Custom User ID
     userId: {
       type: String,
       unique: true,
+      required: true,
+      trim: true,
     },
 
-
+    /**
+     * type:
+     * 0 = normal user
+     * 1 = doctor
+     */
     type: {
       type: Number,
-      enum: [1, 0],
+      enum: [0, 1],
       required: true,
-    }, //type 1 is doctor and 0 is user
+    },
+
+    isDoctor: {
+      type: Number,
+      default: 0,
+    },
+
+    isUser: {
+      type: Number,
+      default: 0,
+    },
 
     fullName: {
       type: String,
       required: true,
+      trim: true,
     },
-    isDoctor: { type: Number, default: 0 }, 
-    isUser: { type: Number, default: 0 }, 
+
     email: {
       type: String,
       required: true,
-    },
-    doctorIdCard: {
-      url: {
-        type: String,
-        default: "",
-      },
-      deleteUrl: {
-        type: String,
-        default: "",
-      },
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
 
     phoneNumber: {
       type: String,
-      // required: true,
       unique: true,
+      sparse: true, // prevents duplicate null issue
+      trim: true,
+    },
+
+    aboutMe: {
+      type: String,
+      default: "",
+      trim: true,
     },
 
     // 🔥 Doctor-only fields
+
     doctorRegistrationNumber: {
       type: String,
       required: function () {
-        return this.type === "doctor";
+        return this.type === 1;
       },
+      trim: true,
     },
 
     currentWorkplace: {
       type: String,
       required: function () {
-        return this.type === "doctor";
+        return this.type === 1;
       },
+      trim: true,
     },
 
     currentDesignation: {
       type: String,
       required: function () {
-        return this.type === "doctor";
+        return this.type === 1;
       },
-    },
-
-    aboutMe: {
-      type: String,
+      trim: true,
     },
 
     qualifications: {
@@ -90,11 +113,20 @@ const userSchema = new mongoose.Schema(
     },
 
     doctorIdCard: {
-      url: String,
-      publicId: String,
+      url: {
+        type: String,
+        default: "",
+      },
+
+      publicId: {
+        type: String,
+        default: "",
+      },
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
 export default mongoose.model("Doctor", userSchema);

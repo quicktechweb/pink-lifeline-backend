@@ -2,7 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse } from "../../utils/utils.js";
+import { badRequestResponse, successResponse } from "../../utils/utils.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -116,12 +116,37 @@ const uploadToImgBB = async (file) => {
 //   }
 // };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const registerUser = async (req, res) => {
   try {
-    // 🔥 parse qualifications
-    if (req.body.qualifications) {
-      req.body.qualifications = JSON.parse(req.body.qualifications);
-    }
+
+
 
     const {
       type, // 1 = doctor, 0 = user
@@ -135,15 +160,48 @@ export const registerUser = async (req, res) => {
       qualifications,
     } = req.body;
 
+    
+    if (typeof qualifications === "string") {
+      qualifications = JSON.parse(qualifications);
+    }
+
+
+    let conditions = []
+    
+    if (phoneNumber) {
+      conditions.push({ phoneNumber });
+    }
+
+    if (email) {
+      conditions.push({ email });
+    }
+
+    if (type === 1 && !phoneNumber) {
+      badRequestResponse(res, "Phone Number is required for doctor registration.","Phone number is not found." )
+      return;
+    }
+
+    if (phoneNumber) {
+      const phoneExists = await User.findOne({ phoneNumber });
+
+      if (phoneExists) {
+        return res.status(200).json({
+          success: false,
+          message: "User already exists with this phone number" + (phoneExists.type === 1 ? " as a doctor" : " as a user"),
+        });
+      }
+    }
+
     // 🔍 check existing
     const existing = await User.findOne({
-      $or: [{ phoneNumber }, { email }],
+      $or: conditions,
     });
 
-    if (existing) {
+
+    if (existing && existing.email === email) {
       return res.status(200).json({
         success: false,
-        message: existing.email === email ? "User already exists with this email" : "User already exists with this phone number",
+        message: "User already exists with this email" + (existing.type === 1 ? " as a doctor" : " as a user"),
       });
     }
 
@@ -222,6 +280,50 @@ export const registerUser = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const loginUser = async (req, res) => {
   try {
