@@ -33,6 +33,17 @@ const bleedingSchema = new mongoose.Schema(
   { _id: true },
 );
 
+
+
+
+
+
+
+
+
+
+
+
 // 🔹 Symptoms Schema
 const symptomSchema = new mongoose.Schema(
   {
@@ -62,6 +73,17 @@ const symptomSchema = new mongoose.Schema(
   { _id: true },
 );
 
+
+
+
+
+
+
+
+
+
+
+
 // 🔹 Spotting Schema
 const spottingSchema = new mongoose.Schema(
   {
@@ -78,16 +100,29 @@ const spottingSchema = new mongoose.Schema(
   { _id: true },
 );
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* =========================================================
    🔹 Period Day Schema
 ========================================================= */
 
 const periodSchema = new mongoose.Schema(
   {
-    date: {
-      type: Date,
-      required: true,
-    },
+
 
     bleeding: {
       type: bleedingSchema,
@@ -114,6 +149,24 @@ const periodSchema = new mongoose.Schema(
   { _id: true },
 );
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* =========================================================
    🔹 Main Period Tracker Schema
 ========================================================= */
@@ -123,6 +176,19 @@ const periodTrackerSchema = new mongoose.Schema(
     userId: {
       required: true,
       type: String,
+    },
+
+    startDate:{
+      type: Date,
+    },
+
+    endDate:{
+      type: Date,
+    },
+
+    currentDate:{
+      type: Date,
+      required:true 
     },
 
     period: {

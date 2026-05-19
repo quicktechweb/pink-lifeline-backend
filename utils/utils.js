@@ -49,3 +49,17 @@ export const alreadyExistResponse = (res, data, message, logMessage) => {
     message,
   });
 };
+
+
+
+export const checkValidGapBetweenPeriods = (previousDate, currentDate) => {
+   const gapInDays = Math.floor(
+          (currentDate - previousDate) / (1000 * 60 * 60 * 24)
+        );
+  
+        const expectedGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
+  
+        const isValidGap = gapInDays === expectedGap;
+  
+  return isValidGap;
+}

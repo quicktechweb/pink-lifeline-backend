@@ -5,14 +5,12 @@ import axios from "axios";
 import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
-import periodRoutes from "./routes/periodRoutes/periodRoutes.js"
-import selfTestRoutes from "./routes/selfTestRoutes/selfTestRoutes.js"
-import communityRoutes from "./routes/communityRoutes/communityRoutes.js"
-
+import periodRoutes from "./routes/periodRoutes/periodRoutes.js";
+import selfTestRoutes from "./routes/selfTestRoutes/selfTestRoutes.js";
+import communityRoutes from "./routes/communityRoutes/communityRoutes.js";
 
 import dns from "dns";
 import "./firebase-admin.js";
-
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
@@ -41,23 +39,18 @@ connectDB();
 // app.use("/roles", roleRoutes);
 // app.use("/api/settings", gtmRoutes);
 app.use("/api/registration", doctorRoutes);
-app.use("/api/period",periodRoutes)
-app.use("/api/self-test",selfTestRoutes)
-app.use("/api/community",communityRoutes)
+app.use("/api/period", periodRoutes);
+app.use("/api/self-test", selfTestRoutes);
+app.use("/api/community", communityRoutes);
 
-
-
-
-app.get("/",async (req,res) => {
-  res.send("Server is running great.")
-})
+app.get("/", async (req, res) => {
+  res.status(200).send(`🚀 Pink Lifeline Backend is running smoothly | STATUS: ONLINE | ⏰ ${new Date().toISOString()} | ⚡ Uptime: ${Math.floor(process.uptime())}s`);
+});
 
 // Server Start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  
   console.log(`🚀 Server running on port ${PORT}`);
   const usedRAM = process.memoryUsage().rss / 1024 / 1024;
   console.log(`💾 RAM Used: ${usedRAM.toFixed(2)} MB`);
-
 });

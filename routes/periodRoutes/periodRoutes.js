@@ -10,9 +10,9 @@ const router = express.Router();
 router.patch("/v1/insert-period", recordPeriodLog);
 router.post("/v1/get-period-info-date-wise",getPeriodData)
 router.post("/v1/get-period-basics-insights",getPeriodBasicInsights)
-
-
 router.post("/v1/add-daily-notes/:userId",isUserExist,addDailyNote)
+
+
 
 
 export default router;
