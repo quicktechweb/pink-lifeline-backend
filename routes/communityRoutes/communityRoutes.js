@@ -6,11 +6,11 @@ import { uploadImage } from "../../middleware/upload.js";
 const router = express.Router();
 
 router.post("/v1/create-post/:userId",  uploadImage.single("photo"), createPost)
-router.get("/v1/get-all-posts", getAllPosts )
+router.get("/v1/get-all-posts/:userId", getAllPosts )
 router.post("/v1/post-upvote/:userId",postUpVote)
 router.post("/v1/post-downvote/:userId",postDownVote)
 router.post("/v1/post-comment/:userId",postComment)
-router.get("/v1/get-post-by-id/:postId", getSinglePost )
+router.get("/v1/get-post-by-id/:userId", getSinglePost )
 router.put("/v1/comment-upvote/:userId",commentUpVote)
 router.put("/v1/comment-downvote/:userId",commentDownVote)
 

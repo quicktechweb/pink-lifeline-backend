@@ -65,7 +65,7 @@ export const createPost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
 
-    const userId = req.query.userId;
+    const { userId } = req.params;
 
     if (!userId) {
       return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
@@ -78,26 +78,134 @@ export const getAllPosts = async (req, res) => {
     }
 
 
-    const allPosts = await Post.aggregate([
-      {
-        $addFields: {
-          netvote: {
-            $subtract: ["$upvote", "$downvote"],
+    // const allPosts = await Post.aggregate([
+    //   {
+    //     $addFields: {
+    //       netvote: {
+    //         $subtract: ["$upvote", "$downvote"],
+    //       },
+    //     },
+    //   },
+
+    //   {
+    //     $sort: {
+    //       createdAt: -1,
+    //       netvote: -1,
+    //     },
+    //   },
+    // ]);
+
+
+
+
+
+const allPosts = await Post.aggregate([
+  // calculate netvote
+  {
+    $addFields: {
+      netvote: {
+        $subtract: ["$upvote", "$downvote"],
+      },
+    },
+  },
+
+  // latest first then netvote
+  {
+    $sort: {
+      createdAt: -1,
+      netvote: -1,
+    },
+  },
+
+  // check current user's vote
+  {
+    $lookup: {
+      from: "votes",
+      let: {
+        postId: "$_id",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $eq: ["$postId", "$$postId"],
+                },
+                {
+                  $eq: ["$userId", userId],
+                },
+              ],
+            },
           },
         },
+      ],
+      as: "userVote",
+    },
+  },
+
+  // create flags
+  {
+    $addFields: {
+      isUpvotedByUser: {
+        $cond: [
+          {
+            $gt: [
+              {
+                $size: {
+                  $filter: {
+                    input: "$userVote",
+                    as: "vote",
+                    cond: {
+                      $eq: ["$$vote.type", "upvote"],
+                    },
+                  },
+                },
+              },
+              0,
+            ],
+          },
+          true,
+          false,
+        ],
       },
 
-      {
-        $sort: {
-          createdAt: -1,
-          netvote: -1,
-        },
+      isDownvotedByUser: {
+        $cond: [
+          {
+            $gt: [
+              {
+                $size: {
+                  $filter: {
+                    input: "$userVote",
+                    as: "vote",
+                    cond: {
+                      $eq: ["$$vote.type", "downvote"],
+                    },
+                  },
+                },
+              },
+              0,
+            ],
+          },
+          true,
+          false,
+        ],
       },
-    ]);
+    },
+  },
+
+  // optional cleanup
+  {
+    $project: {
+      userVote: 0,
+    },
+  },
+]);
 
 
 
-    
+
 
     if (allPosts) {
       successResponse(res, allPosts, "All post is fetched", "All posts is fetched.");
@@ -377,7 +485,8 @@ export const postComment = async (req, res) => {
 };
 
 export const getSinglePost = async (req, res) => {
-  const { postId } = req.params;
+  const { userId } = req.params;
+  const { postId } = req.body;
 
   try {
     // =========================
@@ -394,9 +503,25 @@ export const getSinglePost = async (req, res) => {
 
     const post = await Post.findById(postId);
 
+    const userVote = await Vote.findOne({userId,postId});
+    
+    
     if (!post) {
       return notFoundResponse(res, "Post not found.", "Post not found.");
     }
+
+
+    if (userVote) {
+      if (userVote.type === "upvote") {
+        post.isUpvotedByUser = true
+        
+      }else if (userVote.type === "downvote") {
+        post.isDownvotedByUser = true;
+      }
+      
+    }
+    
+    
 
     // =========================
     // FETCH ALL COMMENTS
