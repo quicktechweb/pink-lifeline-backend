@@ -11,12 +11,14 @@ const voteSchema = new mongoose.Schema(
     postId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
+      default: null,
       index: true,
     },
 
     commentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
+      default: null,
       index: true,
     },
 
@@ -28,10 +30,29 @@ const voteSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-// 🔥 prevent duplicate vote per user per post
-voteSchema.index({ userId: 1, postId: 1 }, { unique: true });
+// POST VOTE
+voteSchema.index(
+  { userId: 1, postId: 1 },
+  {
+    // unique: true,
+    partialFilterExpression: {
+      postId: { $exists: true },
+    },
+  },
+);
+
+// COMMENT VOTE
+voteSchema.index(
+  { userId: 1, commentId: 1 },
+  {
+    // unique: true,
+    partialFilterExpression: {
+      commentId: { $exists: true },
+    },
+  },
+);
 
 export const Vote = mongoose.model("Vote", voteSchema);

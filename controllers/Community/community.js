@@ -237,58 +237,448 @@ export const postDownVote = async (req, res) => {
   }
 };
 
+export const postComment = async (req, res) => {
+  const userId = req.params.userId;
 
+  const { text, postId, parentId = null } = req.body;
 
-export const postComment = async (req,res) => {
-    const userId = req.params.userId;
-    const { text, postId } = req.body;
-    if (!text) {
-      badRequestResponse(res,"Invalid Comment.","Invalid Comment.")
-    }
-try {
+  try {
+    // =========================
+    // VALIDATION
+    // =========================
+
     if (!userId) {
       return badRequestResponse(res, "Invalid User.", "Invalid user.");
     }
 
-    const isUserExist = await User.findOne({ userId });
-    
-
-    
-    if (!isUserExist) {
-      return notFoundResponse(res, "User is not registered.", "User is not register.");
+    if (!text || text.trim() === "") {
+      return badRequestResponse(res, "Invalid Comment.", "Invalid Comment.");
     }
-
 
     if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
       return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
     }
 
+    // =========================
+    // CHECK USER
+    // =========================
+
+    const isUserExist = await User.findOne({ userId });
+
+    if (!isUserExist) {
+      return notFoundResponse(res, "User is not registered.", "User is not registered.");
+    }
+
+    // =========================
+    // CHECK POST
+    // =========================
+
     const post = await Post.findById(postId);
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", "post not found.");
+      return notFoundResponse(res, "Post not found.", "Post not found.");
     }
+
+    // =========================
+    // HANDLE REPLY
+    // =========================
+
+    let parentComment = null;
+
+    if (parentId) {
+      // validate parentId
+      if (!mongoose.Types.ObjectId.isValid(parentId)) {
+        return badRequestResponse(res, "Invalid parent comment id.", "Invalid parent comment id.");
+      }
+
+      parentComment = await Comment.findById(parentId);
+
+      if (!parentComment) {
+        return notFoundResponse(res, "Parent comment not found.", "Parent comment not found.");
+      }
+
+      // IMPORTANT
+      // parent comment must belong to same post
+      if (parentComment.postId.toString() !== postId) {
+        return badRequestResponse(res, "Reply mismatch.", "Reply post mismatch.");
+      }
+    }
+
+    // =========================
+    // CREATE COMMENT / REPLY
+    // =========================
 
     const userComment = {
-      name : isUserExist.fullName,
-      userId:userId,
+      name: isUserExist.fullName,
+      profilePhoto: isUserExist.profilePhoto || null,
+
+      userId,
       postId,
-      text,
-      parentId:null
+
+      text: text.trim(),
+
+      // null = root comment
+      // otherwise reply
+      parentId: parentId || null,
+    };
+
+    const uploadedComment = await Comment.create(userComment);
+
+    // =========================
+    // UPDATE REPLY COUNT
+    // =========================
+
+    if (parentComment) {
+      await Comment.findByIdAndUpdate(parentId, {
+        $inc: {
+          totalReplies: 1,
+        },
+      });
     }
 
-    const uploadedComment = await Comment.create(userComment)
+    // =========================
+    // RESPONSE
+    // =========================
 
     if (uploadedComment) {
-      successResponse(res,uploadedComment,"You have commented in a post.","Comment has been published successfully.")
-    }else{
-      badRequestResponse(res,"Unable to comment.","Comment published failed.")
+      return successResponse(res, uploadedComment, parentId ? "Reply added successfully." : "Comment added successfully.", parentId ? "Reply published successfully." : "Comment published successfully.");
     }
 
+    return badRequestResponse(res, "Unable to comment.", "Comment publish failed.");
+  } catch (error) {
+    console.error(error);
 
-} catch (error) {
-  console.error(error)
-  somethingWentWrong(res,error,"Unable to comment.","Unable to comment.")
-}
+    return somethingWentWrong(res, error, "Unable to comment.", "Unable to comment.");
+  }
+};
 
-}
+export const getSinglePost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    // =========================
+    // VALIDATE POST ID
+    // =========================
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      return badRequestResponse(res, "Invalid post id.", "Invalid post id.");
+    }
+
+    // =========================
+    // FETCH POST
+    // =========================
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return notFoundResponse(res, "Post not found.", "Post not found.");
+    }
+
+    // =========================
+    // FETCH ALL COMMENTS
+    // =========================
+
+    const comments = await Comment.find({
+      postId,
+    }).sort({
+      createdAt: 1,
+    });
+
+    // =========================
+    // BUILD COMMENT TREE
+    // =========================
+
+    const commentMap = {};
+
+    // create map
+    comments.forEach((comment) => {
+      commentMap[comment._id] = {
+        ...comment.toObject(),
+        replies: [],
+      };
+    });
+
+    const rootComments = [];
+
+    comments.forEach((comment) => {
+      // ROOT COMMENT
+      if (!comment.parentId) {
+        rootComments.push(commentMap[comment._id]);
+      }
+
+      // REPLY
+      else {
+        const parent = commentMap[comment.parentId.toString()];
+
+        if (parent) {
+          parent.replies.push(commentMap[comment._id]);
+        }
+      }
+    });
+
+    // =========================
+    // RESPONSE
+    // =========================
+
+    return successResponse(
+      res,
+      {
+        post,
+        comments: rootComments,
+      },
+      "Post fetched successfully.",
+      "Post fetched successfully.",
+    );
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Unable to fetch post.", "Unable to fetch post.");
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+export const commentDownVote = async (req, res) => {
+  const userId = req.params.userId;
+  const { commentId } = req.body;
+
+  try {
+    if (!userId) {
+      return badRequestResponse(res, "Invalid User.", "Invalid user.");
+    }
+
+    const isUserExist = await User.findOne({ userId });
+
+    if (!isUserExist) {
+      return notFoundResponse(res, "User is not registered.", "user is not registered.");
+    }
+
+    if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
+      return badRequestResponse(res, "Invalid commentId.", "Invalid commentId.");
+    }
+
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return notFoundResponse(res, "Comment not found.", "comment not found.");
+    }
+
+    // 🔥 check existing vote
+    const existingVote = await Vote.findOne({
+      userId,
+      commentId,
+    });
+
+    // CASE 1: no vote → create downvote
+    if (!existingVote) {
+      await Vote.create({
+        userId,
+        commentId,
+        type: "downvote",
+      });
+
+      comment.downvote += 1;
+      await comment.save();
+
+      return successResponse(res, comment, "Comment downvoted successfully", "comment downvoted");
+    }
+
+    // CASE 2: already downvoted → remove downvote
+    if (existingVote.type === "downvote") {
+      await Vote.deleteOne({
+        _id: existingVote._id,
+      });
+
+      comment.downvote -= 1;
+      await comment.save();
+
+      return successResponse(res, comment, "Comment downvote removed", "comment downvote removed");
+    }
+
+    // CASE 3: previously upvoted → switch to downvote
+    if (existingVote.type === "upvote") {
+      existingVote.type = "downvote";
+      await existingVote.save();
+
+      comment.upvote -= 1;
+      comment.downvote += 1;
+
+      await comment.save();
+
+      return successResponse(res, comment, "Switched to comment downvote", "switch comment vote to downvote");
+    }
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const commentUpVote = async (req, res) => {
+  const userId = req.params.userId;
+  const { commentId } = req.body;
+
+  try {
+    if (!userId) {
+      return badRequestResponse(
+        res,
+        "Invalid User.",
+        "Invalid user."
+      );
+    }
+
+    const isUserExist = await User.findOne({ userId });
+
+    if (!isUserExist) {
+      return notFoundResponse(
+        res,
+        "User is not registered.",
+        "user is not registered."
+      );
+    }
+
+    if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
+      return badRequestResponse(
+        res,
+        "Invalid commentId.",
+        "Invalid commentId."
+      );
+    }
+
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return notFoundResponse(
+        res,
+        "Comment not found.",
+        "comment not found."
+      );
+    }
+
+    // 🔥 check existing vote
+    const existingVote = await Vote.findOne({
+      userId,
+      commentId,
+    });
+
+    // CASE 1: no vote → create upvote
+    if (!existingVote) {
+      await Vote.create({
+        userId,
+        commentId,
+        type: "upvote",
+      });
+
+      comment.upvote += 1;
+
+      await comment.save();
+
+      return successResponse(
+        res,
+        comment,
+        "Comment upvoted successfully",
+        "comment upvoted"
+      );
+    }
+
+    // CASE 2: already upvoted → remove upvote
+    if (existingVote.type === "upvote") {
+      await Vote.deleteOne({
+        _id: existingVote._id,
+      });
+
+      comment.upvote -= 1;
+
+      await comment.save();
+
+      return successResponse(
+        res,
+        comment,
+        "Comment upvote removed",
+        "comment upvote removed"
+      );
+    }
+
+    // CASE 3: previously downvoted → switch to upvote
+    if (existingVote.type === "downvote") {
+      existingVote.type = "upvote";
+
+      await existingVote.save();
+
+      comment.downvote -= 1;
+      comment.upvote += 1;
+
+      await comment.save();
+
+      return successResponse(
+        res,
+        comment,
+        "Switched to comment upvote",
+        "switch comment vote to upvote"
+      );
+    }
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

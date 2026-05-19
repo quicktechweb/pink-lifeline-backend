@@ -1,6 +1,6 @@
 
 import express from "express";
-import { createPost , getAllPosts, postComment, postDownVote, postUpVote } from "../../controllers/Community/community.js";
+import { createPost , getAllPosts, postComment, postDownVote,getSinglePost ,commentUpVote,commentDownVote, postUpVote } from "../../controllers/Community/community.js";
 import { uploadImage } from "../../middleware/upload.js";
 
 const router = express.Router();
@@ -10,6 +10,9 @@ router.get("/v1/get-all-posts", getAllPosts )
 router.post("/v1/post-upvote/:userId",postUpVote)
 router.post("/v1/post-downvote/:userId",postDownVote)
 router.post("/v1/post-comment/:userId",postComment)
+router.get("/v1/get-post-by-id/:postId", getSinglePost )
+router.put("/v1/comment-upvote/:userId",commentUpVote)
+router.put("/v1/comment-downvote/:userId",commentDownVote)
 
 
 
