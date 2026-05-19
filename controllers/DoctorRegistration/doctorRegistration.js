@@ -116,38 +116,8 @@ const uploadToImgBB = async (file) => {
 //   }
 // };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const registerUser = async (req, res) => {
   try {
-
-
-
     const {
       type, // 1 = doctor, 0 = user
       fullName,
@@ -160,14 +130,12 @@ export const registerUser = async (req, res) => {
       qualifications,
     } = req.body;
 
-    
     if (typeof qualifications === "string") {
       qualifications = JSON.parse(qualifications);
     }
 
+    let conditions = [];
 
-    let conditions = []
-    
     if (phoneNumber) {
       conditions.push({ phoneNumber });
     }
@@ -177,7 +145,7 @@ export const registerUser = async (req, res) => {
     }
 
     if (type === 1 && !phoneNumber) {
-      badRequestResponse(res, "Phone Number is required for doctor registration.","Phone number is not found." )
+      badRequestResponse(res, "Phone Number is required for doctor registration.", "Phone number is not found.");
       return;
     }
 
@@ -196,7 +164,6 @@ export const registerUser = async (req, res) => {
     const existing = await User.findOne({
       $or: conditions,
     });
-
 
     if (existing && existing.email === email) {
       return res.status(200).json({
@@ -280,50 +247,6 @@ export const registerUser = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const loginUser = async (req, res) => {
   try {

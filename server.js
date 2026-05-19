@@ -57,7 +57,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log("💸 BKASH_BASE_URL =", process.env.BKASH_BASE_URL);
   const usedRAM = process.memoryUsage().rss / 1024 / 1024;
   console.log(`💾 RAM Used: ${usedRAM.toFixed(2)} MB`);
 
