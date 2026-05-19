@@ -15,6 +15,20 @@ const commentSchema = new mongoose.Schema(
       index: true,
     },
 
+
+    isUpvotedByUser: {
+      type: Boolean,
+      default: false,
+    },
+
+
+    isDownvotedByUser: {
+      type: Boolean,
+      default: false,
+    },
+
+
+
     name: {
       type: String,
       required: true,

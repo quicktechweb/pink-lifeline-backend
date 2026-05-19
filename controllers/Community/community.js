@@ -64,6 +64,20 @@ export const createPost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
   try {
+
+    const userId = req.query.userId;
+
+    if (!userId) {
+      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+    }
+
+    const isUserExist = await User.findOne({ userId });
+
+    if (!isUserExist) {
+      return notFoundResponse(res, "User not found.", "User not found.");
+    }
+
+
     const allPosts = await Post.aggregate([
       {
         $addFields: {
@@ -80,6 +94,10 @@ export const getAllPosts = async (req, res) => {
         },
       },
     ]);
+
+
+
+    
 
     if (allPosts) {
       successResponse(res, allPosts, "All post is fetched", "All posts is fetched.");
@@ -127,6 +145,8 @@ export const postUpVote = async (req, res) => {
         userId,
         postId,
         type: "upvote",
+        isUpvotedByUser: true,
+        isDownvotedByUser: false,
       });
 
       post.upvote += 1;
@@ -199,6 +219,8 @@ export const postDownVote = async (req, res) => {
         userId,
         postId,
         type: "downvote",
+        isUpvotedByUser: false,
+        isDownvotedByUser: true,
       });
 
       post.downvote += 1;
@@ -323,6 +345,8 @@ export const postComment = async (req, res) => {
     };
 
     const uploadedComment = await Comment.create(userComment);
+    post.totalComments += 1;
+    await post.save();
 
     // =========================
     // UPDATE REPLY COUNT
@@ -436,45 +460,6 @@ export const getSinglePost = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 export const commentDownVote = async (req, res) => {
   const userId = req.params.userId;
   const { commentId } = req.body;
@@ -512,9 +497,11 @@ export const commentDownVote = async (req, res) => {
         userId,
         commentId,
         type: "downvote",
+        isDownvotedByUser: true,
       });
 
       comment.downvote += 1;
+      comment.isDownvotedByUser = true;
       await comment.save();
 
       return successResponse(res, comment, "Comment downvoted successfully", "comment downvoted");
@@ -527,6 +514,7 @@ export const commentDownVote = async (req, res) => {
       });
 
       comment.downvote -= 1;
+      comment.isDownvotedByUser = false;
       await comment.save();
 
       return successResponse(res, comment, "Comment downvote removed", "comment downvote removed");
@@ -535,11 +523,13 @@ export const commentDownVote = async (req, res) => {
     // CASE 3: previously upvoted → switch to downvote
     if (existingVote.type === "upvote") {
       existingVote.type = "downvote";
+      existingVote.isUpvotedByUser = false;
+      existingVote.isDownvotedByUser = true;
       await existingVote.save();
 
       comment.upvote -= 1;
       comment.downvote += 1;
-
+      comment.isDownvotedByUser = true;
       await comment.save();
 
       return successResponse(res, comment, "Switched to comment downvote", "switch comment vote to downvote");
@@ -554,61 +544,29 @@ export const commentDownVote = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const commentUpVote = async (req, res) => {
   const userId = req.params.userId;
   const { commentId } = req.body;
 
   try {
     if (!userId) {
-      return badRequestResponse(
-        res,
-        "Invalid User.",
-        "Invalid user."
-      );
+      return badRequestResponse(res, "Invalid User.", "Invalid user.");
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      return notFoundResponse(
-        res,
-        "User is not registered.",
-        "user is not registered."
-      );
+      return notFoundResponse(res, "User is not registered.", "user is not registered.");
     }
 
     if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
-      return badRequestResponse(
-        res,
-        "Invalid commentId.",
-        "Invalid commentId."
-      );
+      return badRequestResponse(res, "Invalid commentId.", "Invalid commentId.");
     }
 
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return notFoundResponse(
-        res,
-        "Comment not found.",
-        "comment not found."
-      );
+      return notFoundResponse(res, "Comment not found.", "comment not found.");
     }
 
     // 🔥 check existing vote
@@ -623,18 +581,15 @@ export const commentUpVote = async (req, res) => {
         userId,
         commentId,
         type: "upvote",
+        isUpvotedByUser: true,
       });
 
       comment.upvote += 1;
+      comment.isUpvotedByUser = true;
 
       await comment.save();
 
-      return successResponse(
-        res,
-        comment,
-        "Comment upvoted successfully",
-        "comment upvoted"
-      );
+      return successResponse(res, comment, "Comment upvoted successfully", "comment upvoted");
     }
 
     // CASE 2: already upvoted → remove upvote
@@ -644,34 +599,25 @@ export const commentUpVote = async (req, res) => {
       });
 
       comment.upvote -= 1;
-
+      comment.isUpvotedByUser = false;
       await comment.save();
 
-      return successResponse(
-        res,
-        comment,
-        "Comment upvote removed",
-        "comment upvote removed"
-      );
+      return successResponse(res, comment, "Comment upvote removed", "comment upvote removed");
     }
 
     // CASE 3: previously downvoted → switch to upvote
     if (existingVote.type === "downvote") {
       existingVote.type = "upvote";
-
+      existingVote.isUpvotedByUser = true;
+      existingVote.isDownvotedByUser = false;
       await existingVote.save();
 
       comment.downvote -= 1;
       comment.upvote += 1;
-
+      comment.isUpvotedByUser = true;
       await comment.save();
 
-      return successResponse(
-        res,
-        comment,
-        "Switched to comment upvote",
-        "switch comment vote to upvote"
-      );
+      return successResponse(res, comment, "Switched to comment upvote", "switch comment vote to upvote");
     }
   } catch (error) {
     console.error(error);
@@ -682,3 +628,32 @@ export const commentUpVote = async (req, res) => {
     });
   }
 };
+
+
+export const getUpvotedPosts = async (req, res) => {
+  const userId = req.params.userId;
+  const posts = await Vote.find({ userId, type: "upvote", postId: { $exists: true } }).populate("postId");
+  successResponse(res, posts, "Upvoted posts fetched successfully.", "Upvoted posts fetched successfully.");
+}
+
+
+export const getDownvotedPosts = async (req, res) => {
+  const userId = req.params.userId;
+  const posts = await Vote.find({ userId, type: "downvote", postId: { $exists: true } }).populate("postId");
+  successResponse(res, posts, "Downvoted posts fetched successfully.", "Downvoted posts fetched successfully.");
+}
+
+
+export const getUpvotedComments = async (req, res) => {
+  const userId = req.params.userId;
+  const comments = await Vote.find({ userId, type: "upvote", commentId: { $exists: true } }).populate("commentId");
+  successResponse(res, comments, "Upvoted comments fetched successfully.", "Upvoted comments fetched successfully.");
+}
+
+
+export const getDownvotedComments = async (req, res) => {
+  const userId = req.params.userId;
+  const comments = await Vote.find({ userId, type: "downvote", commentId: { $exists: true } }).populate("commentId");
+  successResponse(res, comments, "Downvoted comments fetched successfully.", "Downvoted comments fetched successfully.");
+}
+

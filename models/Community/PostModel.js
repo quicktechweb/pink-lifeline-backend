@@ -55,10 +55,23 @@ const postSchema = new mongoose.Schema(
       default: 0,
     },
 
+    isUpvotedByUser: {
+      type: Boolean,
+      default: false,
+    },
+
+    isDownvotedByUser: {
+      type: Boolean,
+      default: false,
+    },
+
+
+
     totalComments: {
       type: Number,
       default: 0,
     },
+    
   },
   {
     timestamps: true,
