@@ -47,6 +47,11 @@ app.use("/api/community",communityRoutes)
 
 
 
+
+app.get("/",async (req,res) => {
+  res.send("Server is running great.")
+})
+
 // Server Start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
