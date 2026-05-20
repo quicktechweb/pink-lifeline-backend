@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, loginUser ,loginadmin} from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 
 const router = express.Router();
@@ -8,5 +8,11 @@ const router = express.Router();
 router.post( "/register",uploadImage.single("photo"), registerUser);
 
 router.post("/login", loginUser);
+
+
+router.post("/loginadmin", loginadmin)
+
+
+
 
 export default router;

@@ -279,3 +279,59 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+export const loginadmin = async (req, res) => {
+  try {
+    const { identifier, password } = req.body;
+
+    const user = await User.findOne({
+      phoneNumber: identifier.trim(),
+      newpartroles: "SUPERadmin",
+    }).lean();
+
+    // ❌ no user
+    if (!user) {
+      return res.status(200).json({
+        success: false,
+        message: "Admin account not found",
+      });
+    }
+
+    console.log("USER:", user);
+    console.log("DB PASS:", user.password);
+    console.log("ENTER PASS:", password);
+
+    // compare
+    const dbPassword = user.password?.trim();
+    const enteredPassword = password?.trim();
+
+    if (dbPassword !== enteredPassword) {
+      return res.status(200).json({
+        success: false,
+        message: "Incorrect password",
+      });
+    }
+
+    // token
+    const token = generateToken(user);
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin login successful",
+      token,
+      user,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
