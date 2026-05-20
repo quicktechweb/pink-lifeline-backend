@@ -2,7 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, successResponse } from "../../utils/utils.js";
+import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -124,11 +124,18 @@ export const registerUser = async (req, res) => {
       email,
       phoneNumber,
       doctorRegistrationNumber,
+      isVerified,
       currentWorkplace,
       currentDesignation,
       aboutMe,
       qualifications,
+      doctorIdCard
     } = req.body;
+
+
+    if (!type) {
+      return badRequestResponse(res, "User type is required.","User type is not found.")
+    }
 
     if (typeof qualifications === "string") {
       qualifications = JSON.parse(qualifications);
@@ -136,29 +143,31 @@ export const registerUser = async (req, res) => {
 
     let conditions = [];
 
-    if (phoneNumber) {
-      conditions.push({ phoneNumber });
-    }
+    // if (phoneNumber) {
+    //   conditions.push({ phoneNumber });
+    // }
 
     if (email) {
       conditions.push({ email });
     }
 
-    if (type === 1 && !phoneNumber) {
-      badRequestResponse(res, "Phone Number is required for doctor registration.", "Phone number is not found.");
-      return;
-    }
+    // if (type === 1 && !phoneNumber) {
+    //   badRequestResponse(res, "Phone Number is required for doctor registration.", "Phone number is not found.");
+    //   return;
+    // }
 
-    if (phoneNumber) {
-      const phoneExists = await User.findOne({ phoneNumber });
+ 
 
-      if (phoneExists) {
-        return res.status(200).json({
-          success: false,
-          message: "User already exists with this phone number" + (phoneExists.type === 1 ? " as a doctor" : " as a user"),
-        });
-      }
-    }
+    // if (phoneNumber) {
+    //   const phoneExists = await User.findOne({ phoneNumber });
+
+    //   if (phoneExists) {
+    //     return res.status(200).json({
+    //       success: false,
+    //       message: "User already exists with this phone number" + (phoneExists.type === 1 ? " as a doctor" : " as a user"),
+    //     });
+    //   }
+    // }
 
     // 🔍 check existing
     const existing = await User.findOne({
@@ -179,16 +188,16 @@ export const registerUser = async (req, res) => {
     // 🔥 upload image
     let doctorIdCardData = {};
 
-    if (req.file) {
-      const uploaded = await uploadToImgBB(req.file);
+    // if (req.file) {
+    //   const uploaded = await uploadToImgBB(req.file);
 
-      if (uploaded) {
-        doctorIdCardData = {
-          url: uploaded.url,
-          deleteUrl: uploaded.delete_url,
-        };
-      }
-    }
+    //   if (uploaded) {
+    //     doctorIdCardData = {
+    //       url: uploaded.url,
+    //       deleteUrl: uploaded.delete_url,
+    //     };
+    //   }
+    // }
 
     // 🔥 generate userId
     const userId = generateUserId(type);
@@ -199,16 +208,16 @@ export const registerUser = async (req, res) => {
       type: Number(type),
       fullName,
       email,
-      phoneNumber,
-      doctorRegistrationNumber,
-      currentWorkplace,
-      currentDesignation,
-      aboutMe,
-      qualifications,
-      doctorIdCard: doctorIdCardData,
-
+      phoneNumber: phoneNumber ?phoneNumber :  null,
+      doctorRegistrationNumber: doctorRegistrationNumber ?doctorRegistrationNumber :  null,
+      currentWorkplace: currentWorkplace ?currentWorkplace :  null,
+      currentDesignation: currentDesignation ?currentDesignation :  null,
+      aboutMe: aboutMe ?aboutMe :  null,
+      qualifications: qualifications ?qualifications :  null,
+      doctorIdCard: doctorIdCard ?doctorIdCard :  null,
       isDoctor,
       isUser,
+      isVerified: isVerified ? isVerified : false,
     });
 
     // 🔐 JWT token
@@ -221,14 +230,14 @@ export const registerUser = async (req, res) => {
       type: newUser.type,
       fullName: newUser.fullName,
       email: newUser.email,
-      phoneNumber: newUser.phoneNumber,
-      doctorRegistrationNumber: newUser.doctorRegistrationNumber,
-      currentWorkplace: newUser.currentWorkplace,
-      currentDesignation: newUser.currentDesignation,
-      aboutMe: newUser.aboutMe,
-      qualifications: newUser.qualifications,
-      doctorIdCard: newUser.doctorIdCard,
-
+      phoneNumber: newUser.phoneNumber || null,
+      doctorRegistrationNumber: newUser.doctorRegistrationNumber || null,
+      currentWorkplace: newUser.currentWorkplace || null,
+      currentDesignation: newUser.currentDesignation || null,
+      aboutMe: newUser.aboutMe || null,
+      qualifications: newUser.qualifications || null,
+      doctorIdCard: newUser.doctorIdCard || null,
+      isVerified: newUser.isVerified || false,
       ...(Number(type) === 1 ? { isDoctor: 1 } : { isUser: 0 }),
     };
 
@@ -280,10 +289,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-
-
-
-
 export const loginadmin = async (req, res) => {
   try {
     const { identifier, password } = req.body;
@@ -325,7 +330,6 @@ export const loginadmin = async (req, res) => {
       token,
       user,
     });
-
   } catch (error) {
     console.log(error);
 
@@ -333,5 +337,107 @@ export const loginadmin = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  const { phoneNumber,isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard } = req.body;
+
+  const { userId } = req.params;
+
+  if (type == 0) {
+    return badRequestResponse(res, "Only doctors can update doctor profile.", "Profile update failed: User is not a doctor.");
+  }
+
+  try {
+    if (doctorIdCard === undefined || !doctorIdCard?.url || !doctorIdCard?.publicId) {
+      return notFoundResponse(res, "Doctor ID card not found", "Profile update failed: Doctor ID card not found.");
+    }
+
+    if (qualifications !== undefined && !Array.isArray(qualifications)) {
+      return notFoundResponse(res, "Qualifications information is required", "Profile update failed: Qualifications data is missing.");
+    }
+
+    if (!doctorRegistrationNumber) {
+      return notFoundResponse(res, "Doctor registration number is required", "Profile update failed: Doctor registration number is missing.");
+    }
+
+    const updateData = {};
+
+    // Common field
+    if (aboutMe !== undefined) {
+      updateData.aboutMe = aboutMe;
+    }
+
+    // Doctor fields
+    if (doctorRegistrationNumber !== undefined) {
+      updateData.doctorRegistrationNumber = doctorRegistrationNumber;
+    }
+
+    if (currentWorkplace !== undefined) {
+      updateData.currentWorkplace = currentWorkplace;
+    }
+
+    if (currentDesignation !== undefined) {
+      updateData.currentDesignation = currentDesignation;
+    }
+
+    if (qualifications !== undefined) {
+      updateData.qualifications = qualifications;
+    }
+
+    if (doctorIdCard !== undefined) {
+      updateData.doctorIdCard = {
+        url: doctorIdCard.url,
+        publicId: doctorIdCard.publicId,
+      };
+    }
+
+    if (phoneNumber !== undefined) {
+      const bdPhoneRegex = /^(\+8801|8801|01)[3-9]\d{8}$/;
+
+      if (!bdPhoneRegex.test(phoneNumber)) {
+        return badRequestResponse(res, "Invalid Phone number.", "Profile update failed: Phone number format is invalid.");
+      }
+
+      updateData.phoneNumber = phoneNumber;
+    }
+
+    if(isVerified===true){
+      updateData.isVerified = true;
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { userId },
+      {
+        $set: updateData,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    return successResponse(res, updatedUser, "Profile updated successfully.", "Doctor profile updated successfully.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to update profile", "Profile update error");
+  }
+};
+
+export const getProfile = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findOne({ userId }).lean();
+
+    if (user) {
+      return successResponse(res, user, "Profile information retrieved successfully", "Get profile information successful.");
+    } else {
+      return notFoundResponse(res, "User not found.", "Get profile failed: User not found.");
+    }
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to get profile information.", "Get profile error");
   }
 };

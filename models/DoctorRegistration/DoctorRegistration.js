@@ -68,6 +68,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    isVerified:{
+      type:Boolean,
+      default:false
+    },
+
     phoneNumber: {
       type: String,
       unique: true,
@@ -85,25 +90,16 @@ const userSchema = new mongoose.Schema(
 
     doctorRegistrationNumber: {
       type: String,
-      required: function () {
-        return this.type === 1;
-      },
       trim: true,
     },
 
     currentWorkplace: {
       type: String,
-      required: function () {
-        return this.type === 1;
-      },
       trim: true,
     },
 
     currentDesignation: {
       type: String,
-      required: function () {
-        return this.type === 1;
-      },
       trim: true,
     },
 

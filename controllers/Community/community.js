@@ -37,15 +37,17 @@ export const createPost = async (req, res) => {
     /**
      * Create post
      */
-    const newPost = await Post.create({
+    const updatedData = {
       name: isUserExist.fullName,
       userId,
       title,
       description,
       hashtags: hashtags || [],
-      isVerified: isUserExist.isDoctor == 1 ? true : false,
+      isVerified: (isUserExist.type == 1 && isUserExist.isVerified == true) ? true : false,
       photo: uploadedPhoto,
-    });
+    }
+    console.log("🚀 ~ community.js:52 ~ createPost ~ updatedData:", updatedData)
+    const newPost = await Post.create(updatedData);
 
     /**
      * Response
