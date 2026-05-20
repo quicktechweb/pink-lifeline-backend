@@ -1,3 +1,3 @@
-export const performSelfTest = async (req,res) => {
+export const performSelfTest = async (req, res) => {
     
-}
+};

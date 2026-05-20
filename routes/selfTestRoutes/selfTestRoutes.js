@@ -38,8 +38,6 @@ router.get("/v1/get-all-answers", getAllAnswers);
 
 router.get("/v1/get-all-question-by-steps", getAllStepsQuestionsAnswers);
 
-
-router.post("/v1/perform-self-test/:userId", isUserExist, performSelfTest)
-
+router.post("/v1/perform-self-test/:userId", isUserExist, performSelfTest);
 
 export default router;

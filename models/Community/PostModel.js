@@ -71,18 +71,19 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
 
-
-
+    isSavedByUser: {
+      type: Boolean,
+      default: false,
+    },
 
     totalComments: {
       type: Number,
       default: 0,
     },
-    
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 postSchema.virtual("netvote").get(function () {
@@ -93,6 +94,3 @@ postSchema.set("toJSON", { virtuals: true });
 postSchema.set("toObject", { virtuals: true });
 
 export const Post = mongoose.model("Post", postSchema);
-
-
-

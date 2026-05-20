@@ -5,6 +5,7 @@ import { badRequestResponse, notFoundResponse, somethingWentWrong, successRespon
 import User from "./../../models/DoctorRegistration/DoctorRegistration.js";
 import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
+import SavedPostModel from "../../models/Community/SavedPostModel.js";
 
 export const createPost = async (req, res) => {
   try {
@@ -44,10 +45,10 @@ export const createPost = async (req, res) => {
       type: isUserExist.type,
       description,
       hashtags: hashtags || [],
-      isVerified: (isUserExist.type == 1 && isUserExist.isVerified == true) ? true : false,
+      isVerified: isUserExist.type == 1 && isUserExist.isVerified == true ? true : false,
       photo: uploadedPhoto,
-    }
-    console.log("🚀 ~ community.js:52 ~ createPost ~ updatedData:", updatedData)
+    };
+    console.log("🚀 ~ community.js:52 ~ createPost ~ updatedData:", updatedData);
     const newPost = await Post.create(updatedData);
 
     /**
@@ -97,7 +98,10 @@ export const getAllPosts = async (req, res) => {
     // ]);
 
     const allPosts = await Post.aggregate([
-      // calculate netvote
+      // =====================================================
+      // NET VOTE
+      // =====================================================
+
       {
         $addFields: {
           netvote: {
@@ -106,7 +110,10 @@ export const getAllPosts = async (req, res) => {
         },
       },
 
-      // latest first then netvote
+      // =====================================================
+      // SORT
+      // =====================================================
+
       {
         $sort: {
           createdAt: -1,
@@ -114,7 +121,10 @@ export const getAllPosts = async (req, res) => {
         },
       },
 
-      // check current user's vote
+      // =====================================================
+      // USER VOTE LOOKUP
+      // =====================================================
+
       {
         $lookup: {
           from: "votes",
@@ -141,7 +151,40 @@ export const getAllPosts = async (req, res) => {
         },
       },
 
-      // create flags
+      // =====================================================
+      // SAVED POST LOOKUP
+      // =====================================================
+
+      {
+        $lookup: {
+          from: "savedposts",
+          let: {
+            postId: "$_id",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$postId", "$$postId"],
+                    },
+                    {
+                      $eq: ["$userId", userId],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "savedPost",
+        },
+      },
+
+      // =====================================================
+      // FLAGS
+      // =====================================================
+
       {
         $addFields: {
           isUpvotedByUser: {
@@ -189,13 +232,36 @@ export const getAllPosts = async (req, res) => {
               false,
             ],
           },
+
+          // =================================================
+          // CHECK SAVED POST
+          // =================================================
+
+          isSavedByUser: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: "$savedPost",
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
         },
       },
 
-      // optional cleanup
+      // =====================================================
+      // CLEANUP
+      // =====================================================
+
       {
         $project: {
           userVote: 0,
+          savedPost: 0,
         },
       },
     ]);
@@ -763,4 +829,249 @@ export const getDownvotedComments = async (req, res) => {
   const userId = req.params.userId;
   const comments = await Vote.find({ userId, type: "downvote", commentId: { $exists: true } }).populate("commentId");
   successResponse(res, comments, "Downvoted comments fetched successfully.", "Downvoted comments fetched successfully.");
+};
+
+export const savePost = async (req, res) => {
+  const userId = req.params.userId;
+  const { postId } = req.body;
+
+  try {
+    if (!userId) {
+      return badRequestResponse(res, "User ID is required.", "User ID is missing.");
+    }
+
+    if (!postId) {
+      return badRequestResponse(res, "Post ID is required.", "Post ID is missing.");
+    }
+
+    const isPostExist = await Post.findById(postId);
+
+    if (!isPostExist) {
+      return notFoundResponse(res, "Post not found.", "Requested post does not exist.");
+    }
+
+    const existingSavedPost = await SavedPostModel.findOne({
+      userId,
+      postId,
+    });
+
+    if (existingSavedPost) {
+      await SavedPostModel.findByIdAndDelete(existingSavedPost._id);
+
+      return successResponse(res, null, "Post unsaved successfully.", "Successfully removed saved post.");
+    }
+
+    const savedPost = await SavedPostModel.create({
+      userId,
+      postId,
+      postOwnerId: isPostExist.userId || null,
+      savedAt: new Date(),
+    });
+
+    return successResponse(res, savedPost, "Post saved successfully.", "Successfully saved post.");
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to save/unsave post.", "Save post operation failed.");
+  }
+};
+
+export const getAllSavedPosts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+    }
+
+    const isUserExist = await User.findOne({ userId });
+
+    if (!isUserExist) {
+      return notFoundResponse(res, "User not found.", "User not found.");
+    }
+
+    const allPosts = await Post.aggregate([
+      {
+        $addFields: {
+          netvote: {
+            $subtract: ["$upvote", "$downvote"],
+          },
+        },
+      },
+
+      // =====================================================
+      // SORT
+      // latest first then netvote
+      // =====================================================
+
+      {
+        $sort: {
+          createdAt: -1,
+          netvote: -1,
+        },
+      },
+
+      // =====================================================
+      // USER VOTE LOOKUP
+      // =====================================================
+
+      {
+        $lookup: {
+          from: "votes",
+          let: {
+            postId: "$_id",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$postId", "$$postId"],
+                    },
+                    {
+                      $eq: ["$userId", userId],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "userVote",
+        },
+      },
+
+      // =====================================================
+      // SAVED POST LOOKUP
+      // =====================================================
+
+      {
+        $lookup: {
+          from: "savedposts",
+          let: {
+            postId: "$_id",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$postId", "$$postId"],
+                    },
+                    {
+                      $eq: ["$userId", userId],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "savedPostData",
+        },
+      },
+
+      // =====================================================
+      // ONLY FETCH SAVED POSTS
+      // =====================================================
+
+      {
+        $match: {
+          "savedPostData.0": {
+            $exists: true,
+          },
+        },
+      },
+
+      // =====================================================
+      // FLAGS
+      // =====================================================
+
+      {
+        $addFields: {
+          isUpvotedByUser: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$userVote",
+                        as: "vote",
+                        cond: {
+                          $eq: ["$$vote.type", "upvote"],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
+
+          isDownvotedByUser: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$userVote",
+                        as: "vote",
+                        cond: {
+                          $eq: ["$$vote.type", "downvote"],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
+
+          isSavedByUser: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: "$savedPostData",
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
+        },
+      },
+
+      // =====================================================
+      // CLEANUP
+      // =====================================================
+
+      {
+        $project: {
+          userVote: 0,
+          savedPostData: 0,
+        },
+      },
+    ]);
+
+    if (allPosts) {
+      successResponse(res, allPosts, "All saved posts are fetched", "All saved posts are fetched.");
+    } else {
+      notFoundResponse(res, "Not Found", "Not found data.");
+    }
+  } catch (error) {
+    console.error("GET_ALL_POSTS_ERROR:", error);
+
+    somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
+  }
 };
