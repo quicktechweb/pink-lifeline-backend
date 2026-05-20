@@ -84,6 +84,11 @@ const spottingSchema = new mongoose.Schema(
 
 const periodSchema = new mongoose.Schema(
   {
+        currentDate: {
+      type: Date,
+      required: true,
+    },
+
     bleeding: {
       type: bleedingSchema,
       required: false,

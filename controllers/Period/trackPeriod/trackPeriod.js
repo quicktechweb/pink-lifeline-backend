@@ -40,13 +40,10 @@ export const recordPeriodLog = async (req, res) => {
       return badRequestResponse(res, "Bad request occurred.", "Current date is required.");
     }
 
-    if (!payload.period?.bleeding && !payload.period?.spotting && !payload.period?.symptoms) {
+    if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
       return badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
     }
 
-    // startDate = "I'm starting my period today"
-    // endDate   = "My period just ended today"
-    // Neither   = "Just logging today's data (symptoms / bleeding / spotting)"
     if (payload.startDate && payload.endDate) {
       return badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
     }
@@ -55,10 +52,13 @@ export const recordPeriodLog = async (req, res) => {
 
     const currentDate = new Date(payload.currentDate);
 
+    // ✅ Each period sub-document now carries its own currentDate
     const newPeriodEntry = {
+      currentDate,
       bleeding: payload.period?.bleeding,
-      symptoms: payload.period?.symptoms,
-      spotting: payload.period?.spotting,
+      symptoms: payload.period?.symptoms ?? [],
+      spotting: payload.period?.spotting ?? [],
+      notes: payload.period?.notes ?? "",
     };
 
     // ─── 3. FETCH LATEST RECORD ──────────────────────────────────────────────
@@ -88,9 +88,6 @@ export const recordPeriodLog = async (req, res) => {
     // ─── 5. EXPLICIT NEW PERIOD START ────────────────────────────────────────
 
     if (payload.startDate) {
-      // Guard against a new period starting too soon after the previous one.
-      // Reference point is the previous period's startDate so the full
-      // cycle length is validated.
       const referenceDate = latestPeriod.startDate ? new Date(latestPeriod.startDate) : new Date(latestPeriod.currentDate);
 
       if (!isValidNewPeriodGap(referenceDate, currentDate)) {
@@ -141,16 +138,7 @@ export const recordPeriodLog = async (req, res) => {
     const lastEntryDate = new Date(latestPeriod.currentDate);
 
     if (hasOpenPeriod) {
-      //
-      // isWithinSamePeriod allows:
-      //   • consecutive days (gap = 1)          → normal ongoing period
-      //   • gaps up to 7 days                   → spotting / intermenstrual bleeding
-      //
-      // If the gap is larger than that the period has clearly ended at some
-      // point between then and now, so we auto-close and start fresh.
-      //
       if (isWithinSamePeriod(lastEntryDate, currentDate)) {
-        // Still within the same period — append and update the latest entry date.
         const updatedRecord = await PeriodTracker.findByIdAndUpdate(
           latestPeriod._id,
           {
@@ -162,9 +150,7 @@ export const recordPeriodLog = async (req, res) => {
 
         return successResponse(res, updatedRecord, "Period log recorded successfully.", "Successfully recorded period log.");
       } else {
-        // Gap too large to be the same period (even accounting for spotting).
-        // Auto-close the previous period at its last known entry, then start
-        // a new implicit period for today.
+        // Gap too large — auto-close previous, start new implicit period.
         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
           endDate: lastEntryDate,
         });
@@ -181,9 +167,7 @@ export const recordPeriodLog = async (req, res) => {
       }
     }
 
-    // Previous period is already closed. The user is logging again without
-    // explicitly marking a new start — treat today as an implicit new start,
-    // but only if the minimum post-menstrual gap has passed.
+    // Previous period is closed — treat today as an implicit new start.
     const referenceDate = new Date(latestPeriod.endDate);
 
     if (!isValidNewPeriodGap(referenceDate, currentDate)) {
@@ -248,16 +232,120 @@ export const getPeriodData = async (req, res) => {
 
 export const getPeriodBasicInsights = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.params;
 
-    if (!userId) {
-      return notFoundResponse(res, "User not found");
-    }
+    const cycleHistory = {
+      monthName: "",
+      totalPeriodDays: 0,
+      startDay: 0,
+      endDay: 0,
+      selfTest: false,
+      totalMonthDays: 0,
+    };
 
-    const isUserExist = await User.findOne({ userId });
+    const result = {
+      estimatedNextPeriodDate: null,
+      averageDaysOfPeriods: null,
+      averageCycleLength: null,
+      sixMonthCycleHistory: [cycleHistory],
+    };
 
-    if (!isUserExist) {
-      return notFoundResponse(res, "User not found.", "User is not registered.");
+    try {
+      const allPeriodDocs = await PeriodTracker.find({ userId }).sort({
+        createdAt: 1,
+      });
+
+      if (allPeriodDocs.length > 0) {
+        let totalPeriodEntry = 0;
+        let totalPeriodDuration = 0;
+
+        let totalCycleLength = 0;
+        let totalCycleCount = 0;
+
+        const result = {
+          estimatedNextPeriodDate: null,
+          averageDaysOfPeriods: null,
+          averageCycleLength: null,
+          sixMonthCycleHistory: [],
+        };
+
+        const reversedPeriods = [...allPeriodDocs].reverse();
+
+        // only take latest 6 cycles
+        const latestSixCycles = reversedPeriods.slice(0, 6);
+
+        latestSixCycles.forEach((currentPeriod, index) => {
+          // Skip if no previous cycle exists
+          if (index === latestSixCycles.length - 1) return;
+
+          const previousPeriod = latestSixCycles[index + 1];
+
+          const currentStartDate = new Date(currentPeriod.startDate);
+          const currentEndDate = new Date(currentPeriod.endDate);
+
+          const previousStartDate = new Date(previousPeriod.startDate);
+
+          const cycleGapInDays = Math.floor((currentStartDate - previousStartDate) / (1000 * 60 * 60 * 24));
+
+          const periodDurationInDays = Math.floor((currentEndDate - currentStartDate) / (1000 * 60 * 60 * 24)) + 1;
+
+          totalCycleLength += cycleGapInDays;
+          totalCycleCount++;
+
+          totalPeriodDuration += periodDurationInDays;
+          totalPeriodEntry++;
+
+          const monthName = currentStartDate.toLocaleString("default", {
+            month: "long",
+          });
+
+          const selfTest = cycleGapInDays < 21 || cycleGapInDays > 35;
+
+          result.sixMonthCycleHistory.push({
+            monthName,
+
+            totalPeriodDays: periodDurationInDays,
+
+            startDay: currentStartDate.getDate(),
+
+            endDay: currentEndDate.getDate(),
+
+            selfTest,
+
+            totalMonthDays: cycleGapInDays,
+          });
+
+          console.log({
+            monthName,
+            cycleGapInDays,
+            periodDurationInDays,
+          });
+        });
+
+        const averageCycleLength = totalCycleCount > 0 ? Math.round(totalCycleLength / totalCycleCount) : 0;
+
+        const averageDaysOfPeriods = totalPeriodEntry > 0 ? Math.round(totalPeriodDuration / totalPeriodEntry) : 0;
+
+        const latestCycle = reversedPeriods[0];
+
+        if (latestCycle?.startDate) {
+          const latestStartDate = new Date(latestCycle.startDate);
+
+          latestStartDate.setDate(latestStartDate.getDate() + averageCycleLength);
+
+          result.estimatedNextPeriodDate = latestStartDate.toISOString();
+        }
+
+        result.averageDaysOfPeriods = averageDaysOfPeriods;
+
+        result.averageCycleLength = averageCycleLength;
+
+        return successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
+
+        // process.exit(0);
+      }
+    } catch (error) {
+      return somethingWentWrong(res, error, "Something went wrong while fetching period data.");
     }
 
     const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
@@ -306,8 +394,6 @@ export const getPeriodBasicInsights = async (req, res) => {
       cycles.push(currentCycle);
     }
 
-    // successResponse(res,cycles,"take cycles")
-
     const cycleInsights = cycles.map((cycle, index) => {
       const startDate = cycle[0].date;
       const endDate = cycle[cycle.length - 1].date;
@@ -343,11 +429,7 @@ export const getPeriodBasicInsights = async (req, res) => {
     );
   } catch (error) {
     console.error(error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return somethingWentWrong(res, error, "Something went wrong while generating insights.");
   }
 };
 
@@ -368,7 +450,7 @@ export const addDailyNote = async (req, res) => {
   }
 };
 
-export const estimatedNextPeriodDate = async (req, res) => {
+export const previousPeriodsInfo = async (req, res) => {
   const { userId } = req.params;
   try {
     const periodDocs = await PeriodTracker.find({ userId }).sort({
@@ -376,5 +458,7 @@ export const estimatedNextPeriodDate = async (req, res) => {
     });
 
     return successResponse(res, periodDocs, "All period data is fetched.", "All period data is fetched successfuily.");
-  } catch (error) {}
+  } catch (error) {
+    return somethingWentWrong(res, error, "Something went wrong while fetching period data.");
+  }
 };

@@ -1,6 +1,9 @@
+// Helper to generate a standardized, readable timestamp string
+const getTimestamp = () => `[${new Date().toLocaleString()}]`;
+
 export const notFoundResponse = (res, message, logMessage) => {
   if (logMessage) {
-    console.error(logMessage);
+    console.error(getTimestamp(), "ERROR:", logMessage);
   }
 
   return res.status(404).json({
@@ -11,7 +14,7 @@ export const notFoundResponse = (res, message, logMessage) => {
 
 export const badRequestResponse = (res, message, logMessage) => {
   if (logMessage) {
-    console.error(logMessage);
+    console.error(getTimestamp(), "BAD REQUEST:", logMessage);
   }
 
   return res.status(400).json({
@@ -21,7 +24,7 @@ export const badRequestResponse = (res, message, logMessage) => {
 };
 
 export const somethingWentWrong = (res, data, message, logMessage) => {
-  console.error(data, logMessage);
+  console.error(getTimestamp(), "SERVER CRASH DATA:", data, "| LOG:", logMessage);
   return res.status(503).json({
     success: false,
     message: message,
@@ -29,7 +32,9 @@ export const somethingWentWrong = (res, data, message, logMessage) => {
 };
 
 export const successResponse = (res, data, message, logMessage) => {
-  console.log(logMessage);
+  if (logMessage) {
+    console.log(getTimestamp(), "SUCCESS:", logMessage);
+  }
 
   const isArray = Array.isArray(data);
 
@@ -42,7 +47,10 @@ export const successResponse = (res, data, message, logMessage) => {
 };
 
 export const alreadyExistResponse = (res, data, message, logMessage) => {
-  console.error(logMessage);
+  if (logMessage) {
+    console.error(getTimestamp(), "CONFLICT:", logMessage);
+  }
+
   return res.status(409).json({
     success: false,
     data,
@@ -50,19 +58,14 @@ export const alreadyExistResponse = (res, data, message, logMessage) => {
   });
 };
 
-
-
 export const checkValidGapBetweenPeriods = (previousDate, currentDate) => {
-   const gapInDays = Math.floor(
-          (currentDate - previousDate) / (1000 * 60 * 60 * 24)
-        );
-        const expectedGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
-  
-        const isValidGap = gapInDays === expectedGap;
-  
-  return isValidGap;
-}
+  const gapInDays = Math.floor((currentDate - previousDate) / (1000 * 60 * 60 * 24));
+  const expectedGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
 
+  const isValidGap = gapInDays === expectedGap;
+
+  return isValidGap;
+};
 
 export const isWithinSamePeriod = (lastEntryDate, currentDate) => {
   const gapInDays = Math.floor((currentDate - lastEntryDate) / (1000 * 60 * 60 * 24));
