@@ -78,6 +78,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true, // prevents duplicate null issue
       trim: true,
+      default: null
     },
 
     aboutMe: {

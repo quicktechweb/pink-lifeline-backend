@@ -65,6 +65,13 @@ const postSchema = new mongoose.Schema(
       default: false,
     },
 
+    type: {
+      type: Number,
+      enum: [0, 1],
+      required: true,
+    },
+
+
 
 
     totalComments: {

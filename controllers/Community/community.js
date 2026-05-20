@@ -41,6 +41,7 @@ export const createPost = async (req, res) => {
       name: isUserExist.fullName,
       userId,
       title,
+      type: isUserExist.type,
       description,
       hashtags: hashtags || [],
       isVerified: (isUserExist.type == 1 && isUserExist.isVerified == true) ? true : false,

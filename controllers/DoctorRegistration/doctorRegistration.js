@@ -129,12 +129,11 @@ export const registerUser = async (req, res) => {
       currentDesignation,
       aboutMe,
       qualifications,
-      doctorIdCard
+      doctorIdCard,
     } = req.body;
 
-
-    if (!type) {
-      return badRequestResponse(res, "User type is required.","User type is not found.")
+    if (type === undefined || (Number(type) !== 0 && Number(type) !== 1)) {
+      return badRequestResponse(res, "User type is required.", "User type is not found.");
     }
 
     if (typeof qualifications === "string") {
@@ -155,8 +154,6 @@ export const registerUser = async (req, res) => {
     //   badRequestResponse(res, "Phone Number is required for doctor registration.", "Phone number is not found.");
     //   return;
     // }
-
- 
 
     // if (phoneNumber) {
     //   const phoneExists = await User.findOne({ phoneNumber });
@@ -208,13 +205,13 @@ export const registerUser = async (req, res) => {
       type: Number(type),
       fullName,
       email,
-      phoneNumber: phoneNumber ?phoneNumber :  null,
-      doctorRegistrationNumber: doctorRegistrationNumber ?doctorRegistrationNumber :  null,
-      currentWorkplace: currentWorkplace ?currentWorkplace :  null,
-      currentDesignation: currentDesignation ?currentDesignation :  null,
-      aboutMe: aboutMe ?aboutMe :  null,
-      qualifications: qualifications ?qualifications :  null,
-      doctorIdCard: doctorIdCard ?doctorIdCard :  null,
+      phoneNumber: phoneNumber ? phoneNumber : null,
+      doctorRegistrationNumber: doctorRegistrationNumber ? doctorRegistrationNumber : null,
+      currentWorkplace: currentWorkplace ? currentWorkplace : null,
+      currentDesignation: currentDesignation ? currentDesignation : null,
+      aboutMe: aboutMe ? aboutMe : null,
+      qualifications: qualifications ? qualifications : null,
+      doctorIdCard: doctorIdCard ? doctorIdCard : null,
       isDoctor,
       isUser,
       isVerified: isVerified ? isVerified : false,
@@ -341,7 +338,7 @@ export const loginadmin = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  const { phoneNumber,isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard } = req.body;
+  const { phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard } = req.body;
 
   const { userId } = req.params;
 
@@ -403,7 +400,7 @@ export const updateProfile = async (req, res) => {
       updateData.phoneNumber = phoneNumber;
     }
 
-    if(isVerified===true){
+    if (isVerified === true) {
       updateData.isVerified = true;
     }
 
