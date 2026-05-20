@@ -56,10 +56,22 @@ export const checkValidGapBetweenPeriods = (previousDate, currentDate) => {
    const gapInDays = Math.floor(
           (currentDate - previousDate) / (1000 * 60 * 60 * 24)
         );
-  
         const expectedGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
   
         const isValidGap = gapInDays === expectedGap;
   
   return isValidGap;
 }
+
+
+export const isWithinSamePeriod = (lastEntryDate, currentDate) => {
+  const gapInDays = Math.floor((currentDate - lastEntryDate) / (1000 * 60 * 60 * 24));
+  const maxGap = Number(process.env.MAX_INTRA_PERIOD_GAP) || 7;
+  return gapInDays >= 0 && gapInDays <= maxGap;
+};
+
+export const isValidNewPeriodGap = (referenceDate, currentDate) => {
+  const gapInDays = Math.floor((currentDate - referenceDate) / (1000 * 60 * 60 * 24));
+  const minGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
+  return gapInDays >= minGap;
+};

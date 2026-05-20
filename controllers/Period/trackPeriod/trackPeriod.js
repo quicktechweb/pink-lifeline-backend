@@ -1,4 +1,4 @@
-import { badRequestResponse, checkValidGapBetweenPeriods, notFoundResponse, somethingWentWrong, successResponse } from "../../../utils/utils.js";
+import { badRequestResponse, isValidNewPeriodGap, isWithinSamePeriod, checkValidGapBetweenPeriods, notFoundResponse, somethingWentWrong, successResponse } from "../../../utils/utils.js";
 import User from "../../../models/DoctorRegistration/DoctorRegistration.js";
 import PeriodTracker from "./../../../models/Period/PeriodModel.js";
 import PeriodDateNoteModel from "../../../models/Period/PeriodDateNoteModel.js";
@@ -25,7 +25,7 @@ export const recordPeriodLog = async (req, res) => {
   try {
     const payload = req.body;
 
-    // ─── 1. VALIDATION ──────────────────────────────────────────────────────────
+    // ─── 1. VALIDATION ───────────────────────────────────────────────────────
 
     if (!payload.userId) {
       return notFoundResponse(res, "User not found.", "User ID is missing.");
@@ -44,15 +44,14 @@ export const recordPeriodLog = async (req, res) => {
       return badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
     }
 
-    // startDate and endDate are mutually exclusive in a single request.
-    // startDate = "I'm starting my period now"
-    // endDate   = "My period just ended"
-    // Neither   = "Just logging today's data"
+    // startDate = "I'm starting my period today"
+    // endDate   = "My period just ended today"
+    // Neither   = "Just logging today's data (symptoms / bleeding / spotting)"
     if (payload.startDate && payload.endDate) {
       return badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
     }
 
-    // ─── 2. BUILD SHARED OBJECTS ─────────────────────────────────────────────────
+    // ─── 2. SHARED SETUP ─────────────────────────────────────────────────────
 
     const currentDate = new Date(payload.currentDate);
 
@@ -62,18 +61,15 @@ export const recordPeriodLog = async (req, res) => {
       spotting: payload.period?.spotting,
     };
 
-    // ─── 3. FETCH LATEST PERIOD RECORD ──────────────────────────────────────────
+    // ─── 3. FETCH LATEST RECORD ──────────────────────────────────────────────
 
-    // We always look at the most recent record regardless of whether it is open
-    // or closed, so we can make decisions based on its dates.
     const latestPeriod = await PeriodTracker.findOne({ userId: payload.userId }).sort({
       createdAt: -1,
     });
 
-    // ─── 4. CASE: NO PREVIOUS RECORD (brand-new user) ───────────────────────────
+    // ─── 4. BRAND-NEW USER ───────────────────────────────────────────────────
 
     if (!latestPeriod) {
-      // endDate makes no sense when there is no period to close.
       if (payload.endDate) {
         return badRequestResponse(res, "Bad request occurred.", "Cannot provide an end date when no period has been started.");
       }
@@ -81,8 +77,6 @@ export const recordPeriodLog = async (req, res) => {
       const newRecord = await PeriodTracker.create({
         userId: payload.userId,
         currentDate,
-        // If the user explicitly flagged this as the start, honour it; otherwise
-        // treat today as the implicit start.
         startDate: payload.startDate ? new Date(payload.startDate) : currentDate,
         endDate: null,
         period: [newPeriodEntry],
@@ -91,20 +85,19 @@ export const recordPeriodLog = async (req, res) => {
       return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
     }
 
-    // ─── 5. CASE: USER IS EXPLICITLY STARTING A NEW PERIOD ──────────────────────
+    // ─── 5. EXPLICIT NEW PERIOD START ────────────────────────────────────────
 
     if (payload.startDate) {
-      // Validate that enough time has passed since the previous period started.
-      // This is the primary guard against nonsense / duplicate entries.
-      const isValidGap = checkValidGapBetweenPeriods(new Date(latestPeriod.startDate), currentDate);
+      // Guard against a new period starting too soon after the previous one.
+      // Reference point is the previous period's startDate so the full
+      // cycle length is validated.
+      const referenceDate = latestPeriod.startDate ? new Date(latestPeriod.startDate) : new Date(latestPeriod.currentDate);
 
-      if (!isValidGap) {
+      if (!isValidNewPeriodGap(referenceDate, currentDate)) {
         return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
       }
 
-      // If the previous period was never closed, auto-close it at the date of
-      // its last logged entry. This handles the "she forgot to mark the end"
-      // scenario.
+      // Auto-close any period the user forgot to mark as ended.
       if (!latestPeriod.endDate) {
         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
           endDate: new Date(latestPeriod.currentDate),
@@ -122,10 +115,9 @@ export const recordPeriodLog = async (req, res) => {
       return successResponse(res, newRecord, "New period started and log recorded successfully.", "Successfully recorded period log.");
     }
 
-    // ─── 6. CASE: USER IS EXPLICITLY CLOSING THE CURRENT PERIOD ─────────────────
+    // ─── 6. EXPLICIT PERIOD END ──────────────────────────────────────────────
 
     if (payload.endDate) {
-      // There must be an open period to close.
       if (latestPeriod.endDate) {
         return badRequestResponse(res, "Bad request occurred.", "No open period found to close. Please start a new period first.");
       }
@@ -143,25 +135,22 @@ export const recordPeriodLog = async (req, res) => {
       return successResponse(res, updatedRecord, "Period ended and log recorded successfully.", "Successfully recorded period log.");
     }
 
-    // ─── 7. CASE: DAILY LOG (no startDate, no endDate) ──────────────────────────
-    //
-    // This is the most common path: the user is just recording today's symptoms.
-    // We need to figure out whether she is still in the same period or whether
-    // she is starting a new one implicitly (either forgot to mark start, or
-    // forgot to close the previous one).
+    // ─── 7. DAILY LOG (no startDate, no endDate) ─────────────────────────────
 
     const hasOpenPeriod = !latestPeriod.endDate;
     const lastEntryDate = new Date(latestPeriod.currentDate);
 
     if (hasOpenPeriod) {
-      // Check if the gap is still within a reasonable period window.
-      // If yes → append to the existing open period.
-      // If no  → the period clearly ended at some point; auto-close it and
-      //           treat today as a new implicit start.
-      const isStillSamePeriod = checkValidGapBetweenPeriods(lastEntryDate, currentDate);
-
-      if (isStillSamePeriod) {
-        // Normal daily logging within an ongoing period.
+      //
+      // isWithinSamePeriod allows:
+      //   • consecutive days (gap = 1)          → normal ongoing period
+      //   • gaps up to 7 days                   → spotting / intermenstrual bleeding
+      //
+      // If the gap is larger than that the period has clearly ended at some
+      // point between then and now, so we auto-close and start fresh.
+      //
+      if (isWithinSamePeriod(lastEntryDate, currentDate)) {
+        // Still within the same period — append and update the latest entry date.
         const updatedRecord = await PeriodTracker.findByIdAndUpdate(
           latestPeriod._id,
           {
@@ -173,9 +162,9 @@ export const recordPeriodLog = async (req, res) => {
 
         return successResponse(res, updatedRecord, "Period log recorded successfully.", "Successfully recorded period log.");
       } else {
-        // Gap is too large to be part of the same period.
-        // Auto-close the previous period at its last known entry date, then
-        // start a fresh period with today as the implicit start.
+        // Gap too large to be the same period (even accounting for spotting).
+        // Auto-close the previous period at its last known entry, then start
+        // a new implicit period for today.
         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
           endDate: lastEntryDate,
         });
@@ -183,7 +172,7 @@ export const recordPeriodLog = async (req, res) => {
         const newRecord = await PeriodTracker.create({
           userId: payload.userId,
           currentDate,
-          startDate: currentDate, // implicit start
+          startDate: currentDate,
           endDate: null,
           period: [newPeriodEntry],
         });
@@ -192,22 +181,19 @@ export const recordPeriodLog = async (req, res) => {
       }
     }
 
-    // Previous period is already closed (user finished last time and is now
-    // logging again without marking a new start). Treat today as an implicit
-    // new period start, but only if enough time has passed.
-    const referenceDate = latestPeriod.endDate ? new Date(latestPeriod.endDate) : lastEntryDate;
+    // Previous period is already closed. The user is logging again without
+    // explicitly marking a new start — treat today as an implicit new start,
+    // but only if the minimum post-menstrual gap has passed.
+    const referenceDate = new Date(latestPeriod.endDate);
 
-    const isValidGap = checkValidGapBetweenPeriods(referenceDate, currentDate);
-
-    if (!isValidGap) {
+    if (!isValidNewPeriodGap(referenceDate, currentDate)) {
       return badRequestResponse(res, "Frequent period entry detected.", "A new period entry cannot be added this soon after the previous period ended.");
     }
 
-    // Valid new period starting implicitly (no explicit startDate provided).
     const newRecord = await PeriodTracker.create({
       userId: payload.userId,
       currentDate,
-      startDate: currentDate, // implicit start
+      startDate: currentDate,
       endDate: null,
       period: [newPeriodEntry],
     });
@@ -215,35 +201,9 @@ export const recordPeriodLog = async (req, res) => {
     return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getPeriodData = async (req, res) => {
   try {
@@ -285,36 +245,6 @@ export const getPeriodData = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getPeriodBasicInsights = async (req, res) => {
   try {
@@ -421,33 +351,6 @@ export const getPeriodBasicInsights = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const addDailyNote = async (req, res) => {
   const payload = req.body;
   const userId = req.params.userId;
@@ -465,15 +368,13 @@ export const addDailyNote = async (req, res) => {
   }
 };
 
+export const estimatedNextPeriodDate = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const periodDocs = await PeriodTracker.find({ userId }).sort({
+      createdAt: 1,
+    });
 
-
-
-
-
-
-
-
-
-
-
-
+    return successResponse(res, periodDocs, "All period data is fetched.", "All period data is fetched successfuily.");
+  } catch (error) {}
+};
