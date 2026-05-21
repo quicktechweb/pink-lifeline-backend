@@ -1,6 +1,7 @@
 import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
+import { SelfTestStep } from "../../models/SelfTest/selfTestModel.js";
 import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
-import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
+// import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
 import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import { ObjectId } from "mongodb";
 

@@ -1,8 +1,5 @@
 import mongoose from "mongoose";
 
-/* =========================
-   QUESTION SCHEMA
-========================= */
 
 const selfTestQuestionSchema = new mongoose.Schema(
   {
@@ -26,5 +23,6 @@ const selfTestQuestionSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
 
 export const SelfTestQuestion = mongoose.model("SelfTestQuestion", selfTestQuestionSchema);

@@ -338,22 +338,34 @@ export const loginadmin = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  const { phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard } = req.body;
+  let { phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications } = req.body;
 
   const { userId } = req.params;
 
-  if (type == 0) {
-    return badRequestResponse(res, "Only doctors can update doctor profile.", "Profile update failed: User is not a doctor.");
-  }
-
   try {
-    if (doctorIdCard === undefined || !doctorIdCard?.url || !doctorIdCard?.publicId) {
-      return notFoundResponse(res, "Doctor ID card not found", "Profile update failed: Doctor ID card not found.");
+    /* =========================
+       VALIDATE TYPE
+    ========================= */
+
+    if (Number(type) === 0) {
+      return badRequestResponse(res, "Only doctors can update doctor profile.", "Profile update failed: User is not a doctor.");
+    }
+
+    /* =========================
+       PARSE QUALIFICATIONS
+    ========================= */
+
+    if (typeof qualifications === "string") {
+      qualifications = JSON.parse(qualifications);
     }
 
     if (qualifications !== undefined && !Array.isArray(qualifications)) {
       return notFoundResponse(res, "Qualifications information is required", "Profile update failed: Qualifications data is missing.");
     }
+
+    /* =========================
+       REQUIRED FIELD
+    ========================= */
 
     if (!doctorRegistrationNumber) {
       return notFoundResponse(res, "Doctor registration number is required", "Profile update failed: Doctor registration number is missing.");
@@ -361,12 +373,18 @@ export const updateProfile = async (req, res) => {
 
     const updateData = {};
 
-    // Common field
+    /* =========================
+       COMMON FIELD
+    ========================= */
+
     if (aboutMe !== undefined) {
       updateData.aboutMe = aboutMe;
     }
 
-    // Doctor fields
+    /* =========================
+       DOCTOR FIELDS
+    ========================= */
+
     if (doctorRegistrationNumber !== undefined) {
       updateData.doctorRegistrationNumber = doctorRegistrationNumber;
     }
@@ -383,12 +401,9 @@ export const updateProfile = async (req, res) => {
       updateData.qualifications = qualifications;
     }
 
-    if (doctorIdCard !== undefined) {
-      updateData.doctorIdCard = {
-        url: doctorIdCard.url,
-        publicId: doctorIdCard.publicId,
-      };
-    }
+    /* =========================
+       PHONE VALIDATION
+    ========================= */
 
     if (phoneNumber !== undefined) {
       const bdPhoneRegex = /^(\+8801|8801|01)[3-9]\d{8}$/;
@@ -400,9 +415,32 @@ export const updateProfile = async (req, res) => {
       updateData.phoneNumber = phoneNumber;
     }
 
-    if (isVerified === true) {
+    /* =========================
+       IMAGE UPLOAD
+    ========================= */
+
+    if (req.file) {
+      const uploaded = await uploadToImgBB(req.file);
+
+      if (uploaded) {
+        updateData.doctorIdCard = {
+          url: uploaded.url,
+          deleteUrl: uploaded.delete_url,
+        };
+      }
+    }
+
+    /* =========================
+       VERIFIED
+    ========================= */
+
+    if (isVerified === true || isVerified === "true") {
       updateData.isVerified = true;
     }
+
+    /* =========================
+       UPDATE USER
+    ========================= */
 
     const updatedUser = await User.findOneAndUpdate(
       { userId },
@@ -418,6 +456,7 @@ export const updateProfile = async (req, res) => {
     return successResponse(res, updatedUser, "Profile updated successfully.", "Doctor profile updated successfully.");
   } catch (error) {
     console.error(error);
+
     return somethingWentWrong(res, error, "Failed to update profile", "Profile update error");
   }
 };

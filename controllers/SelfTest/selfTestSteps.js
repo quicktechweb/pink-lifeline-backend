@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
-import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
+// import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
+import { SelfTestStep } from "../../models/SelfTest/selfTestModel.js";
 import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
 import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
 
@@ -420,5 +421,92 @@ export const getAllStepsQuestionsAnswers = async (req, res) => {
       message: "Failed to fetch data",
       error: error.message,
     });
+  }
+};
+
+export const addSelfTestStepV2 = async (req, res) => {
+  try {
+    const payload = req.body;
+
+    let { stepNo, title, questions } = payload;
+
+    /* =========================
+       GET VIDEO URL
+    ========================= */
+
+    const videoURL = req.file?.path;
+
+    /* =========================
+       VALIDATION
+    ========================= */
+
+    if (!stepNo) {
+      return badRequestResponse(res, "Step No. not found.", "Step no is not found.");
+    }
+
+    if (!title) {
+      return badRequestResponse(res, "Title not found.", "Title is not found.");
+    }
+
+    if (!videoURL) {
+      return badRequestResponse(res, "Video not uploaded.", "Video not uploaded.");
+    }
+
+    /* =========================
+       SHIFT EXISTING STEPS
+    ========================= */
+
+    const isStepExist = await SelfTestStep.findOne({
+      stepNo,
+    });
+
+    let responseMessage = "Self test step created successfully.";
+
+    if (isStepExist) {
+      const existingSteps = await SelfTestStep.find({
+        stepNo: { $gte: stepNo },
+      }).sort({ stepNo: -1 });
+
+      for (const step of existingSteps) {
+        step.stepNo = step.stepNo + 1;
+        await step.save();
+      }
+    }
+
+    if (typeof questions === "string") {
+      questions = JSON.parse(questions);
+    }
+
+    /* =========================
+       FORMAT QUESTIONS
+    ========================= */
+
+    const formattedQuestions =
+      questions?.map((question) => ({
+        title: question.title,
+
+        answers:
+          question.answers?.map((answer) => ({
+            title: answer.title,
+            score: answer.score || 0,
+          })) || [],
+      })) || [];
+
+    /* =========================
+       CREATE STEP
+    ========================= */
+
+    const newStep = await SelfTestStep.create({
+      stepNo,
+      title,
+      videoURL,
+      questions: formattedQuestions,
+    });
+
+    return successResponse(res, newStep, responseMessage, responseMessage);
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Unable to save step.", error.message);
   }
 };

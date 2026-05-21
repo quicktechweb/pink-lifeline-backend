@@ -66,6 +66,39 @@ export const createPost = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getAllPosts = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -80,27 +113,7 @@ export const getAllPosts = async (req, res) => {
       return notFoundResponse(res, "User not found.", "User not found.");
     }
 
-    // const allPosts = await Post.aggregate([
-    //   {
-    //     $addFields: {
-    //       netvote: {
-    //         $subtract: ["$upvote", "$downvote"],
-    //       },
-    //     },
-    //   },
-
-    //   {
-    //     $sort: {
-    //       createdAt: -1,
-    //       netvote: -1,
-    //     },
-    //   },
-    // ]);
-
     const allPosts = await Post.aggregate([
-      // =====================================================
-      // NET VOTE
-      // =====================================================
 
       {
         $addFields: {
@@ -426,15 +439,53 @@ export const postDownVote = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const postComment = async (req, res) => {
   const userId = req.params.userId;
 
   const { text, postId, parentId = null } = req.body;
 
   try {
-    // =========================
-    // VALIDATION
-    // =========================
+
 
     if (!userId) {
       return badRequestResponse(res, "Invalid User.", "Invalid user.");
@@ -448,9 +499,6 @@ export const postComment = async (req, res) => {
       return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
     }
 
-    // =========================
-    // CHECK USER
-    // =========================
 
     const isUserExist = await User.findOne({ userId });
 
@@ -458,9 +506,6 @@ export const postComment = async (req, res) => {
       return notFoundResponse(res, "User is not registered.", "User is not registered.");
     }
 
-    // =========================
-    // CHECK POST
-    // =========================
 
     const post = await Post.findById(postId);
 
@@ -468,10 +513,7 @@ export const postComment = async (req, res) => {
       return notFoundResponse(res, "Post not found.", "Post not found.");
     }
 
-    // =========================
-    // HANDLE REPLY
-    // =========================
-
+ 
     let parentComment = null;
 
     if (parentId) {
@@ -486,16 +528,13 @@ export const postComment = async (req, res) => {
         return notFoundResponse(res, "Parent comment not found.", "Parent comment not found.");
       }
 
-      // IMPORTANT
-      // parent comment must belong to same post
+
       if (parentComment.postId.toString() !== postId) {
         return badRequestResponse(res, "Reply mismatch.", "Reply post mismatch.");
       }
     }
 
-    // =========================
-    // CREATE COMMENT / REPLY
-    // =========================
+
 
     const userComment = {
       name: isUserExist.fullName,
@@ -506,8 +545,7 @@ export const postComment = async (req, res) => {
 
       text: text.trim(),
 
-      // null = root comment
-      // otherwise reply
+
       parentId: parentId || null,
     };
 
@@ -515,9 +553,7 @@ export const postComment = async (req, res) => {
     post.totalComments += 1;
     await post.save();
 
-    // =========================
-    // UPDATE REPLY COUNT
-    // =========================
+
 
     if (parentComment) {
       await Comment.findByIdAndUpdate(parentId, {
@@ -527,9 +563,7 @@ export const postComment = async (req, res) => {
       });
     }
 
-    // =========================
-    // RESPONSE
-    // =========================
+
 
     if (uploadedComment) {
       return successResponse(res, uploadedComment, parentId ? "Reply added successfully." : "Comment added successfully.", parentId ? "Reply published successfully." : "Comment published successfully.");
@@ -542,6 +576,46 @@ export const postComment = async (req, res) => {
     return somethingWentWrong(res, error, "Unable to comment.", "Unable to comment.");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const getSinglePost = async (req, res) => {
   const { userId } = req.params;
@@ -899,21 +973,12 @@ export const getAllSavedPosts = async (req, res) => {
         },
       },
 
-      // =====================================================
-      // SORT
-      // latest first then netvote
-      // =====================================================
-
       {
         $sort: {
           createdAt: -1,
           netvote: -1,
         },
       },
-
-      // =====================================================
-      // USER VOTE LOOKUP
-      // =====================================================
 
       {
         $lookup: {
@@ -941,10 +1006,6 @@ export const getAllSavedPosts = async (req, res) => {
         },
       },
 
-      // =====================================================
-      // SAVED POST LOOKUP
-      // =====================================================
-
       {
         $lookup: {
           from: "savedposts",
@@ -971,10 +1032,6 @@ export const getAllSavedPosts = async (req, res) => {
         },
       },
 
-      // =====================================================
-      // ONLY FETCH SAVED POSTS
-      // =====================================================
-
       {
         $match: {
           "savedPostData.0": {
@@ -982,10 +1039,6 @@ export const getAllSavedPosts = async (req, res) => {
           },
         },
       },
-
-      // =====================================================
-      // FLAGS
-      // =====================================================
 
       {
         $addFields: {
@@ -1051,10 +1104,6 @@ export const getAllSavedPosts = async (req, res) => {
           },
         },
       },
-
-      // =====================================================
-      // CLEANUP
-      // =====================================================
 
       {
         $project: {
