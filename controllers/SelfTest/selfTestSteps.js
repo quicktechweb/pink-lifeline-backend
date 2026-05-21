@@ -510,3 +510,33 @@ export const addSelfTestStepV2 = async (req, res) => {
     return somethingWentWrong(res, error, "Unable to save step.", error.message);
   }
 };
+
+export const getAllTestSteps2 = async (req, res) => {
+  try {
+    const steps = await SelfTestStep.find().sort({ stepNo: 1 });
+    if (!steps || steps == null || steps == undefined) {
+      return badRequestResponse(res, "No steps found.", "No steps found.");
+    }
+
+    return successResponse(res, steps, "All test steps fetched successfully.", "All test steps fetched successfully.");
+  } catch (error) {
+    console.error(error);
+    return badRequestResponse(res, "Unable to fetch all steps.", "Unable to fetch all the steps.");
+  }
+};
+
+
+
+export const updateSteps2 = async (req,res) => {
+  const stepId = req.params.stepId;
+  if(!stepId){
+    return badRequestResponse(res, "Bad Request.","stepId not found.")
+  }
+
+
+  
+
+
+
+
+}
