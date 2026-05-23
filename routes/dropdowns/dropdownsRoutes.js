@@ -1,5 +1,5 @@
 import express from "express";
-import { addBleeding, addSpotting, addSymptom, deleteBleeding, deleteSpotting, deleteSymptom, getAllBleeding, getAllSpotting, getAllSymptoms, updateBleeding, updateSpotting, updateSymptom } from "../../controllers/dropdowns/Dropdowns.js";
+import { addBleeding, addSpotting, addSymptom, deleteBleeding, deleteSpotting, deleteSymptom, getAllBleeding, getAllSpotting, getAllSymptoms, updateBleeding, updateSpotting, updateSymptom } from "../../controllers/dropdowns/dropdowns.js";
 
 const router = express.Router();
 
