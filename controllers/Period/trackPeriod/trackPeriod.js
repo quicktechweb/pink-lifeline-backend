@@ -312,7 +312,10 @@ export const getPeriodBasicInsights = async (req, res) => {
             month: "long",
           });
 
-          const selfTest = cycleGapInDays < 21 || cycleGapInDays > 35;
+          // const selfTest = cycleGapInDays < 21 || cycleGapInDays > 35;
+          // Generates a 50/50 chance of true or false
+          const selfTest = Math.random() < 0.5;
+          console.log("🚀 ~ trackPeriod.js:316 ~ getPeriodBasicInsights ~ selfTest:", selfTest)
 
           result.sixMonthCycleHistory.push({
             monthName,
@@ -328,11 +331,11 @@ export const getPeriodBasicInsights = async (req, res) => {
             totalMonthDays: cycleGapInDays,
           });
 
-          console.log({
-            monthName,
-            cycleGapInDays,
-            periodDurationInDays,
-          });
+          // console.log({
+          //   monthName,
+          //   cycleGapInDays,
+          //   periodDurationInDays,
+          // });
         });
 
         const averageCycleLength = totalCycleCount > 0 ? Math.round(totalCycleLength / totalCycleCount) : 0;
