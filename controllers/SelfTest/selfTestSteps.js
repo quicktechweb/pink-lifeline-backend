@@ -525,18 +525,9 @@ export const getAllTestSteps2 = async (req, res) => {
   }
 };
 
-
-
-export const updateSteps2 = async (req,res) => {
+export const updateSteps2 = async (req, res) => {
   const stepId = req.params.stepId;
-  if(!stepId){
-    return badRequestResponse(res, "Bad Request.","stepId not found.")
+  if (!stepId) {
+    return badRequestResponse(res, "Bad Request.", "stepId not found.");
   }
-
-
-  
-
-
-
-
-}
+};

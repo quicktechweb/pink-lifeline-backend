@@ -8,6 +8,7 @@ import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
 import periodRoutes from "./routes/periodRoutes/periodRoutes.js";
 import selfTestRoutes from "./routes/selfTestRoutes/selfTestRoutes.js";
 import communityRoutes from "./routes/communityRoutes/communityRoutes.js";
+import degreeRoutes from "./routes/degreeRoutes/degreeRoutes.js"
 
 import dns from "dns";
 import "./firebase-admin.js";
@@ -42,6 +43,8 @@ app.use("/api/registration", doctorRoutes);
 app.use("/api/period", periodRoutes);
 app.use("/api/self-test", selfTestRoutes);
 app.use("/api/community", communityRoutes);
+app.use("/api/degree",degreeRoutes);
+
 
 app.get("/", async (req, res) => {
   res.status(200).send(`🚀 Pink Lifeline Backend is running smoothly | STATUS: ONLINE | ⏰ ${new Date().toISOString()} | ⚡ Uptime: ${Math.floor(process.uptime())}s`);
