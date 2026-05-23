@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 // import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
 import { SelfTestStep } from "../../models/SelfTest/selfTestModel.js";
 import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
@@ -490,13 +490,13 @@ export const addSelfTestStepV2 = async (req, res) => {
   try {
     const payload = req.body;
 
-    let { stepNo, title, questions } = payload;
+    let { stepNo, title, questions, videoURL } = payload;
 
     /* =========================
        GET VIDEO URL
     ========================= */
 
-    const videoURL = req.file?.path;
+    // const videoURL = req.file?.path;
 
     /* =========================
        VALIDATION
@@ -511,7 +511,7 @@ export const addSelfTestStepV2 = async (req, res) => {
     }
 
     if (!videoURL) {
-      return badRequestResponse(res, "Video not uploaded.", "Video not uploaded.");
+      return badRequestResponse(res, "Video url is not provided.", "Video url is not given.");
     }
 
     /* =========================
@@ -577,7 +577,20 @@ export const addSelfTestStepV2 = async (req, res) => {
 
 
 
-
+export const deleteSelfTestId = async (req,res) => {
+  const { stepId } = req.params
+  try {
+    const deletedStep = await SelfTestStep.findByIdAndDelete({_id:stepId});
+    if (deleteStep != null ) {
+      successResponse(res,deletedStep,"Delete operation completed successfully",`Delete happens successfully Id: ${stepId}`)
+    }else{
+      notFoundResponse(res,"Unable to delete this step.",`Unable to delete this step id:${stepId}`)
+    }
+  } catch (error) {
+    console.error(error)
+    badRequestResponse(res,"Unable to delete this step.",`Unable to delete this step id:${stepId}`)
+  }
+}
 
 
 
