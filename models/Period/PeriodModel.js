@@ -1,87 +1,11 @@
 import mongoose from "mongoose";
+import { bleedingSchema } from "../Dropdowns/bleedingDropdownModel.js";
+import { symptomSchema } from "../Dropdowns/symptomsDropdownModel.js";
+import { spottingSchema } from "../Dropdowns/spottingDropdownModel.js";
 
 /* =========================================================
    🔹 Reusable Schemas
 ========================================================= */
-
-// 🔹 Bleeding Schema
-const bleedingSchema = new mongoose.Schema(
-  {
-    id: {
-      type: Number,
-      enum: [0, 1, 2, 3],
-      required: true,
-    },
-
-    title: {
-      type: String,
-      required: true,
-    },
-
-    flowLevel: {
-      type: Number,
-      enum: [0, 1, 2, 3],
-      default: 0,
-    },
-
-    // 🔹 Added from DailyLog schema
-    hadFlow: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  { _id: true },
-);
-
-bleedingSchema.pre("save", function (next) {
-  this.hadFlow = this.flowLevel !== 0;
-  next();
-});
-
-// 🔹 Symptoms Schema
-const symptomSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: false,
-    },
-
-    id: {
-      type: Number,
-      required: false,
-    },
-
-    // // 🔹 Added from DailyLog schema
-    // severity: {
-    //   type: Number,
-    //   enum: [1, 2, 3],
-    //   required: false,
-    // },
-
-    isRecent: {
-      type: Number,
-      enum: [0, 1],
-      default: 0,
-    },
-  },
-  { _id: true },
-);
-
-// 🔹 Spotting Schema
-const spottingSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: false,
-    },
-
-    id: {
-      type: Number,
-      required: false,
-    },
-  },
-  { _id: true },
-);
 
 /* =========================================================
    🔹 Period Day Schema
