@@ -415,6 +415,17 @@ export const updateProfile = async (req, res) => {
       updateData.phoneNumber = phoneNumber;
     }
 
+
+        /* =========================
+       VERIFIED
+    ========================= */
+
+    if (isVerified === true || isVerified === "true") {
+      updateData.isVerified = true;
+    }
+
+
+
     /* =========================
        IMAGE UPLOAD
     ========================= */
@@ -430,13 +441,7 @@ export const updateProfile = async (req, res) => {
       }
     }
 
-    /* =========================
-       VERIFIED
-    ========================= */
 
-    if (isVerified === true || isVerified === "true") {
-      updateData.isVerified = true;
-    }
 
     /* =========================
        UPDATE USER

@@ -25,13 +25,18 @@ const bleedingSchema = new mongoose.Schema(
     },
 
     // 🔹 Added from DailyLog schema
-    isSpotting: {
+    hadFlow: {
       type: Boolean,
       default: false,
     },
   },
   { _id: true },
 );
+
+bleedingSchema.pre("save", function (next) {
+  this.hadFlow = this.flowLevel !== 0;
+  next();
+});
 
 // 🔹 Symptoms Schema
 const symptomSchema = new mongoose.Schema(
@@ -84,7 +89,7 @@ const spottingSchema = new mongoose.Schema(
 
 const periodSchema = new mongoose.Schema(
   {
-        currentDate: {
+    currentDate: {
       type: Date,
       required: true,
     },
@@ -102,13 +107,6 @@ const periodSchema = new mongoose.Schema(
     spotting: {
       type: [spottingSchema],
       default: [],
-    },
-
-    // 🔹 Added from DailyLog schema
-    notes: {
-      type: String,
-      maxLength: 500,
-      default: "",
     },
   },
   { _id: true },

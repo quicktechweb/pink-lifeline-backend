@@ -52,13 +52,26 @@ export const recordPeriodLog = async (req, res) => {
 
     const currentDate = new Date(payload.currentDate);
 
+    const bleeding = payload.period?.bleeding
+      ? {
+          id: payload.period.bleeding.id,
+          title: payload.period.bleeding.title,
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
+          hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
+        }
+      : undefined;
+
+    const rawFlow = payload.period?.bleeding?.flowLevel;
+    if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
+      return badRequestResponse(res, "Invalid flow level.", "flowLevel must be 0, 1, 2, or 3");
+    }
+
     // ✅ Each period sub-document now carries its own currentDate
     const newPeriodEntry = {
       currentDate,
-      bleeding: payload.period?.bleeding,
+      bleeding: bleeding,
       symptoms: payload.period?.symptoms ?? [],
       spotting: payload.period?.spotting ?? [],
-      notes: payload.period?.notes ?? "",
     };
 
     // ─── 3. FETCH LATEST RECORD ──────────────────────────────────────────────
