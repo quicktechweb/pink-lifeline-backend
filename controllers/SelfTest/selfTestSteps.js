@@ -482,6 +482,10 @@ export const updateSteps2 = async (req, res) => {
 
 
 
+
+
+
+
 export const addSelfTestStepV2 = async (req, res) => {
   try {
     const payload = req.body;
@@ -568,3 +572,22 @@ export const addSelfTestStepV2 = async (req, res) => {
     return somethingWentWrong(res, error, "Unable to save step.", error.message);
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const addUserSelfTest = async (req,res) => {
+  
+}

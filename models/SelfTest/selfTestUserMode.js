@@ -37,6 +37,11 @@ const userSelfTestSchema = new mongoose.Schema(
       index: true,
     },
 
+    currentDate: {
+      type: Date,
+      default: Date.now,
+    },
+
     selfTest: {
       type: [selfTestItemSchema],
       default: [],
