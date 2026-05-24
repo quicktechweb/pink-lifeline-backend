@@ -158,12 +158,15 @@ export const uploadImage = multer({
   },
 
   fileFilter: (req, file, cb) => {
-    const allowed = [
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-      "image/webp",
-    ];
+const allowed = [
+  "image/jpeg",
+  "image/png",
+  "image/jpg",
+  "image/webp",
+  "application/octet-stream",
+  "image/heic",
+  "image/heif",
+];
 
     if (allowed.includes(file.mimetype)) {
       cb(null, true);
