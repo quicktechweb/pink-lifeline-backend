@@ -132,9 +132,9 @@ export const deleteSpotting = async (req, res) => {
        DELETE
     ========================= */
 
-    await Spotting.findByIdAndDelete(spottingId);
+    const result = await Spotting.findByIdAndDelete(spottingId);
 
-    return successResponse(res, null, "Spotting deleted successfully", "Spotting deleted successfully");
+    return successResponse(res, result, "Spotting deleted successfully", "Spotting deleted successfully");
   } catch (error) {
     console.error("deleteSpotting error:", error);
 
@@ -277,9 +277,9 @@ export const deleteBleeding = async (req, res) => {
        DELETE
     ========================= */
 
-    await Bleeding.findByIdAndDelete(bleedingId);
+    const result = await Bleeding.findByIdAndDelete(bleedingId);
 
-    return successResponse(res, null, "Bleeding deleted successfully", "Bleeding deleted successfully");
+    return successResponse(res, result, "Bleeding deleted successfully", "Bleeding deleted successfully");
   } catch (error) {
     console.error("deleteBleeding error:", error);
 
@@ -422,9 +422,9 @@ export const deleteSymptom = async (req, res) => {
        DELETE
     ========================= */
 
-    await Symptom.findByIdAndDelete(symptomId);
+    const result = await Symptom.findByIdAndDelete(symptomId);
 
-    return successResponse(res, null, "Symptom deleted successfully", "Symptom deleted successfully");
+    return successResponse(res, result, "Symptom deleted successfully", "Symptom deleted successfully");
   } catch (error) {
     console.error("deleteSymptom error:", error);
 
