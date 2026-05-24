@@ -7,6 +7,46 @@ import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import SavedPostModel from "../../models/Community/SavedPostModel.js";
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const createPost = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -65,6 +105,30 @@ export const createPost = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

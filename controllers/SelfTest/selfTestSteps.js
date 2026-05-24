@@ -484,19 +484,12 @@ export const updateSteps2 = async (req, res) => {
 
 
 
-
-
 export const addSelfTestStepV2 = async (req, res) => {
   try {
     const payload = req.body;
+    console.log("🚀 ~ selfTestSteps.js:490 ~ addSelfTestStepV2 ~ payload:", payload)
 
     let { stepNo, title, questions, videoURL } = payload;
-
-    /* =========================
-       GET VIDEO URL
-    ========================= */
-
-    // const videoURL = req.file?.path;
 
     /* =========================
        VALIDATION
@@ -510,17 +503,34 @@ export const addSelfTestStepV2 = async (req, res) => {
       return badRequestResponse(res, "Title not found.", "Title is not found.");
     }
 
-    if (!videoURL) {
-      return badRequestResponse(res, "Video url is not provided.", "Video url is not given.");
+    if (!videoURL || typeof videoURL !== "string") {
+      return badRequestResponse(
+        res,
+        "Video URL is required.",
+        "Video URL must be a valid string."
+      );
+    }
+
+    /* =========================
+       OPTIONAL: YOUTUBE VALIDATION
+    ========================= */
+
+    const isValidYouTube =
+      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(videoURL);
+
+    if (!isValidYouTube) {
+      return badRequestResponse(
+        res,
+        "Invalid YouTube URL.",
+        "Only YouTube links are allowed."
+      );
     }
 
     /* =========================
        SHIFT EXISTING STEPS
     ========================= */
 
-    const isStepExist = await SelfTestStep.findOne({
-      stepNo,
-    });
+    const isStepExist = await SelfTestStep.findOne({ stepNo });
 
     let responseMessage = "Self test step created successfully.";
 
@@ -535,18 +545,17 @@ export const addSelfTestStepV2 = async (req, res) => {
       }
     }
 
+    /* =========================
+       PARSE QUESTIONS
+    ========================= */
+
     if (typeof questions === "string") {
       questions = JSON.parse(questions);
     }
 
-    /* =========================
-       FORMAT QUESTIONS
-    ========================= */
-
     const formattedQuestions =
       questions?.map((question) => ({
         title: question.title,
-
         answers:
           question.answers?.map((answer) => ({
             title: answer.title,
@@ -561,14 +570,13 @@ export const addSelfTestStepV2 = async (req, res) => {
     const newStep = await SelfTestStep.create({
       stepNo,
       title,
-      videoURL,
+      videoURL, // now always YouTube link string
       questions: formattedQuestions,
     });
 
     return successResponse(res, newStep, responseMessage, responseMessage);
   } catch (error) {
     console.error(error);
-
     return somethingWentWrong(res, error, "Unable to save step.", error.message);
   }
 };
@@ -579,15 +587,16 @@ export const addSelfTestStepV2 = async (req, res) => {
 
 
 
-
 export const deleteSelfTestId = async (req,res) => {
   const { stepId } = req.params
   try {
-    const deletedStep = await SelfTestStep.findByIdAndDelete({_id:stepId});
-    if (deleteStep != null ) {
-      successResponse(res,deletedStep,"Delete operation completed successfully",`Delete happens successfully Id: ${stepId}`)
+    const deletedStep = await SelfTestStep.findById({_id:stepId});
+    if (deleteStep == null ) {
+      notFoundResponse( res,"Data not found",`Delete happens successfully Id: ${stepId}`)
     }else{
-      notFoundResponse(res,"Unable to delete this step.",`Unable to delete this step id:${stepId}`)
+      const deleteStep = await SelfTestStep.findByIdAndDelete({_id:stepId})
+      deleteStep && successResponse(res,deleteStep,"Data deleted successfully.",`Deleted data is id:${stepId}`)
+      notFoundResponse( res,"Data not found",`Delete happens successfully Id: ${stepId}`)
     }
   } catch (error) {
     console.error(error)

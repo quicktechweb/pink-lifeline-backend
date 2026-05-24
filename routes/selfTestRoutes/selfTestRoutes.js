@@ -57,7 +57,9 @@ router.post("/v2/create-user-self-test", addUserSelfTest);
 router.delete("/v2/delete-self-test/:stepId", deleteSelfTestId);
 
 
+
 router.get("/v2/get-all-test-steps", getAllTestSteps2);
+
 
 router.patch("/v2/update-self-test-step/:stepId", updateSteps2);
 

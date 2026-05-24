@@ -152,32 +152,33 @@ const storage = multer.memoryStorage();
  */
 
 
-export const uploadImage = multer({
-  storage,
+    export const uploadImage = multer({
+      storage,
 
-  limits: {
-    fileSize: 5 * 1024 * 1024,
-  },
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
 
-  fileFilter: (req, file, cb) => {
-    const allowed = [
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-      "image/webp",
-      "application/octet-stream",
-      "image/heic",
-      "image/heif",
-    ];
+      fileFilter: (req, file, cb) => {
+        const allowed = [
+          "image/jpeg",
+          "image/png",
+          "image/jpg",
+          "image/webp",
+          "application/octet-stream",
+          "image/heic",
+          "image/heif",
+        ];
 
-    console.log("🚀 ~ upload.js:173 ~ file.mimetype:", file.mimetype)
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Invalid image type"));
-    }
-  },
-});
+        console.log("🚀 ~ upload.js:173 ~ file.mimetype:", file.mimetype)
+        if (allowed.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error("Invalid image type"));
+        }
+
+      },
+    });
 
 
 
