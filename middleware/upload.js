@@ -160,16 +160,28 @@ export const uploadImage = multer({
   },
 
   fileFilter: (req, file, cb) => {
-    // allow every image mime type
-    if (file.mimetype.startsWith("image/")) {
+    const allowed = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "image/webp",
+      "application/octet-stream",
+      "image/heic",
+      "image/heif",
+    ];
+
+    console.log("🚀 ~ upload.js:173 ~ file.mimetype:", file.mimetype)
+    if (allowed.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error(`Invalid file type: ${file.mimetype}`));
+      cb(new Error("Invalid image type"));
     }
   },
-
-  
 });
+
+
+
+
 
 
 
