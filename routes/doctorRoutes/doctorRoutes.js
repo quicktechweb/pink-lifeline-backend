@@ -13,6 +13,8 @@ router.post("/login", loginUser);
 router.post("/loginadmin", loginadmin);
 
 router.post("/update-profile/:userId", uploadImage.single("doctorIdCard"), isUserExist, updateProfile);
+
+
 router.get("/get-profile/:userId", isUserExist, getProfile);
 
 export default router;

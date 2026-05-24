@@ -49,12 +49,35 @@ app.use("/api/dropdowns",dropdownRoutes)
 
 
 
+
+
+
+
+
+
+
+
 app.get("/", async (req, res) => {
   res.status(200).send(`🚀 Pink Lifeline Backend is running smoothly | STATUS: ONLINE | ⏰ ${new Date().toISOString()} | ⚡ Uptime: ${Math.floor(process.uptime())}s`);
 });
 
 // Server Start
 const PORT = process.env.PORT || 5000;
+
+
+
+app.use((err, req, res, next) => {
+  console.error("ERROR =>", err);
+
+  return res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    stack: err.stack || undefined,
+  });
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   const usedRAM = process.memoryUsage().rss / 1024 / 1024;
