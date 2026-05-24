@@ -150,6 +150,8 @@ const storage = multer.memoryStorage();
 /**
  * Image upload middleware
  */
+
+
 export const uploadImage = multer({
   storage,
 
@@ -158,22 +160,15 @@ export const uploadImage = multer({
   },
 
   fileFilter: (req, file, cb) => {
-const allowed = [
-  "image/jpeg",
-  "image/png",
-  "image/jpg",
-  "image/webp",
-  "application/octet-stream",
-  "image/heic",
-  "image/heif",
-];
-
-    if (allowed.includes(file.mimetype)) {
+    // allow every image mime type
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error("Invalid image type"));
+      cb(new Error(`Invalid file type: ${file.mimetype}`));
     }
   },
+
+  
 });
 
 
