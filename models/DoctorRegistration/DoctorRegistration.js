@@ -68,9 +68,9 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-    isVerified:{
-      type:Boolean,
-      default:false
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
 
     phoneNumber: {
@@ -78,7 +78,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true, // prevents duplicate null issue
       trim: true,
-      default: null
+      default: null,
     },
 
     aboutMe: {
@@ -86,8 +86,6 @@ const userSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
-
-    // 🔥 Doctor-only fields
 
     doctorRegistrationNumber: {
       type: String,
@@ -102,6 +100,11 @@ const userSchema = new mongoose.Schema(
     currentDesignation: {
       type: String,
       trim: true,
+    },
+
+    isRemoved: {
+      type: Boolean,
+      default: false,
     },
 
     qualifications: {

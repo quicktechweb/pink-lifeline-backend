@@ -1,7 +1,10 @@
-import { badRequestResponse, isValidNewPeriodGap, isWithinSamePeriod, checkValidGapBetweenPeriods, notFoundResponse, somethingWentWrong, successResponse } from "../../../utils/utils.js";
+import { badRequestResponse, isValidNewPeriodGap, isWithinSamePeriod, checkValidGapBetweenPeriods, notFoundResponse, somethingWentWrong, successResponse, getBleedingTitle, getSpottingTitle, getSymptomTitle } from "../../../utils/utils.js";
 import User from "../../../models/DoctorRegistration/DoctorRegistration.js";
 import PeriodTracker from "./../../../models/Period/PeriodModel.js";
 import PeriodDateNoteModel from "../../../models/Period/PeriodDateNoteModel.js";
+import { Bleeding } from "../../../models/Dropdowns/bleedingDropdownModel.js";
+import { Spotting } from "../../../models/Dropdowns/spottingDropdownModel.js";
+import { Symptom } from "../../../models/Dropdowns/symptomsDropdownModel.js";
 
 const savePeriodDataIntoDB = async (res, payload) => {
   const newPeriodEntry = {
@@ -109,6 +112,230 @@ const savePeriodDataIntoDB = async (res, payload) => {
 
 
 
+// export const recordPeriodLog = async (req, res) => {
+//   try {
+//     const payload = req.body;
+
+//     // ─── 1. VALIDATION ───────────────────────────────────────────────────────
+
+//     if (!payload.userId) {
+//       return notFoundResponse(res, "User not found.", "User ID is missing.");
+//     }
+
+//     const isUserExist = await User.findOne({ userId: payload.userId });
+//     if (!isUserExist) {
+//       return notFoundResponse(res, "User not found.", "User is not registered.");
+//     }
+
+//     if (!payload.currentDate) {
+//       return badRequestResponse(res, "Bad request occurred.", "Current date is required.");
+//     }
+
+//     if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
+//       return badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
+//     }
+
+//     if (payload.startDate && payload.endDate) {
+//       return badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
+//     }
+
+
+    
+//     // // ─── 1.5. GET DROP DOWN DATA ─────────────────────────────────────────────────────
+
+//     // const bleedingOptions = await Bleeding.find().sort({createdAt: -1});
+
+//     // const spottingOptions = await Spotting.find().sort({createdAt: -1});
+
+//     // const symptomOptions = await Symptom.find().sort({createdAt: -1});
+
+//     // ─── 2. SHARED SETUP ─────────────────────────────────────────────────────
+
+//     const currentDate = new Date(payload.currentDate);
+
+//     const bleeding = payload.period?.bleeding
+//       ? {
+//           id: payload.period.bleeding.id,
+//           title: payload.period.bleeding.title ? await getBleedingTitle(payload.period.bleeding.id) : null,
+//           flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
+//           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
+//         }
+//       : undefined;
+
+//     const rawFlow = payload.period?.bleeding?.flowLevel;
+//     if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
+//       return badRequestResponse(res, "Invalid flow level.", "flowLevel must be 0, 1, 2, or 3");
+//     }
+
+
+//     let symptoms = payload.period?.symptoms;
+//     if (payload.period?.symptoms) {
+
+//       if (symptoms?.length) {
+//         symptoms = await Promise.all(
+//           symptoms.map(async (symptom) => ({
+//             ...symptom,
+//             title: symptom.title || await getSymptomTitle(symptom._id),
+//           }))
+//         );
+//       }
+//     }
+
+
+//     let spotting = payload.period?.spotting ?? [];
+
+//     if (spotting.length) {
+//       spotting = await Promise.all(
+//         spotting.map(async (item) => ({
+//           ...item,
+//           title: item.title || await getSpottingTitle(item._id),
+//         }))
+//       );
+//     }
+
+
+
+
+//     // ✅ Each period sub-document now carries its own currentDate
+//     const newPeriodEntry = {
+//       currentDate,
+//       bleeding: bleeding,
+//       symptoms: symptoms ?? [],
+//       spotting: spotting ?? [],
+//     };
+
+
+
+
+//     // ─── 3. FETCH LATEST RECORD ──────────────────────────────────────────────
+
+//     const latestPeriod = await PeriodTracker.findOne({ userId: payload.userId }).sort({
+//       createdAt: -1,
+//     });
+
+//     // ─── 4. BRAND-NEW USER ───────────────────────────────────────────────────
+
+//     if (!latestPeriod) {
+//       if (payload.endDate) {
+//         return badRequestResponse(res, "Bad request occurred.", "Cannot provide an end date when no period has been started.");
+//       }
+
+//       const newRecord = await PeriodTracker.create({
+//         userId: payload.userId,
+//         currentDate,
+//         startDate: payload.startDate ? new Date(payload.startDate) : currentDate,
+//         endDate: null,
+//         period: [newPeriodEntry],
+//       });
+
+//       return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+//     }
+
+//     // ─── 5. EXPLICIT NEW PERIOD START ────────────────────────────────────────
+
+//     if (payload.startDate) {
+//       const referenceDate = latestPeriod.startDate ? new Date(latestPeriod.startDate) : new Date(latestPeriod.currentDate);
+
+//       if (!isValidNewPeriodGap(referenceDate, currentDate)) {
+//         return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
+//       }
+
+//       // Auto-close any period the user forgot to mark as ended.
+//       if (!latestPeriod.endDate) {
+//         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
+//           endDate: new Date(latestPeriod.currentDate),
+//         });
+//       }
+
+//       const newRecord = await PeriodTracker.create({
+//         userId: payload.userId,
+//         currentDate,
+//         startDate: new Date(payload.startDate),
+//         endDate: null,
+//         period: [newPeriodEntry],
+//       });
+
+//       return successResponse(res, newRecord, "New period started and log recorded successfully.", "Successfully recorded period log.");
+//     }
+
+//     // ─── 6. EXPLICIT PERIOD END ──────────────────────────────────────────────
+
+//     if (payload.endDate) {
+//       if (latestPeriod.endDate) {
+//         return badRequestResponse(res, "Bad request occurred.", "No open period found to close. Please start a new period first.");
+//       }
+
+//       const updatedRecord = await PeriodTracker.findByIdAndUpdate(
+//         latestPeriod._id,
+//         {
+//           $push: { period: newPeriodEntry },
+//           currentDate,
+//           endDate: new Date(payload.endDate),
+//         },
+//         { new: true },
+//       );
+
+//       return successResponse(res, updatedRecord, "Period ended and log recorded successfully.", "Successfully recorded period log.");
+//     }
+
+//     // ─── 7. DAILY LOG (no startDate, no endDate) ─────────────────────────────
+
+//     const hasOpenPeriod = !latestPeriod.endDate;
+//     const lastEntryDate = new Date(latestPeriod.currentDate);
+
+//     if (hasOpenPeriod) {
+//       if (isWithinSamePeriod(lastEntryDate, currentDate)) {
+//         const updatedRecord = await PeriodTracker.findByIdAndUpdate(
+//           latestPeriod._id,
+//           {
+//             $push: { period: newPeriodEntry },
+//             currentDate,
+//           },
+//           { new: true },
+//         );
+
+//         return successResponse(res, updatedRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+//       } else {
+//         // Gap too large — auto-close previous, start new implicit period.
+//         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
+//           endDate: lastEntryDate,
+//         });
+
+//         const newRecord = await PeriodTracker.create({
+//           userId: payload.userId,
+//           currentDate,
+//           startDate: currentDate,
+//           endDate: null,
+//           period: [newPeriodEntry],
+//         });
+
+//         return successResponse(res, newRecord, "Period log recorded successfully.", "Previous period auto-closed. New period started.");
+//       }
+//     }
+
+//     // Previous period is closed — treat today as an implicit new start.
+//     const referenceDate = new Date(latestPeriod.endDate);
+
+//     if (!isValidNewPeriodGap(referenceDate, currentDate)) {
+//       return badRequestResponse(res, "Frequent period entry detected.", "A new period entry cannot be added this soon after the previous period ended.");
+//     }
+
+//     const newRecord = await PeriodTracker.create({
+//       userId: payload.userId,
+//       currentDate,
+//       startDate: currentDate,
+//       endDate: null,
+//       period: [newPeriodEntry],
+//     });
+
+//     return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+
 export const recordPeriodLog = async (req, res) => {
   try {
     const payload = req.body;
@@ -143,7 +370,7 @@ export const recordPeriodLog = async (req, res) => {
     const bleeding = payload.period?.bleeding
       ? {
           id: payload.period.bleeding.id,
-          title: payload.period.bleeding.title,
+          title: payload.period.bleeding.title ? await getBleedingTitle(payload.period.bleeding.id) : null,
           flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
         }
@@ -154,12 +381,73 @@ export const recordPeriodLog = async (req, res) => {
       return badRequestResponse(res, "Invalid flow level.", "flowLevel must be 0, 1, 2, or 3");
     }
 
-    // ✅ Each period sub-document now carries its own currentDate
+    let symptoms = payload.period?.symptoms;
+    if (payload.period?.symptoms) {
+      if (symptoms?.length) {
+        symptoms = await Promise.all(
+          symptoms.map(async (symptom) => ({
+            ...symptom,
+            title: symptom.title || (await getSymptomTitle(symptom._id)),
+          })),
+        );
+      }
+    }
+
+    let spotting = payload.period?.spotting ?? [];
+    if (spotting.length) {
+      spotting = await Promise.all(
+        spotting.map(async (item) => ({
+          ...item,
+          title: item.title || (await getSpottingTitle(item._id)),
+        })),
+      );
+    }
+
     const newPeriodEntry = {
       currentDate,
       bleeding: bleeding,
-      symptoms: payload.period?.symptoms ?? [],
-      spotting: payload.period?.spotting ?? [],
+      symptoms: symptoms ?? [],
+      spotting: spotting ?? [],
+    };
+
+    // ─── 2.5. SAME-DATE ENTRY HELPER ─────────────────────────────────────────
+    // Checks if the period[] array of a given tracker document already has
+    // an entry whose currentDate falls on the same calendar day as `currentDate`.
+    // Returns the array index if found, -1 otherwise.
+    const findSameDateIndex = (periodArray) => {
+      return periodArray.findIndex((entry) => {
+        const entryDate = new Date(entry.currentDate);
+        return (
+          entryDate.getFullYear() === currentDate.getFullYear() &&
+          entryDate.getMonth()    === currentDate.getMonth()    &&
+          entryDate.getDate()     === currentDate.getDate()
+        );
+      });
+    };
+
+    // Builds the correct $set or $push update based on whether an entry for
+    // today already exists in the document's period array.
+    //
+    // If same-date entry found  → $set the existing index in-place (no duplicate)
+    // If no same-date entry     → $push a brand-new entry
+    const buildPeriodUpdate = (existingPeriodArray) => {
+      const sameDateIndex = findSameDateIndex(existingPeriodArray);
+
+      if (sameDateIndex !== -1) {
+        // Overwrite the existing entry at that index using positional $ syntax
+        return {
+          $set: {
+            [`period.${sameDateIndex}`]: newPeriodEntry,  // ← update in place
+            currentDate,
+          },
+        };
+      }
+
+      // No entry for today yet — push a new one
+      return {
+        $push: { period: newPeriodEntry },
+        $set:  { currentDate },
+      };
     };
 
     // ─── 3. FETCH LATEST RECORD ──────────────────────────────────────────────
@@ -189,7 +477,9 @@ export const recordPeriodLog = async (req, res) => {
     // ─── 5. EXPLICIT NEW PERIOD START ────────────────────────────────────────
 
     if (payload.startDate) {
-      const referenceDate = latestPeriod.startDate ? new Date(latestPeriod.startDate) : new Date(latestPeriod.currentDate);
+      const referenceDate = latestPeriod.startDate
+        ? new Date(latestPeriod.startDate)
+        : new Date(latestPeriod.currentDate);
 
       if (!isValidNewPeriodGap(referenceDate, currentDate)) {
         return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
@@ -220,13 +510,19 @@ export const recordPeriodLog = async (req, res) => {
         return badRequestResponse(res, "Bad request occurred.", "No open period found to close. Please start a new period first.");
       }
 
+      // Check if today already has an entry in this document before pushing
+      const updatePayload = buildPeriodUpdate(latestPeriod.period ?? []);
+
+      // Merge endDate into the update — works whether we used $set or $push above
+      updatePayload.$set = {
+        ...(updatePayload.$set ?? {}),
+        endDate: new Date(payload.endDate),
+        currentDate,
+      };
+
       const updatedRecord = await PeriodTracker.findByIdAndUpdate(
         latestPeriod._id,
-        {
-          $push: { period: newPeriodEntry },
-          currentDate,
-          endDate: new Date(payload.endDate),
-        },
+        updatePayload,
         { new: true },
       );
 
@@ -240,16 +536,19 @@ export const recordPeriodLog = async (req, res) => {
 
     if (hasOpenPeriod) {
       if (isWithinSamePeriod(lastEntryDate, currentDate)) {
+
+        // Use buildPeriodUpdate — if today already has an entry it updates in place,
+        // otherwise it pushes a new one. No more duplicate entries for the same day.
+        const updatePayload = buildPeriodUpdate(latestPeriod.period ?? []);
+
         const updatedRecord = await PeriodTracker.findByIdAndUpdate(
           latestPeriod._id,
-          {
-            $push: { period: newPeriodEntry },
-            currentDate,
-          },
+          updatePayload,
           { new: true },
         );
 
         return successResponse(res, updatedRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+
       } else {
         // Gap too large — auto-close previous, start new implicit period.
         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
@@ -268,7 +567,8 @@ export const recordPeriodLog = async (req, res) => {
       }
     }
 
-    // Previous period is closed — treat today as an implicit new start.
+    // ─── 8. PREVIOUS PERIOD CLOSED — implicit new start ──────────────────────
+
     const referenceDate = new Date(latestPeriod.endDate);
 
     if (!isValidNewPeriodGap(referenceDate, currentDate)) {
@@ -284,11 +584,28 @@ export const recordPeriodLog = async (req, res) => {
     });
 
     return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

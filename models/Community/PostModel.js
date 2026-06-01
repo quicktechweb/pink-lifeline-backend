@@ -76,6 +76,7 @@ const postSchema = new mongoose.Schema(
       default: false,
     },
 
+
     totalComments: {
       type: Number,
       default: 0,

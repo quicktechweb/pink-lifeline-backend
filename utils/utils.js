@@ -1,3 +1,7 @@
+import { Bleeding } from "../models/Dropdowns/bleedingDropdownModel.js";
+import { Spotting } from "../models/Dropdowns/spottingDropdownModel.js";
+import { Symptom } from "../models/Dropdowns/symptomsDropdownModel.js";
+
 // Helper to generate a standardized, readable timestamp string
 const getTimestamp = () => `[${new Date().toLocaleString()}]`;
 
@@ -78,3 +82,23 @@ export const isValidNewPeriodGap = (referenceDate, currentDate) => {
   const minGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
   return gapInDays >= minGap;
 };
+
+
+export const getBleedingTitle = async (id) => {
+  const bleeding = await Bleeding.findById(id);
+  return bleeding ? bleeding.title : null;
+};
+
+
+
+export const getSymptomTitle = async (id) => {
+  const symptom = await Symptom.findById(id);
+  return symptom ? symptom.title : null;
+}
+
+export const getSpottingTitle = async (id) => {
+  const spotting = await Spotting.findById(id);
+  return spotting ? spotting.title : null;
+};
+
+

@@ -608,6 +608,74 @@ export const deleteSelfTestId = async (req,res) => {
 
 
 
+export const updateSelfTestQuestion2 = async (req, res) => {
+  const { stepId } = req.params;
+  const { questionId, title } = req.body;
+
+  try {
+    const step = await SelfTestStep.findById(stepId);
+
+    if (!step) {
+      return notFoundResponse(
+        res,
+        "Step not found.",
+        `Step not found. Id: ${stepId}`
+      );
+    }
+
+    // Edit existing question
+    if (questionId) {
+      const question = step.questions.id(questionId);
+
+      if (!question) {
+        return notFoundResponse(
+          res,
+          "Question not found.",
+          `Question not found. Id: ${questionId}`
+        );
+      }
+
+      question.title = title;
+
+      await step.save();
+
+      return successResponse(
+        res,
+        question,
+        "Question updated successfully.",
+        `Updated question id: ${questionId}`
+      );
+    }
+
+    // Add new question
+    step.questions.push({
+      title,
+      answers: [],
+    });
+
+    await step.save();
+
+    return successResponse(
+      res,
+      step.questions[step.questions.length - 1],
+      "Question added successfully.",
+      `Question added to step id: ${stepId}`
+    );
+  } catch (error) {
+    console.error(error);
+
+    return badRequestResponse(
+      res,
+      "Unable to update question.",
+      error.message
+    );
+  }
+};
+
+
+
+
+
 
 
 

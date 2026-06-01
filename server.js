@@ -13,6 +13,7 @@ import dropdownRoutes from "./routes/dropdowns/dropdownsRoutes.js"
 
 import dns from "dns";
 import "./firebase-admin.js";
+import internalUtilRoutes from "./other/supportive.js";
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
@@ -46,6 +47,8 @@ app.use("/api/self-test", selfTestRoutes);
 app.use("/api/community", communityRoutes);
 app.use("/api/degree",degreeRoutes);
 app.use("/api/dropdowns",dropdownRoutes)
+
+app.use("/other",internalUtilRoutes)
 
 
 

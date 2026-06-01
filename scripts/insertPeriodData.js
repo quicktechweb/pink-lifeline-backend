@@ -1,5 +1,3 @@
-const axios = require("axios");
-
 const URL = "http://localhost:5000/api/period/v1/insert-period";
 const USER_ID = "USR-CHJNB1";
 
@@ -10,16 +8,33 @@ const USER_ID = "USR-CHJNB1";
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const symptomsPool = [
-  { id: 1, title: "Cramps" },
-  { id: 2, title: "Headache" },
-  { id: 3, title: "Back Pain" },
-  { id: 4, title: "Fatigue" },
-  { id: 5, title: "Bloating" },
-  { id: 6, title: "Mood Swings" },
-  { id: 7, title: "Acne" },
-  { id: 8, title: "Breast Tenderness" },
-  { id: 9, title: "Nausea" },
-];
+  {
+    id: "6a12ed3a85f3e0ddcd0ad964",
+    title: "meh",
+    isRecent: 1,
+    __v: 0
+  },
+  {
+    id: "6a12ef120da755ffc1b3c8b7",
+    title: "1231",
+    isRecent: 1,
+    __v: 0
+  },
+  {
+    id: "6a12ef290da755ffc1b3c8c6",
+    title: "123543534",
+    isRecent: 0,
+    __v: 0
+  },
+  {
+    id: "6a12ef6a0da755ffc1b3c8df",
+    title: "54325",
+    isRecent: 0,
+    __v: 0
+  }
+]
+
+
 
 const notesPool = [
   "Flow feels normal today.",
@@ -34,8 +49,28 @@ const notesPool = [
 ];
 
 const spottingPool = [
-  { id: 1, title: "Brown Spotting" },
-  { id: 2, title: "Pink Spotting" },
+  {
+    id: "6a12ef1e0da755ffc1b3c8bf",
+    title: "123",
+    createdAt: "2026-05-24T12:29:18.279Z",
+    updatedAt: "2026-05-24T12:29:18.279Z",
+    __v: 0
+  },
+  {
+    id: "6a12e86efa13c20a31b48e03",
+    title: "asdasd",
+    createdAt: "2026-05-24T12:00:46.629Z",
+    updatedAt: "2026-05-24T12:00:46.629Z",
+    __v: 0
+  },
+  {
+    id: "6a117290e04822ffbd3410b6",
+    title: "Light Spotting nope 1",
+    id: 1,
+    createdAt: "2026-05-23T09:25:36.712Z",
+    updatedAt: "2026-05-24T11:57:47.686Z",
+    __v: 0
+  }
 ];
 
 function randomItem(arr) {
@@ -53,11 +88,44 @@ function randomSymptoms(min = 1) {
   }));
 }
 
+const bleedingData = [
+  {
+    id: "6a11766eb9dec79489ffc050",
+    title: "bleeding 2",
+    flowLevel: 2,
+    hadFlow: true,
+  },
+  {
+    id: "6a117675b9dec79489ffc053",
+    title: "bleeding 0",
+    flowLevel: 3,
+    hadFlow: true,
+  },
+  {
+    id: "6a12ef3a0da755ffc1b3c8cb",
+    title: "new title",
+    flowLevel: 0,
+    hadFlow: false,
+  },
+  {
+    id: "6a12ef550da755ffc1b3c8d8",
+    title: "as3q2q",
+    flowLevel: 2,
+    hadFlow: true,
+  },
+];
+
+// Find matching items
+const noFlow = bleedingData.find((b) => !b.hadFlow);
+const mediumFlow = bleedingData.find((b) => b.flowLevel === 2);
+const heavyFlow = bleedingData.find((b) => b.flowLevel === 3);
+
+
 function randomBleeding(day) {
-  if (day === 1) return { id: 2, title: "Medium Flow", flowLevel: 2, isSpotting: false };
-  if (day === 2 || day === 3) return { id: 3, title: "Heavy Flow", flowLevel: 3, isSpotting: false };
-  if (day === 4) return { id: 2, title: "Medium Flow", flowLevel: 2, isSpotting: false };
-  return { id: 1, title: "Light Flow", flowLevel: 1, isSpotting: false };
+  if (day === 1) return mediumFlow;
+  if (day === 2 || day === 3) return heavyFlow;
+  if (day === 4) return mediumFlow;
+  return noFlow;
 }
 
 // ✅ Occasionally skip bleeding on last day to simulate period tapering off
@@ -110,12 +178,22 @@ async function generatePeriodData() {
     };
 
     try {
-      const res = await axios.post(URL, startPayload);
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(startPayload),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(JSON.stringify(data));
+      }
+
       console.log(`✅ Cycle ${cycle} — Day 1 (Start)`);
-      console.log(`   ${res.data.message}\n`);
+      console.log(`   ${data.message}\n`);
     } catch (err) {
       console.log(`❌ Cycle ${cycle} — Day 1 Error`);
-      console.log(`   ${JSON.stringify(err?.response?.data || err.message)}\n`);
+      console.log(`   ${err?.message || err}\n`);
     }
 
     await sleep(500);
@@ -150,12 +228,22 @@ async function generatePeriodData() {
       };
 
       try {
-        const res = await axios.post(URL, payload);
+        const response = await fetch(URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(JSON.stringify(data));
+        }
+
         console.log(`✅ Cycle ${cycle} — Day ${day}${isLastDay ? " (End)" : ""}`);
-        console.log(`   ${res.data.message}\n`);
+        console.log(`   ${data.message}\n`);
       } catch (err) {
         console.log(`❌ Cycle ${cycle} — Day ${day} Error`);
-        console.log(`   ${JSON.stringify(err?.response?.data || err.message)}\n`);
+        console.log(`   ${err?.message || err}\n`);
       }
 
       await sleep(500);

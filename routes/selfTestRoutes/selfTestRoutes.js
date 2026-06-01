@@ -1,5 +1,5 @@
 import express from "express";
-import { getVideoStream, addSelfTestStep, getAllSteps, updateSteps, deleteStep, getAllStepsQuestionsAnswers, getAllTestSteps2, updateSteps2, addSelfTestStepV2, addUserSelfTest, deleteSelfTestId } from "../../controllers/SelfTest/selfTestSteps.js";
+import { getVideoStream, addSelfTestStep, getAllSteps, updateSteps, deleteStep, getAllStepsQuestionsAnswers, getAllTestSteps2, updateSteps2, addSelfTestStepV2, addUserSelfTest, deleteSelfTestId, updateSelfTestQuestion2 } from "../../controllers/SelfTest/selfTestSteps.js";
 import { addQuestion, deleteQuestion, getAllQuestions, getQuestionsByStep, updateQuestion } from "../../controllers/SelfTest/selfTestQuestions.js";
 import { addAnswer, deleteAnswer, getAnswersByQuestion, updateAnswer, getAllAnswers } from "../../controllers/SelfTest/selfTestAnswers.js";
 
@@ -63,7 +63,9 @@ router.get("/v2/get-all-test-steps", getAllTestSteps2);
 
 router.patch("/v2/update-self-test-step/:stepId", updateSteps2);
 
+// updateSelfTestQuestion2
 
+router.patch("/v2/update-self-test-question/:stepId",updateSelfTestQuestion2)
 
 
 

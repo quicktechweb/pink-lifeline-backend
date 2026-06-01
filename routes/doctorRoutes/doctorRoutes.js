@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser, loginadmin, updateProfile, getProfile } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors,  deleteDoctor, approveSingleDoctor } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 
@@ -16,5 +16,10 @@ router.post("/update-profile/:userId", uploadImage.single("doctorIdCard"), isUse
 
 
 router.get("/get-profile/:userId", isUserExist, getProfile);
+
+
+router.get("/get-all-doctors",getAllDoctors)
+router.put("/verify-doctor/:userId",isUserExist, approveSingleDoctor)
+router.put("/delete-doctor/:userId", isUserExist, deleteDoctor)
 
 export default router;

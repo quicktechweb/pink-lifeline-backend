@@ -7,46 +7,6 @@ import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import SavedPostModel from "../../models/Community/SavedPostModel.js";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const createPost = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -106,63 +66,6 @@ export const createPost = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getAllPosts = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -178,7 +81,6 @@ export const getAllPosts = async (req, res) => {
     }
 
     const allPosts = await Post.aggregate([
-
       {
         $addFields: {
           netvote: {
@@ -503,54 +405,12 @@ export const postDownVote = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const postComment = async (req, res) => {
   const userId = req.params.userId;
 
   const { text, postId, parentId = null } = req.body;
 
   try {
-
-
     if (!userId) {
       return badRequestResponse(res, "Invalid User.", "Invalid user.");
     }
@@ -563,13 +423,11 @@ export const postComment = async (req, res) => {
       return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
     }
 
-
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
       return notFoundResponse(res, "User is not registered.", "User is not registered.");
     }
-
 
     const post = await Post.findById(postId);
 
@@ -577,7 +435,6 @@ export const postComment = async (req, res) => {
       return notFoundResponse(res, "Post not found.", "Post not found.");
     }
 
- 
     let parentComment = null;
 
     if (parentId) {
@@ -592,13 +449,10 @@ export const postComment = async (req, res) => {
         return notFoundResponse(res, "Parent comment not found.", "Parent comment not found.");
       }
 
-
       if (parentComment.postId.toString() !== postId) {
         return badRequestResponse(res, "Reply mismatch.", "Reply post mismatch.");
       }
     }
-
-
 
     const userComment = {
       name: isUserExist.fullName,
@@ -609,15 +463,12 @@ export const postComment = async (req, res) => {
 
       text: text.trim(),
 
-
       parentId: parentId || null,
     };
 
     const uploadedComment = await Comment.create(userComment);
     post.totalComments += 1;
     await post.save();
-
-
 
     if (parentComment) {
       await Comment.findByIdAndUpdate(parentId, {
@@ -626,8 +477,6 @@ export const postComment = async (req, res) => {
         },
       });
     }
-
-
 
     if (uploadedComment) {
       return successResponse(res, uploadedComment, parentId ? "Reply added successfully." : "Comment added successfully.", parentId ? "Reply published successfully." : "Comment published successfully.");
@@ -640,46 +489,6 @@ export const postComment = async (req, res) => {
     return somethingWentWrong(res, error, "Unable to comment.", "Unable to comment.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getSinglePost = async (req, res) => {
   const { userId } = req.params;
@@ -1186,5 +995,33 @@ export const getAllSavedPosts = async (req, res) => {
     console.error("GET_ALL_POSTS_ERROR:", error);
 
     somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
+  }
+};
+
+export const deletePost = async (req, res) => {
+  const { userId, postId } = req.params;
+
+  try {
+    if (!postId) {
+      return badRequestResponse(res, "Post not found.", "Post id is missing.");
+    }
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return notFoundResponse(res, "Post not found.", `No post found with id: ${postId}`);
+    }
+
+    if (String(post.userId) !== String(userId)) {
+      return badRequestResponse(res, "Unauthorized action.", `User ${userId} does not own post ${postId}`);
+    }
+
+    const deletedPost = await Post.findByIdAndDelete(postId);
+
+    return successResponse(res, deletedPost, "Post deleted successfully.", `Deleted post id: ${postId}`);
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to delete post.", "Delete post error");
   }
 };

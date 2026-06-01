@@ -118,7 +118,7 @@ const uploadToImgBB = async (file) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const {
+    let {
       type, // 1 = doctor, 0 = user
       fullName,
       email,
@@ -214,6 +214,7 @@ export const registerUser = async (req, res) => {
       doctorIdCard: doctorIdCard ? doctorIdCard : null,
       isDoctor,
       isUser,
+      isRemoved: false,
       isVerified: isVerified ? isVerified : false,
     });
 
@@ -415,16 +416,13 @@ export const updateProfile = async (req, res) => {
       updateData.phoneNumber = phoneNumber;
     }
 
-
-        /* =========================
+    /* =========================
        VERIFIED
     ========================= */
 
     if (isVerified === true || isVerified === "true") {
       updateData.isVerified = true;
     }
-
-
 
     /* =========================
        IMAGE UPLOAD
@@ -440,8 +438,6 @@ export const updateProfile = async (req, res) => {
         };
       }
     }
-
-
 
     /* =========================
        UPDATE USER
@@ -470,7 +466,7 @@ export const getProfile = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findOne({ userId }).lean();
+    const user = await User.findOne({userId,$or: [{ isRemoved: false },{ isRemoved: { $exists: false } }]}).lean();
 
     if (user) {
       return successResponse(res, user, "Profile information retrieved successfully", "Get profile information successful.");
@@ -480,5 +476,73 @@ export const getProfile = async (req, res) => {
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Failed to get profile information.", "Get profile error");
+  }
+};
+
+export const getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await User.find({
+      isDoctor: 1,
+      $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+    })
+      .select("fullName doctorRegistrationNumber email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
+      .lean();
+
+    if (!doctors.length) {
+      return notFoundResponse(res, "No doctors found.", "Get all doctors failed: empty result.");
+    }
+
+    return successResponse(res, doctors, "Doctors retrieved successfully", "Get all doctors successful.");
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to get doctors.", "Get all doctors error");
+  }
+};
+
+export const approveSingleDoctor = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const doctor = await User.findOne({ userId, isRemoved: false });
+
+    if (!doctor || doctor.isDoctor !== 1) {
+      return notFoundResponse(res, "Doctor not found.", `Update failed: Doctor not found with userId ${userId}`);
+    }
+
+    doctor.isVerified = true;
+
+    await doctor.save();
+
+    return successResponse(res, doctor, "Doctor approved successfully", `Doctor approved: ${userId}`);
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to approve doctor.", "Approve doctor error");
+  }
+};
+
+
+
+export const deleteDoctor = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const doctor = await User.findOne({ userId });
+
+    if (!doctor || doctor.isDoctor !== 1) {
+      return notFoundResponse(res, "Doctor not found.", `Delete failed: Doctor not found with userId ${userId}`);
+    }
+
+    // Soft delete
+    doctor.isRemoved = true;
+
+    await doctor.save();
+
+    return successResponse(res, doctor, "Doctor removed successfully.", `Doctor marked as removed: ${userId}`);
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to remove doctor.", "Delete doctor error");
   }
 };
