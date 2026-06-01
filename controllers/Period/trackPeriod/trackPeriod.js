@@ -417,6 +417,7 @@ export const recordPeriodLog = async (req, res) => {
     const findSameDateIndex = (periodArray) => {
       return periodArray.findIndex((entry) => {
         const entryDate = new Date(entry.currentDate);
+        console.log("🚀 ~ trackPeriod.js:418 ~ findSameDateIndex ~ entry.currentDate:", entry.currentDate)
         return (
           entryDate.getFullYear() === currentDate.getFullYear() &&
           entryDate.getMonth()    === currentDate.getMonth()    &&
@@ -432,6 +433,7 @@ export const recordPeriodLog = async (req, res) => {
     // If no same-date entry     → $push a brand-new entry
     const buildPeriodUpdate = (existingPeriodArray) => {
       const sameDateIndex = findSameDateIndex(existingPeriodArray);
+      // console.log("🚀 ~ trackPeriod.js:435 ~ buildPeriodUpdate ~ sameDateIndex:", sameDateIndex)
 
       if (sameDateIndex !== -1) {
         // Overwrite the existing entry at that index using positional $ syntax
