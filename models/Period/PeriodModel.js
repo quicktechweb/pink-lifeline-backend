@@ -65,8 +65,26 @@ const periodTrackerSchema = new mongoose.Schema(
       default: [],
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
+
+periodTrackerSchema.virtual("periodDuration").get(function () {
+  if (!this.startDate || !this.endDate) {
+    return undefined; // won't appear in JSON
+  }
+
+  const diffInDays =
+    Math.floor(
+      (new Date(this.endDate) - new Date(this.startDate)) /
+        (1000 * 60 * 60 * 24)
+    ) + 1;
+
+  return diffInDays;
+});
 
 /* =========================================================
    🔹 Export Model
