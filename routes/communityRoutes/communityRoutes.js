@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost, getAllPosts, postComment, postDownVote, getSinglePost, commentUpVote, commentDownVote, postUpVote, getUpvotedPosts, getDownvotedPosts, getUpvotedComments, getDownvotedComments, savePost, getAllSavedPosts, deletePost } from "../../controllers/Community/community.js";
+import { createPost, getAllPosts, postComment,getAllUserPosts, postDownVote, getSinglePost, commentUpVote, commentDownVote, postUpVote, getUpvotedPosts, getDownvotedPosts, getUpvotedComments, getDownvotedComments, savePost, getAllSavedPosts, deletePost } from "../../controllers/Community/community.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 
@@ -20,7 +20,7 @@ router.get("/v1/get-downvoted-posts/:userId", getDownvotedPosts);
 router.get("/v1/get-upvoted-comments/:userId", getUpvotedComments);
 router.get("/v1/get-downvoted-comments/:userId", getDownvotedComments);
 router.get("/v1/get-all-saved-posts/:userId", isUserExist, getAllSavedPosts);
-
+router.get("/v1/get-user-posts/:userId", isUserExist, getAllUserPosts);
 
 router.post("/v1/save-post/:userId", isUserExist, savePost);
 router.delete("/v1/delete-post/:userId/:postId",isUserExist,deletePost)

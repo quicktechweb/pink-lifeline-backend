@@ -546,3 +546,27 @@ export const deleteDoctor = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to remove doctor.", "Delete doctor error");
   }
 };
+
+
+
+export const getDoctorByRegistrationNumber = async (req,res) => {
+  const { doctorRegistrationNumber } = req.params;
+
+  try {
+    const doctor = await User.findOne({
+      doctorRegistrationNumber,
+      isDoctor: 1,
+      $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+    }).lean();
+
+    if (!doctor) {
+      return notFoundResponse(res, "Doctor not found with this registration number.", `Get doctor failed: No doctor found with registration number ${doctorRegistrationNumber}`);
+    }
+
+    return successResponse(res, doctor, "Doctor retrieved successfully", `Get doctor by registration number successful: ${doctorRegistrationNumber}`);
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to get doctor information.", "Get doctor by registration number error");
+  }
+}

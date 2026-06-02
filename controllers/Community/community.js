@@ -295,6 +295,11 @@ export const postUpVote = async (req, res) => {
         isDownvotedByUser: false,
       });
 
+      if(post.userId.toString() === userId.toString()){
+        post.isUpvotedByUser = true;
+        post.isDownvotedByUser = false;
+      }
+
       post.upvote += 1;
       await post.save();
 
@@ -304,6 +309,12 @@ export const postUpVote = async (req, res) => {
     // CASE 2: already upvoted → remove upvote
     if (existingVote.type === "upvote") {
       await Vote.deleteOne({ _id: existingVote._id });
+
+      if(post.userId.toString() === userId.toString()){
+        post.isUpvotedByUser = false;
+        post.isDownvotedByUser = false;
+      }
+
 
       post.upvote -= 1;
       await post.save();
@@ -315,6 +326,11 @@ export const postUpVote = async (req, res) => {
     if (existingVote.type === "downvote") {
       existingVote.type = "upvote";
       await existingVote.save();
+
+      if(post.userId.toString() === userId.toString()){
+        post.isUpvotedByUser = true;
+        post.isDownvotedByUser = false;
+      }
 
       post.downvote -= 1;
       post.upvote += 1;
@@ -368,6 +384,10 @@ export const postDownVote = async (req, res) => {
         isUpvotedByUser: false,
         isDownvotedByUser: true,
       });
+      if(post.userId.toString() === userId.toString()){
+        post.isUpvotedByUser = false;
+        post.isDownvotedByUser = true;
+      }
 
       post.downvote += 1;
       await post.save();
@@ -378,7 +398,10 @@ export const postDownVote = async (req, res) => {
     // CASE 2: already downvoted → remove downvote
     if (existingVote.type === "downvote") {
       await Vote.deleteOne({ _id: existingVote._id });
-
+      if(post.userId.toString() === userId.toString()){
+        post.isUpvotedByUser = false;
+        post.isDownvotedByUser = false;
+      }
       post.downvote -= 1;
       await post.save();
 
@@ -389,7 +412,10 @@ export const postDownVote = async (req, res) => {
     if (existingVote.type === "upvote") {
       existingVote.type = "downvote";
       await existingVote.save();
-
+      if(post.userId.toString() === userId.toString()){
+        post.isUpvotedByUser = false;
+        post.isDownvotedByUser = true;
+      }
       post.upvote -= 1;
       post.downvote += 1;
       await post.save();
@@ -792,6 +818,12 @@ export const savePost = async (req, res) => {
     }
 
     const isPostExist = await Post.findById(postId);
+    if( isPostExist.userId.toString() === userId.toString()){
+      isPostExist.isSavedByUser = !isPostExist.isSavedByUser;
+
+      
+      const saveUserOwnPost = await isPostExist.save()
+    }
 
     if (!isPostExist) {
       return notFoundResponse(res, "Post not found.", "Requested post does not exist.");
@@ -997,6 +1029,32 @@ export const getAllSavedPosts = async (req, res) => {
     somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
   }
 };
+
+
+export const getAllUserPosts = async (req, res) => {
+  try {
+
+    const { userId } = req.params;
+    if (!userId) {
+      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+    }
+
+    const allUserPosts = await Post.find({ userId: userId });
+
+    if (allUserPosts.length === 0) {
+      return notFoundResponse(res, "No posts found.", "No posts found for the specified user.");
+    }
+
+    return successResponse(res, allUserPosts, "All user posts are fetched", "All user posts are fetched.");
+  } catch (error) {
+    console.error("GET_ALL_USER_POSTS_ERROR:", error);
+
+    somethingWentWrong(res, null, "Unable to fetch the user posts.", "Unable to fetch the user posts.");
+  }
+};
+
+
+
 
 export const deletePost = async (req, res) => {
   const { userId, postId } = req.params;

@@ -47,6 +47,9 @@ app.use("/api/self-test", selfTestRoutes);
 app.use("/api/community", communityRoutes);
 app.use("/api/degree",degreeRoutes);
 app.use("/api/dropdowns",dropdownRoutes)
+
+
+
 app.use("/other",internalUtilRoutes)
 
 
