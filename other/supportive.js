@@ -2,6 +2,7 @@ import express from "express";
 import { exec } from "child_process";
 import path from "path";
 import PeriodTracker from "./../models/Period/PeriodModel.js";
+import DoctorRegistration from "../models/DoctorRegistration/DoctorRegistration.js";
 
 const internalUtilRoutes = express.Router();
 
@@ -74,6 +75,25 @@ internalUtilRoutes.post("/run-script", async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to run script",
+      error: error.message,
+    });
+  }
+});
+
+
+internalUtilRoutes.get("/all-types-of-user",async (req,res)=>{
+  try{
+    const users = await DoctorRegistration.find({});
+    res.status(200).json({
+      success: true,
+      message: "All users retrieved successfully",
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve users",
       error: error.message,
     });
   }
