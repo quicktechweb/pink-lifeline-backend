@@ -466,7 +466,7 @@ export const getProfile = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findOne({userId,$or: [{ isRemoved: false },{ isRemoved: { $exists: false } }]}).lean();
+    const user = await User.findOne({ userId, $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }] }).lean();
 
     if (user) {
       return successResponse(res, user, "Profile information retrieved successfully", "Get profile information successful.");
@@ -505,7 +505,9 @@ export const approveSingleDoctor = async (req, res) => {
 
   try {
     const doctor = await User.findOne({ userId, isRemoved: false });
+    res.send(doctor)
 
+    
     if (!doctor || doctor.isDoctor !== 1) {
       return notFoundResponse(res, "Doctor not found.", `Update failed: Doctor not found with userId ${userId}`);
     }
@@ -514,15 +516,13 @@ export const approveSingleDoctor = async (req, res) => {
 
     await doctor.save();
 
-    return successResponse(res, doctor, "Doctor approved successfully", `Doctor approved: ${userId}`);
+    return successResponse(res, doctor, "Doctor verified successfully", `Doctor verified: ${userId}`);
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Failed to approve doctor.", "Approve doctor error");
+    return somethingWentWrong(res, error, "Failed to verify doctor.", "Verify doctor error");
   }
 };
-
-
 
 export const deleteDoctor = async (req, res) => {
   const { userId } = req.params;
@@ -547,9 +547,7 @@ export const deleteDoctor = async (req, res) => {
   }
 };
 
-
-
-export const getDoctorByRegistrationNumber = async (req,res) => {
+export const getDoctorByRegistrationNumber = async (req, res) => {
   const { doctorRegistrationNumber } = req.params;
 
   try {
@@ -569,4 +567,4 @@ export const getDoctorByRegistrationNumber = async (req,res) => {
 
     return somethingWentWrong(res, error, "Failed to get doctor information.", "Get doctor by registration number error");
   }
-}
+};
