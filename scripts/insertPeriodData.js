@@ -1,5 +1,7 @@
 const URL = "http://localhost:5000/api/period/v1/insert-period";
-const USER_ID = "USR-CHJNB1";
+// const USER_ID = "USR-CHJNB1";
+const USER_ID = "USR-1HQSUU";
+// const USER_ID = "USR-SX0UWB";
 
 // ======================================================
 // Helper Functions
