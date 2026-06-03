@@ -7,11 +7,29 @@ import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import SavedPostModel from "../../models/Community/SavedPostModel.js";
 
+
+
+
+
+
 export const createPost = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const { title, description, hashtags = [] } = req.body;
+    const { title, description, hashtags = [] | "" } = req.body;
+
+    let normalizedHashtags = [];
+
+if (Array.isArray(hashtags)) {
+  normalizedHashtags = hashtags
+    .map((tag) => String(tag).trim())
+    .filter((tag) => /^[a-zA-Z]+$/.test(tag));
+} else if (typeof hashtags === "string") {
+  normalizedHashtags = hashtags
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => /^[a-zA-Z]+$/.test(tag));
+}
 
     if (!userId) {
       return res.status(400).json({
@@ -44,7 +62,7 @@ export const createPost = async (req, res) => {
       title,
       type: isUserExist.type,
       description,
-      hashtags: hashtags || [],
+      hashtags: normalizedHashtags,
       isVerified: isUserExist.type == 1 && isUserExist.isVerified == true ? true : false,
       photo: uploadedPhoto,
     };
@@ -65,6 +83,12 @@ export const createPost = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
 
 export const getAllPosts = async (req, res) => {
   try {
