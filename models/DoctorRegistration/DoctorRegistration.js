@@ -81,6 +81,53 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
+
+
+
+
+    //? user-specific fields
+
+    autoReminderLimit: {
+      type:Number,
+      default: 3,
+      min: 1,
+      max: 5,
+    },
+
+    
+    notificationPreferenceTime: {
+      type: String,
+      default: "09:00",
+      match: /^([01]\d|2[0-3]):([0-5]\d)$/,
+    },
+
+
+    dateOfBirth: {
+    type: Date,
+    default: null,
+    validate: {
+      validator: function (value) {
+        return !value || value <= new Date();
+      },
+      message: "Date of birth cannot be in the future.",
+    },
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //? Doctor-specific fields
+
     aboutMe: {
       type: String,
       default: "",

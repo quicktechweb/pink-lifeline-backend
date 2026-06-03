@@ -10,7 +10,7 @@ import selfTestRoutes from "./routes/selfTestRoutes/selfTestRoutes.js";
 import communityRoutes from "./routes/communityRoutes/communityRoutes.js";
 import degreeRoutes from "./routes/degreeRoutes/degreeRoutes.js"
 import dropdownRoutes from "./routes/dropdowns/dropdownsRoutes.js"
-
+import userRoutes from "./routes/doctorRoutes/userRoutes.js"
 import dns from "dns";
 import "./firebase-admin.js";
 import internalUtilRoutes from "./other/supportive.js";
@@ -47,6 +47,9 @@ app.use("/api/self-test", selfTestRoutes);
 app.use("/api/community", communityRoutes);
 app.use("/api/degree",degreeRoutes);
 app.use("/api/dropdowns",dropdownRoutes)
+app.use("/api/user", userRoutes);
+
+
 
 
 
