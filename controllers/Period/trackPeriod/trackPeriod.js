@@ -267,12 +267,24 @@ export const recordPeriodLog = async (req, res) => {
 
     // ─── 2. SHARED SETUP ─────────────────────────────────────────────────────
 
+
+    let bleedingTitle
+    
+    
     const currentDate = new Date(payload.currentDate);
+
+
+    if (!payload.period.bleeding.title || payload.period.bleeding.title ==null) {
+      bleedingTitle = await getBleedingTitle(payload.period.bleeding._id)
+    } else {
+      bleedingTitle = null
+    }
+
 
     const bleeding = payload.period?.bleeding
       ? {
-          id: payload.period.bleeding.id,
-          title: payload.period.bleeding.title ? await getBleedingTitle(payload.period.bleeding.id) : null,
+          id: payload.period.bleeding._id,
+          title: bleedingTitle ,
           flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
         }
@@ -864,60 +876,142 @@ for (let i = 1; i < sortedPeriods.length; i++) {
 
 
 
-    //todo 6 month history start
+    //done 6 month history start
 
   const latestSixPeriods = allPeriodDocs.slice(0, 6);
 
+  const expandedPeriods = latestSixPeriods.flatMap((period) => {
+    let index = 0;
+
+    const startDate = new Date(period.startDate);
+    const endDate = new Date(period.endDate);
+
+    // Same month + same year
+    if (
+      startDate.getMonth() === endDate.getMonth() &&
+      startDate.getFullYear() === endDate.getFullYear()
+    ) {
+      return [
+        {
+        monthName: startDate.toLocaleString("en-US", { month: "short" }).toUpperCase(), // JAN, FEB, MAR...
+          
+          startDate: period.startDate,
+          endDate: period.endDate,
+        },
+      ];
+    }
+
+    const result = [];
+    let currentStart = new Date(startDate);
+
+    while (
+      currentStart.getMonth() !== endDate.getMonth() ||
+      currentStart.getFullYear() !== endDate.getFullYear()
+    ) {
+      const monthEnd = new Date(
+        currentStart.getFullYear(),
+        currentStart.getMonth() + 1,
+        0
+      );
+
+      result.push({
+        monthName: currentStart.toLocaleString("en-US", { month: "short" }).toUpperCase(),
+        
+        startDate: new Date(currentStart),
+        endDate: new Date(monthEnd),
+      });
+
+      currentStart = new Date(
+        currentStart.getFullYear(),
+        currentStart.getMonth() + 1,
+        1
+      );
+    }
+
+    // Final segment
+    result.push({
+      monthName: endDate.toLocaleString("en-US", { month: "short" }).toUpperCase(),
+      
+      startDate: new Date(currentStart),
+      endDate: new Date(endDate),
+    });
+
+    return result;
+  });
+
+    //done 6 month history over
 
 
-                                                    /**
-                                                     const cycleHistory = {
-                                                        monthName: "",
-                                                        totalPeriodDays: 0,
-                                                        startDay: 0,
-                                                        endDay: 0,
-                                                        selfTest: false,
-                                                        totalMonthDays: 0,
-                                                        index:0
-                                                      };
+
+
+
+
+
+
+
+
+
+    //done add the self test to coresponding month start
+
+    
+const periodSelfTests = expandedPeriods.flatMap((period) => {
+  const matchingSelfTests = selfTests.filter((selfTest) => {
+    const monthName = new Date(selfTest.currentDate)
+      .toLocaleString("en-US", { month: "short" })
+      .toUpperCase();
+
+    return monthName === period.monthName;
+  });
+
+  if (matchingSelfTests.length === 0) {
+    return [
+      {
+        ...period,
+        selfTestDate: null,
+      },
+    ];
+  }
+
+  return matchingSelfTests.map((selfTest) => ({
+    ...period,
+    selfTestDate: selfTest.currentDate,
+  }));
+});
+
+
+    //done add the self test to coresponding month over
+
+
+
+
+
+                                                    //     const cycleHistory = {
+                                                    //   monthName: "",
+                                                    //   totalPeriodDays: 0,
+                                                    //   startDay: 0,
+                                                    //   endDay: 0,
+                                                    //   selfTest: false,
+                                                    //   totalMonthDays: 0,
+                                                    //   index:0
+                                                    // };
+
+                                                    // const result = {
+                                                    //   estimatedNextPeriodDate: null,
+                                                    //   averageDaysOfPeriods: null,
+                                                    //   averageCycleLength: null,
+                                                    //   sixMonthCycleHistory: [cycleHistory],
+                                                    // };
+
+
+
+
+    // res.send({expandedPeriods:expandedPeriods.length,selfTests:selfTests.length, periodSelfTests:periodSelfTests})
+    // return
+
+    result.sixMonthCycleHistory = periodSelfTests.slice(0, 6);
   
-                                                      const result = {
-                                                        estimatedNextPeriodDate: null,
-                                                        averageDaysOfPeriods: null,
-                                                        averageCycleLength: null,
-                                                        sixMonthCycleHistory: [cycleHistory],
-                                                      };*/ 
-
-
-                                                     
-
-  latestSixPeriods.map((period) => {
-     /**
-                                                      period =  {
-                                                          _id: new ObjectId('6a1e94dbf7e5b9db415e7f62'),
-                                                          userId: 'USR-1HQSUU',
-                                                          startDate: 2026-03-01T00:00:00.000Z,
-                                                          endDate: 2026-03-04T00:00:00.000Z,
-                                                          currentDate: 2026-03-04T00:00:00.000Z,
-                                                          createdAt: 2026-06-02T08:31:23.274Z,
-                                                          updatedAt: 2026-06-02T08:32:40.865Z,
-                                                          __v: 0,
-                                                          periodDuration: 4,
-                                                          id: '6a1e94dbf7e5b9db415e7f62'
-                                                        }
-                                                       */
-  })
-
-
-    //todo 6 month history over
-
-
-    // res.send({allPeriodDocs,length:allPeriodDocs.length})
-
   
-  
-  
-  successResponse(res, selfTests, "Period insights generated successfully.", "Successfully generated period insights.");
+  successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
 
 
 
@@ -1108,6 +1202,7 @@ for (let i = 1; i < sortedPeriods.length; i++) {
                                                     return somethingWentWrong(res, error, "Something went wrong while generating insights.");
                                                   }
                                                 };
+
 
 
 

@@ -85,6 +85,7 @@ export const isValidNewPeriodGap = (referenceDate, currentDate) => {
 
 
 export const getBleedingTitle = async (id) => {
+  console.log("🚀 ~ utils.js:88 ~ getBleedingTitle ~ id:", id)
   const bleeding = await Bleeding.findById(id);
   return bleeding ? bleeding.title : null;
 };
