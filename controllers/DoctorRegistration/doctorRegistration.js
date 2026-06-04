@@ -3,6 +3,8 @@ import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
 import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { DayMap } from "../../constant/constant.js";
+import { WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -595,5 +597,179 @@ export const searchDoctors = async (req, res) => {
     console.error(error);
 
     return somethingWentWrong(res, error, "Failed to search doctors.", "Search doctors error");
+  }
+};
+
+export const addSchedule = async (req, res) => {
+  const { userId } = req.params;
+  const { startTime, endTime, maxAppointments = 20, day } = req.body;
+
+  const dayNumber = Number(day);
+  const dayKey = DayMap[dayNumber];
+
+  // 1. Validate day
+  if (!dayKey) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid day (1-7 required)",
+    });
+  }
+
+  // 2. Validate time
+  if (!startTime || !endTime) {
+    return res.status(400).json({
+      success: false,
+      message: "startTime and endTime are required",
+    });
+  }
+
+  if (startTime >= endTime) {
+    return res.status(400).json({
+      success: false,
+      message: "startTime must be before endTime",
+    });
+  }
+
+  const schedule = {
+    startTime,
+    endTime,
+    maxAppointments,
+  };
+
+  try {
+    // 3. Check duplicate slot (IMPORTANT FIX)
+    const existing = await WeeklyDays.findOne({
+      doctorUserId: userId,
+      [`${dayKey}.time`]: {
+        $elemMatch: { startTime, endTime },
+      },
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: "This time slot already exists",
+      });
+    }
+
+    // 4. Safe update
+    const updated = await WeeklyDays.findOneAndUpdate(
+      { doctorUserId: userId },
+
+      {
+        $setOnInsert: { doctorUserId: userId },
+        $set: { [`${dayKey}.isEnable`]: true },
+        $push: { [`${dayKey}.time`]: schedule },
+      },
+
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+      },
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: updated,
+      message: "Schedule added successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add schedule",
+    });
+  }
+};
+
+export const removeSchedule = async (req, res) => {
+  const { doctorUserId, day, startTime, endTime, maxAppointments } = req.body;
+
+  const dayNumber = Number(day);
+  const dayKey = DayMap[dayNumber];
+  console.log("🚀 ~ doctorRegistration.js:726 ~ removeSchedule ~ dayKey:", dayKey);
+
+  // 1. Validate day
+  if (!dayKey) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid day (1-7 required)",
+    });
+  }
+
+  try {
+    // 2. Check if doctor schedule exists
+    const doctorSchedule = await WeeklyDays.findOne({
+      doctorUserId,
+    });
+
+    if (!doctorSchedule) {
+      return res.status(404).json({
+        success: false,
+        message: "Schedule not found",
+      });
+    }
+
+    const removingSlot = {
+      startTime,
+      endTime,
+    };
+
+    // 3. Remove exact slot
+    const updated = await WeeklyDays.findOneAndUpdate(
+      {
+        doctorUserId,
+      },
+
+      {
+        $pull: {
+          [`${dayKey}.time`]: removingSlot,
+        },
+      },
+
+      {
+        new: true,
+      },
+    );
+
+    // 4. Optional: disable day if no slots left
+    const remainingSlots = updated?.[dayKey]?.time?.length || 0;
+
+    const ifSlotExist = await WeeklyDays.findOne({
+      doctorUserId,
+      [`${dayKey}.isEnable`]: true,
+    });
+
+    if (!ifSlotExist) {
+      return res.status(404).json({
+        success: false,
+        message: "Schedule slot not found",
+      });
+    }
+
+    if (remainingSlots === 0) {
+      await WeeklyDays.updateOne(
+        { doctorUserId },
+        {
+          $set: {
+            [`${dayKey}.isEnable`]: false,
+          },
+        },
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: updated,
+      message: "Schedule removed successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove schedule",
+    });
   }
 };

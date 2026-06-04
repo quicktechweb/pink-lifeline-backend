@@ -1,11 +1,11 @@
 import express from "express";
-import { registerUser, searchDoctors, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
+import { isDoctor } from "../../middleware/isDoctor.js";
 
 const router = express.Router();
 
-// 🔥 register route with image upload
 router.post("/register", uploadImage.single("photo"), registerUser);
 
 router.post("/login", loginUser);
@@ -21,5 +21,8 @@ router.put("/verify-doctor/:userId", isUserExist, approveSingleDoctor);
 router.put("/delete-doctor/:userId", isUserExist, deleteDoctor);
 router.get("/get-doctor-by-registration-number/:doctorRegistrationNumber", getDoctorByRegistrationNumber);
 router.get("/search-doctors/:query", searchDoctors);
+
+router.post("/add-doctor-daily-schedule/:userId", isDoctor, addSchedule);
+router.delete("/delete-doctor-daily-schedule/:userId", isDoctor, removeSchedule);
 
 export default router;
