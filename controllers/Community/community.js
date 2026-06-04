@@ -13,39 +13,31 @@ export const createPost = async (req, res) => {
 
     const { title, description, hashtags = [] | "" } = req.body;
 
+    let normalizedHashtags;
 
-    let normalizedHashtags 
-
-
-
-    
-if (Array.isArray(hashtags)) {
-  normalizedHashtags = hashtags
-    .map((tag) => String(tag).trim())
-    .filter((tag) => /^[a-zA-Z]+$/.test(tag))
-    .map((tag) => `#${tag}`);
-
-} else if (typeof hashtags === "string") {
-  try {
-    const parsed = JSON.parse(hashtags);
-
-    if (Array.isArray(parsed)) {
-      normalizedHashtags = parsed
+    if (Array.isArray(hashtags)) {
+      normalizedHashtags = hashtags
         .map((tag) => String(tag).trim())
         .filter((tag) => /^[a-zA-Z]+$/.test(tag))
         .map((tag) => `#${tag}`);
+    } else if (typeof hashtags === "string") {
+      try {
+        const parsed = JSON.parse(hashtags);
+
+        if (Array.isArray(parsed)) {
+          normalizedHashtags = parsed
+            .map((tag) => String(tag).trim())
+            .filter((tag) => /^[a-zA-Z]+$/.test(tag))
+            .map((tag) => `#${tag}`);
+        }
+      } catch {
+        normalizedHashtags = hashtags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => /^[a-zA-Z]+$/.test(tag))
+          .map((tag) => `#${tag}`);
+      }
     }
-  } catch {
-    normalizedHashtags = hashtags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => /^[a-zA-Z]+$/.test(tag))
-      .map((tag) => `#${tag}`);
-  }
-}
-
-
-
 
     if (!userId) {
       return res.status(400).json({

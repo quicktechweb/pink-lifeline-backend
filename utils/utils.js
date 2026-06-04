@@ -83,23 +83,17 @@ export const isValidNewPeriodGap = (referenceDate, currentDate) => {
   return gapInDays >= minGap;
 };
 
-
 export const getBleedingTitle = async (id) => {
-  console.log("🚀 ~ utils.js:88 ~ getBleedingTitle ~ id:", id)
   const bleeding = await Bleeding.findById(id);
   return bleeding ? bleeding.title : null;
 };
 
-
-
 export const getSymptomTitle = async (id) => {
   const symptom = await Symptom.findById(id);
   return symptom ? symptom.title : null;
-}
+};
 
 export const getSpottingTitle = async (id) => {
   const spotting = await Spotting.findById(id);
   return spotting ? spotting.title : null;
 };
-
-

@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import path from "path";
 import PeriodTracker from "./../models/Period/PeriodModel.js";
 import DoctorRegistration from "../models/DoctorRegistration/DoctorRegistration.js";
+import mongoose from "mongoose";
 
 const internalUtilRoutes = express.Router();
 
@@ -47,28 +48,24 @@ internalUtilRoutes.post("/run-script", async (req, res) => {
 
     const scriptsDir = path.join(process.cwd(), "scripts");
 
-    exec(
-      `node "${script}"`,
-      { cwd: scriptsDir },
-      (error, stdout, stderr) => {
-        if (error) {
-          console.error("Script execution error:", error);
+    exec(`node "${script}"`, { cwd: scriptsDir }, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Script execution error:", error);
 
-          return res.status(500).json({
-            success: false,
-            message: "Script execution failed",
-            error: error.message,
-          });
-        }
-
-        return res.status(200).json({
-          success: true,
-          message: "Script executed successfully",
-          output: stdout,
-          stderr,
+        return res.status(500).json({
+          success: false,
+          message: "Script execution failed",
+          error: error.message,
         });
       }
-    );
+
+      return res.status(200).json({
+        success: true,
+        message: "Script executed successfully",
+        output: stdout,
+        stderr,
+      });
+    });
   } catch (error) {
     console.error(error);
 
@@ -80,9 +77,8 @@ internalUtilRoutes.post("/run-script", async (req, res) => {
   }
 });
 
-
-internalUtilRoutes.get("/all-types-of-user",async (req,res)=>{
-  try{
+internalUtilRoutes.get("/all-types-of-user", async (req, res) => {
+  try {
     const users = await DoctorRegistration.find({});
     res.status(200).json({
       success: true,
@@ -95,6 +91,62 @@ internalUtilRoutes.get("/all-types-of-user",async (req,res)=>{
       success: false,
       message: "Failed to retrieve users",
       error: error.message,
+    });
+  }
+});
+
+internalUtilRoutes.get("/get-all-connections", async (req, res) => {
+  try {
+    const collections = await mongoose.connection.db.listCollections({}, { nameOnly: true }).toArray();
+
+    const collectionNames = collections.map((col) => col.name);
+
+    return res.status(200).json({
+      success: true,
+      total: collectionNames.length,
+      collections: collectionNames,
+    });
+  } catch (error) {
+    console.error("Error fetching collections:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch collections",
+      error: error.message,
+    });
+  }
+});
+
+internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
+  try {
+    const { collectionName } = req.params;
+
+    // Check if collection exists
+    const collections = await mongoose.connection.db.listCollections({}, { nameOnly: true }).toArray();
+
+    const exists = collections.some((c) => c.name === collectionName);
+
+    if (!exists) {
+      return res.status(404).json({
+        success: false,
+        message: `Collection '${collectionName}' not found. Hit get-all-connections this api to get all collection names.`,
+      });
+    }
+
+    const data = await mongoose.connection.db.collection(collectionName).find({}).toArray();
+
+    return res.status(200).json({
+      success: true,
+      collection: collectionName,
+      total: data.length,
+      data,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 });

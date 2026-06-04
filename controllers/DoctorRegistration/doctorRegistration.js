@@ -505,9 +505,8 @@ export const approveSingleDoctor = async (req, res) => {
 
   try {
     const doctor = await User.findOne({ userId, isRemoved: false });
-    res.send(doctor)
+    res.send(doctor);
 
-    
     if (!doctor || doctor.isDoctor !== 1) {
       return notFoundResponse(res, "Doctor not found.", `Update failed: Doctor not found with userId ${userId}`);
     }
@@ -566,5 +565,35 @@ export const getDoctorByRegistrationNumber = async (req, res) => {
     console.error(error);
 
     return somethingWentWrong(res, error, "Failed to get doctor information.", "Get doctor by registration number error");
+  }
+};
+
+export const searchDoctors = async (req, res) => {
+  const { query } = req.params;
+
+  try {
+    const doctors = await User.find({
+      type: 1,
+      $and: [
+        {
+          $or: [{ fullName: { $regex: query, $options: "i" } }, { phoneNumber: { $regex: query, $options: "i" } }, { doctorRegistrationNumber: { $regex: query, $options: "i" } }, { currentWorkplace: { $regex: query, $options: "i" } }, { email: { $regex: query, $options: "i" } }],
+        },
+        {
+          $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+        },
+      ],
+    })
+      .select("fullName phoneNumber doctorRegistrationNumber email currentWorkplace")
+      .lean();
+
+    if (!doctors.length) {
+      return notFoundResponse(res, "No doctors found.", "Search doctors failed: empty result.");
+    }
+
+    return successResponse(res, doctors, "Doctors retrieved successfully", "Search doctors successful.");
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to search doctors.", "Search doctors error");
   }
 };
