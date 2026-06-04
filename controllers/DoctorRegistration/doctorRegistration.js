@@ -4,7 +4,7 @@ import axios from "axios";
 import { generateToken } from "../../utils/token.js";
 import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import { DayMap } from "../../constant/constant.js";
-import { WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
+import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -770,6 +770,104 @@ export const removeSchedule = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to remove schedule",
+    });
+  }
+};
+
+
+export const addExceptionalSchedule = async (req, res) => {
+  const { date, startTime, endTime, maxAppointments=0 } = req.body;
+
+  // 1. Validate required fields
+  if (!date || !startTime || !endTime) {
+    return res.status(400).json({
+      success: false,
+      message: "date, startTime, and endTime are required",
+    });
+  }
+
+  try {
+    // 2. Parse date from Flutter and extract month
+    const parsedDate = new Date(date);
+
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format",
+      });
+    }
+
+    const monthNumber = parsedDate.getMonth() + 1; // getMonth() is 0-indexed
+    const monthName = MonthMap[monthNumber];
+
+    console.log("🚀 ~ addExceptionalSchedule ~ parsedDate:", parsedDate);
+    console.log("🚀 ~ addExceptionalSchedule ~ monthName:", monthName);
+
+    // 3. Check if an exceptional day already exists for this date
+    const existingSchedule = await ExceptionalDays.findOne({
+      date: parsedDate,
+    });
+
+    if (existingSchedule) {
+      // 4a. Date already exists — just push the new time slot in
+      const slotAlreadyExists = existingSchedule.time.some(
+        (slot) => slot.startTime === startTime && slot.endTime === endTime,
+      );
+
+      if (slotAlreadyExists) {
+        return res.status(409).json({
+          success: false,
+          message: "This time slot already exists for the given date",
+        });
+      }
+
+      const updated = await ExceptionalDays.findOneAndUpdate(
+        { date: parsedDate },
+        {
+          $push: {
+            time: {
+              startTime,
+              endTime,
+              maxAppointments: maxAppointments ?? 20,
+            },
+          },
+          $set: { isEnable: true },
+        },
+        { new: true },
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: updated,
+        message: `Slot added to existing exceptional day (${monthName})`,
+      });
+    }
+
+    // 4b. No existing record — create a fresh exceptional day
+    const newExceptionalDay = await ExceptionalDays.create({
+      date: parsedDate,
+      month: monthName,         // extracted from MonthMap
+      isEnable: true,
+      time: [
+        {
+          startTime,
+          endTime,
+          maxAppointments: maxAppointments ?? 20,
+        },
+      ],
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: newExceptionalDay,
+      message: `Exceptional schedule created for ${monthName}`,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add exceptional schedule",
     });
   }
 };

@@ -88,6 +88,9 @@ const weeklyDaysSchema = new mongoose.Schema(
 
 export const WeeklyDays = mongoose.model("WeeklyDays", weeklyDaysSchema);
 
+
+
+
 const exceptionalDaySchema = new mongoose.Schema(
   {
     date: {

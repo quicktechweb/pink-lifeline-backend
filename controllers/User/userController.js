@@ -1,4 +1,5 @@
 import User from "../../models/DoctorRegistration/DoctorRegistration.js";
+import { WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 
 export const updateUserProfile = async (req, res) => {
@@ -80,6 +81,19 @@ export const getUserDoctorWishList = async (req, res) => {
     })
       .select("userId fullName email phoneNumber doctorRegistrationNumber currentWorkplace profileImage")
       .lean();
+
+      const weeklySchedule = await WeeklyDays.create({
+        userId,
+        days: {
+          Monday: [],
+          Tuesday: [],
+          Wednesday: [],
+          Thursday: [],
+          Friday: [],
+          Saturday: [],
+          Sunday: [],
+        }
+      })
 
     successResponse(res, doctors, "Wish list fetched successfully.", "Wish list fetched successfully.");
   } catch (error) {
