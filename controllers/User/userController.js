@@ -100,3 +100,23 @@ export const getUserDoctorWishList = async (req, res) => {
     somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+export const userBookingAppointment = (req, res) => {
+  try{
+    
+    const { userId } = req.params;
+    const payload = req.body;
+
+
+    
+
+
+    return successResponse(res, payload, "Appointment created successfully.", "Appointment created successfully.");
+
+  }catch(error){
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+}

@@ -24,12 +24,27 @@ const appointmentSchema = new mongoose.Schema(
       index: true,
     },
 
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    note: {
+      type: String,
+      default: "",
+    },
+
     status: {
       type: String,
       enum: ["pending", "confirmed", "cancelled", "completed"],
-      default: "confirmed",
+      // pending -> when user booked an appointment but not confirmed by admin
+      // confirmed -> when admin confirmed the appointment
+      // cancelled -> when admin/doctor cancelled the appointment
+      // completed -> when user completed the appointment
+      default: "pending",
     },
   },
+
   {
     timestamps: true,
   },

@@ -323,11 +323,11 @@ export const recordPeriodLog = async (req, res) => {
 
     const currentDate = new Date(payload.currentDate);
     if (Number.isNaN(currentDate.getTime())) {
-      return badRequestResponse(res, "Invalid input.", "Current date is invalid.");
+      return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
     }
 
     if (currentDate.getTime() > Date.now()) {
-      return badRequestResponse(res, "Invalid input.", "Current date cannot be in the future.");
+      return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
     }
 
     if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
@@ -641,11 +641,11 @@ export const recordPeriodLog = async (req, res) => {
       const currentDate = new Date(payload.currentDate);
 
       if (Number.isNaN(currentDate.getTime())) {
-        return badRequestResponse(res, "Invalid input.", "Current date is invalid.");
+        return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
       }
 
       if (currentDate.getTime() > Date.now()) {
-        return badRequestResponse(res, "Invalid input.", "Current date cannot be in the future.");
+        return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
       }
 
       const isValid = await validateRecordPeriodData(res,payload);
@@ -765,6 +765,9 @@ export const recordPeriodLog = async (req, res) => {
 
   export const recordPeriodStart = async (req, res) => {
     try {
+
+
+
       const payload = req.body;
       const currentDate = new Date(payload.currentDate);
       if (Number.isNaN(currentDate.getTime())) {
@@ -913,7 +916,7 @@ export const recordPeriodEnd = async (req, res) => {
     if (Number.isNaN(parsedEndDate.getTime())) {
       return badRequestResponse(
         res,
-        "Invalid input.",
+        "End date is invalid.",
         "End date is invalid."
       );
     }

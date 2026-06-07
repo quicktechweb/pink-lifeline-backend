@@ -869,3 +869,23 @@ export const addExceptionalSchedule = async (req, res) => {
     });
   }
 };
+
+
+export const getDoctorMonthlySchedule = async (req, res) => {
+  const { userId } = req.params;
+  const month = req.query.month;
+
+
+  // if(!MonthMap.existingSchedule){
+  //   return badRequestResponse(res, "Invalid month", "Month is not valid (1-12 required).");
+  // }
+
+
+  try {
+    const schedule = await WeeklyDays.findOne({ doctorUserId:userId });
+    return successResponse(res, schedule, "Schedule fetched successfully", "Schedule fetched successfully");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to fetch schedule");
+  }
+};
