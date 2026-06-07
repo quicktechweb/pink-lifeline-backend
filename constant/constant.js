@@ -22,3 +22,7 @@ export const MonthMap = {
   11: "November",
   12: "December",
 };
+
+
+export const AVERAGE_PERIOD_DURATION = 5;
+export const POST_MENSTRUAL_INTERVAL=10

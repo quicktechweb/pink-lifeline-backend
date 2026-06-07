@@ -1,5 +1,5 @@
 import express from "express";
-import { recordPeriodLog,getPeriodData, getPeriodBasicInsights, previousPeriodsInfo, addDailyNote } from "../../controllers/Period/trackPeriod/trackPeriod.js";
+import { recordPeriodLog,getPeriodData,recordPeriodCurrent,recordPeriodEnd, getPeriodBasicInsights, previousPeriodsInfo, addDailyNote, recordPeriodStart } from "../../controllers/Period/trackPeriod/trackPeriod.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 
 
@@ -10,6 +10,9 @@ const router = express.Router();
 router.post("/v1/insert-period", recordPeriodLog);
 
 
+router.post("/v1/record-start-data",recordPeriodStart)
+router.post("/v1/record-current-data",recordPeriodCurrent)
+router.post("/v1/record-end-data",recordPeriodEnd)
 
 
 router.get("/v1/get-period-basics-insights/:userId",isUserExist,getPeriodBasicInsights)
