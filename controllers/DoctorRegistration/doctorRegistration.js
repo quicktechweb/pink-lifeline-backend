@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
 import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
-import { DayMap } from "../../constant/constant.js";
+import { DayMap, MonthMap } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 
 const generateUserId = (type) => {
@@ -800,8 +800,6 @@ export const addExceptionalSchedule = async (req, res) => {
     const monthNumber = parsedDate.getMonth() + 1; // getMonth() is 0-indexed
     const monthName = MonthMap[monthNumber];
 
-    console.log("🚀 ~ addExceptionalSchedule ~ parsedDate:", parsedDate);
-    console.log("🚀 ~ addExceptionalSchedule ~ monthName:", monthName);
 
     // 3. Check if an exceptional day already exists for this date
     const existingSchedule = await ExceptionalDays.findOne({
