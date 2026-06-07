@@ -768,11 +768,11 @@ export const recordPeriodLog = async (req, res) => {
       const payload = req.body;
       const currentDate = new Date(payload.currentDate);
       if (Number.isNaN(currentDate.getTime())) {
-        return badRequestResponse(res, "Invalid input.", "Current date is invalid.");
+        return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
       }
 
       if (currentDate.getTime() > Date.now()) {
-        return badRequestResponse(res, "Invalid input.", "Current date cannot be in the future.");
+        return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
       }
 
       const isValid = await validateRecordPeriodData(res,payload);
