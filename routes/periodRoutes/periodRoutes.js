@@ -17,11 +17,8 @@ router.get("/v1/get-period-basics-insights/:userId",isUserExist,getPeriodBasicIn
 
 
 
-
-
 router.post("/v1/get-period-info-date-wise",getPeriodData)
 router.post("/v1/add-daily-notes/:userId",isUserExist,addDailyNote)
-
 
 
 
