@@ -8,302 +8,6 @@ import { Symptom } from "../../../models/Dropdowns/symptomsDropdownModel.js";
 import { UserSelfTest } from "../../../models/SelfTest/selfTestUserMode.js";
 import { AVERAGE_PERIOD_DURATION, POST_MENSTRUAL_INTERVAL } from "../../../constant/constant.js";
 
-
-
-const savePeriodDataIntoDB = async (res, payload) => {
-  const newPeriodEntry = {
-    bleeding: payload.period?.bleeding,
-    symptoms: payload.period?.symptoms,
-    spotting: payload.period?.spotting,
-  };
-
-  const newPeriodData = await PeriodTracker.create({
-    userId: payload.userId,
-    currentDate: payload.currentDate,
-    startDate: payload?.startDate,
-    endDate: payload?.endDate,
-    period: [newPeriodEntry],
-  });
-
-  return successResponse(res, newPeriodData, "Period log recorded successfully.", "Successfully recorded period log.");
-};
-
-
-// export const recordPeriodLog = async (req, res) => {
-//   try {
-//     const payload = req.body;
-
-//     // ─── 1. VALIDATION ───────────────────────────────────────────────────────
-
-//     if (!payload.userId) {
-//       return notFoundResponse(res, "User not found.", "User ID is missing.");
-//     }
-
-//     const isUserExist = await User.findOne({ userId: payload.userId });
-//     if (!isUserExist) {
-//       return notFoundResponse(res, "User not found.", "User is not registered.");
-//     }
-
-//     if (!payload.currentDate) {
-//       return badRequestResponse(res, "Bad request occurred.", "Current date is required.");
-//     }
-
-//     if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
-//       return badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
-//     }
-
-//     if (payload.startDate && payload.endDate) {
-//       return badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
-//     }
-
-//     // // ─── 1.5. GET DROP DOWN DATA ─────────────────────────────────────────────────────
-
-//     // const bleedingOptions = await Bleeding.find().sort({createdAt: -1});
-
-//     // const spottingOptions = await Spotting.find().sort({createdAt: -1});
-
-//     // const symptomOptions = await Symptom.find().sort({createdAt: -1});
-
-//     // ─── 2. SHARED SETUP ─────────────────────────────────────────────────────
-
-//     const currentDate = new Date(payload.currentDate);
-
-//     const bleeding = payload.period?.bleeding
-//       ? {
-//           id: payload.period.bleeding.id,
-//           title: payload.period.bleeding.title ? await getBleedingTitle(payload.period.bleeding.id) : null,
-//           flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
-//           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
-//         }
-//       : undefined;
-
-//     const rawFlow = payload.period?.bleeding?.flowLevel;
-//     if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
-//       return badRequestResponse(res, "Invalid flow level.", "flowLevel must be 0, 1, 2, or 3");
-//     }
-
-//     let symptoms = payload.period?.symptoms;
-//     if (payload.period?.symptoms) {
-
-//       if (symptoms?.length) {
-//         symptoms = await Promise.all(
-//           symptoms.map(async (symptom) => ({
-//             ...symptom,
-//             title: symptom.title || await getSymptomTitle(symptom._id),
-//           }))
-//         );
-//       }
-//     }
-
-//     let spotting = payload.period?.spotting ?? [];
-
-//     if (spotting.length) {
-//       spotting = await Promise.all(
-//         spotting.map(async (item) => ({
-//           ...item,
-//           title: item.title || await getSpottingTitle(item._id),
-//         }))
-//       );
-//     }
-
-//     // ✅ Each period sub-document now carries its own currentDate
-//     const newPeriodEntry = {
-//       currentDate,
-//       bleeding: bleeding,
-//       symptoms: symptoms ?? [],
-//       spotting: spotting ?? [],
-//     };
-
-//     // ─── 3. FETCH LATEST RECORD ──────────────────────────────────────────────
-
-//     const latestPeriod = await PeriodTracker.findOne({ userId: payload.userId }).sort({
-//       createdAt: -1,
-//     });
-
-//     // ─── 4. BRAND-NEW USER ───────────────────────────────────────────────────
-
-//     if (!latestPeriod) {
-//       if (payload.endDate) {
-//         return badRequestResponse(res, "Bad request occurred.", "Cannot provide an end date when no period has been started.");
-//       }
-
-//       const newRecord = await PeriodTracker.create({
-//         userId: payload.userId,
-//         currentDate,
-//         startDate: payload.startDate ? new Date(payload.startDate) : currentDate,
-//         endDate: null,
-//         period: [newPeriodEntry],
-//       });
-
-//       return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
-//     }
-
-//     // ─── 5. EXPLICIT NEW PERIOD START ────────────────────────────────────────
-
-//     if (payload.startDate) {
-//       const referenceDate = latestPeriod.startDate ? new Date(latestPeriod.startDate) : new Date(latestPeriod.currentDate);
-
-//       if (!isValidNewPeriodGap(referenceDate, currentDate)) {
-//         return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
-//       }
-
-//       // Auto-close any period the user forgot to mark as ended.
-//       if (!latestPeriod.endDate) {
-//         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
-//           endDate: new Date(latestPeriod.currentDate),
-//         });
-//       }
-
-//       const newRecord = await PeriodTracker.create({
-//         userId: payload.userId,
-//         currentDate,
-//         startDate: new Date(payload.startDate),
-//         endDate: null,
-//         period: [newPeriodEntry],
-//       });
-
-//       return successResponse(res, newRecord, "New period started and log recorded successfully.", "Successfully recorded period log.");
-//     }
-
-//     // ─── 6. EXPLICIT PERIOD END ──────────────────────────────────────────────
-
-//     if (payload.endDate) {
-//       if (latestPeriod.endDate) {
-//         return badRequestResponse(res, "Bad request occurred.", "No open period found to close. Please start a new period first.");
-//       }
-
-//       const updatedRecord = await PeriodTracker.findByIdAndUpdate(
-//         latestPeriod._id,
-//         {
-//           $push: { period: newPeriodEntry },
-//           currentDate,
-//           endDate: new Date(payload.endDate),
-//         },
-//         { new: true },
-//       );
-
-//       return successResponse(res, updatedRecord, "Period ended and log recorded successfully.", "Successfully recorded period log.");
-//     }
-
-//     // ─── 7. DAILY LOG (no startDate, no endDate) ─────────────────────────────
-
-//     const hasOpenPeriod = !latestPeriod.endDate;
-//     const lastEntryDate = new Date(latestPeriod.currentDate);
-
-//     if (hasOpenPeriod) {
-//       if (isWithinSamePeriod(lastEntryDate, currentDate)) {
-//         const updatedRecord = await PeriodTracker.findByIdAndUpdate(
-//           latestPeriod._id,
-//           {
-//             $push: { period: newPeriodEntry },
-//             currentDate,
-//           },
-//           { new: true },
-//         );
-
-//         return successResponse(res, updatedRecord, "Period log recorded successfully.", "Successfully recorded period log.");
-//       } else {
-//         // Gap too large — auto-close previous, start new implicit period.
-//         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
-//           endDate: lastEntryDate,
-//         });
-
-//         const newRecord = await PeriodTracker.create({
-//           userId: payload.userId,
-//           currentDate,
-//           startDate: currentDate,
-//           endDate: null,
-//           period: [newPeriodEntry],
-//         });
-
-//         return successResponse(res, newRecord, "Period log recorded successfully.", "Previous period auto-closed. New period started.");
-//       }
-//     }
-
-//     // Previous period is closed — treat today as an implicit new start.
-//     const referenceDate = new Date(latestPeriod.endDate);
-
-//     if (!isValidNewPeriodGap(referenceDate, currentDate)) {
-//       return badRequestResponse(res, "Frequent period entry detected.", "A new period entry cannot be added this soon after the previous period ended.");
-//     }
-
-//     const newRecord = await PeriodTracker.create({
-//       userId: payload.userId,
-//       currentDate,
-//       startDate: currentDate,
-//       endDate: null,
-//       period: [newPeriodEntry],
-//     });
-
-//     return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ success: false, message: error.message });
-//   }
-// };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const recordPeriodLog = async (req, res) => {
   try {
     const payload = req.body;
@@ -555,53 +259,6 @@ export const recordPeriodLog = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ─── SHARED VALIDATOR ─────────────────────────────────────────────────────────
 // Called by recordPeriodStart and recordPeriodCurrent before any DB writes.
 // Returns true if all checks pass, false (with response already sent) otherwise.
@@ -629,67 +286,38 @@ const validateRecordPeriodData = async (res, payload) => {
 
   // At least one of bleeding, spotting, or symptoms must be provided —
   // an entry with no medical data is meaningless
-  if (
-    !payload.period?.bleeding &&
-    !payload.period?.spotting?.length &&
-    !payload.period?.symptoms?.length
-  ) {
-    badRequestResponse(
-      res,
-      "Bad request occurred.",
-      "At least one of bleeding, spotting, or symptoms is required."
-    );
+  if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
+    badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
     return false;
   }
 
   // startDate and endDate together are ambiguous — only one boundary
   // should be set per request (start uses recordPeriodStart, end uses recordPeriodEnd)
   if (payload.startDate && payload.endDate) {
-    badRequestResponse(
-      res,
-      "Bad request occurred.",
-      "startDate and endDate cannot be provided together."
-    );
+    badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
     return false;
   }
 
   return true;
 };
 
+// Treat date strings without timezone info as UTC (not local time)
+// Parse incoming date string as UTC midnight, strip time component
+const parseAsUTCDateOnly = (dateStr) => {
+  if (!dateStr) return null;
+  // Extract YYYY-MM-DD portion only, then force midnight UTC
+  const datePart = dateStr.toString().split("T")[0];
+  return new Date(datePart + "T00:00:00.000Z");
+};
 
+// Get today as UTC midnight (for future-date comparisons)
+const todayUTC = () => {
+  const now = new Date();
+  return new Date(now.toISOString().split("T")[0] + "T00:00:00.000Z");
+};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Format a Date object back to YYYY-MM-DD string for API responses
+const toDateOnly = (date) => new Date(date).toISOString().split("T")[0];
 
 // ─── RECORD PERIOD CURRENT ────────────────────────────────────────────────────
 // Logs or updates a single day's period data within an already-active period range.
@@ -698,31 +326,19 @@ const validateRecordPeriodData = async (res, payload) => {
 export const recordPeriodCurrent = async (req, res) => {
   try {
     const payload = req.body;
-    const currentDate = new Date(payload.currentDate);
 
-    // Reject unparseable date strings early
-    if (Number.isNaN(currentDate.getTime())) {
+    const currentDate = parseAsUTCDateOnly(payload.currentDate);
+    if (!currentDate || Number.isNaN(currentDate.getTime())) {
       return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
     }
 
-    // Prevent logging future dates — period data must be for today or earlier
-    if (currentDate.getTime() > Date.now()) {
-      return badRequestResponse(
-        res,
-        "Current date cannot be in the future.",
-        "Current date cannot be in the future."
-      );
+    if (currentDate.getTime() > todayUTC().getTime()) {
+      return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
     }
 
-    // Run shared payload validation (userId, user existence, required fields)
     const isValid = await validateRecordPeriodData(res, payload);
     if (isValid === false) return;
 
-    // Fetch all period docs for this user to find the one whose range
-    // covers currentDate (a user may have multiple historical period docs)
-    const allPeriodDocs = await PeriodTracker.find({ userId: payload.userId });
-
-    // Resolve bleeding title from DB if not provided in payload
     let bleedingTitle;
     if (!payload.period.bleeding.title || payload.period.bleeding.title == null) {
       bleedingTitle = await getBleedingTitle(payload.period.bleeding._id);
@@ -730,26 +346,20 @@ export const recordPeriodCurrent = async (req, res) => {
       bleedingTitle = null;
     }
 
-    // Normalise bleeding object — clamp flowLevel to valid range [0–3],
-    // derive hadFlow boolean from whether flow is non-zero
     const bleeding = payload.period?.bleeding
       ? {
           id: payload.period.bleeding._id,
           title: bleedingTitle,
-          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel)
-            ? payload.period.bleeding.flowLevel
-            : 0,
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
         }
       : undefined;
 
-    // Secondary guard: if flowLevel was explicitly provided but out of range, reject
     const rawFlow = payload.period?.bleeding?.flowLevel;
     if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
       return badRequestResponse(res, "Invalid flow field.", "flowLevel must be 0, 1, 2, or 3");
     }
 
-    // Resolve symptom titles from DB for any symptom missing a title
     let symptoms = payload.period?.symptoms;
     if (payload.period?.symptoms) {
       if (symptoms?.length) {
@@ -757,23 +367,21 @@ export const recordPeriodCurrent = async (req, res) => {
           symptoms.map(async (symptom) => ({
             ...symptom,
             title: symptom.title || (await getSymptomTitle(symptom._id)),
-          }))
+          })),
         );
       }
     }
 
-    // Resolve spotting titles from DB for any spotting entry missing a title
     let spotting = payload.period?.spotting ?? [];
     if (spotting.length) {
       spotting = await Promise.all(
         spotting.map(async (item) => ({
           ...item,
           title: item.title || (await getSpottingTitle(item._id)),
-        }))
+        })),
       );
     }
 
-    // Assemble the normalised period sub-document to insert or update with
     const newPeriodEntry = {
       currentDate,
       bleeding,
@@ -782,29 +390,22 @@ export const recordPeriodCurrent = async (req, res) => {
       ...(payload.period?.hasOwnProperty("selfTestDate") ? { selfTestDate: payload.period.selfTestDate } : {}),
     };
 
-    // Find the period doc whose startDate–endDate window contains currentDate
-    const matchedPeriod = allPeriodDocs.find((doc) => {
-      const start = new Date(doc.startDate);
-      const end = new Date(doc.endDate);
-      return currentDate >= start && currentDate <= end;
-    });
+    // Match period doc whose startDate <= currentDate <= endDate
+    const matchedPeriod = await PeriodTracker.findOne({
+      userId: payload.userId,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    }).sort({ createdAt: -1 });
 
-    // currentDate must fall inside an active period range — standalone dates are rejected
     if (!matchedPeriod) {
-      return badRequestResponse(
-        res,
-        "Invalid period date.",
-        "The provided date does not fall within any active period range."
-      );
+      return badRequestResponse(res, "Invalid period date.", "The provided date does not fall within any active period range.");
     }
 
-    // Check if this exact calendar day already has an entry in the period array
-    const existingEntry = matchedPeriod.period.find(
-      (p) => new Date(p.currentDate).toDateString() === currentDate.toDateString()
-    );
+    // Compare date-only strings to find existing entry for this day
+    const currentDateOnly = toDateOnly(currentDate);
+    const existingEntry = matchedPeriod.period.find((p) => toDateOnly(p.currentDate) === currentDateOnly);
 
     if (existingEntry) {
-      // ── UPDATE PATH: overwrite bleeding/symptoms/spotting for the existing day ──
       const updateFields = {
         "period.$.bleeding": bleeding,
         "period.$.symptoms": symptoms ?? [],
@@ -818,22 +419,13 @@ export const recordPeriodCurrent = async (req, res) => {
       const updatedResponse = await PeriodTracker.updateOne(
         {
           _id: matchedPeriod._id,
-          "period._id": existingEntry._id, // positional operator target
+          "period._id": existingEntry._id,
         },
-        { 
-          $set: updateFields 
-        },
-        {
-          new: true, // return updated document
-        }
+        { $set: updateFields },
       );
       return successResponse(res, updatedResponse, "Period updated successfully.", "Period updated successfully.");
     } else {
-      // ── INSERT PATH: no entry for this day yet, push a new sub-document ──
-      const updatedResponse = await PeriodTracker.updateOne(
-        { _id: matchedPeriod._id },
-        { $push: { period: newPeriodEntry } }
-      );
+      const updatedResponse = await PeriodTracker.updateOne({ _id: matchedPeriod._id }, { $push: { period: newPeriodEntry } });
       return successResponse(res, updatedResponse, "Period updated successfully.", "Period updated successfully.");
     }
   } catch (error) {
@@ -841,59 +433,6 @@ export const recordPeriodCurrent = async (req, res) => {
     return badRequestResponse(res, "Bad request occurred.", error.message);
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ─── RECORD PERIOD START ──────────────────────────────────────────────────────
 // Creates a brand-new PeriodTracker document for a user.
@@ -903,50 +442,81 @@ export const recordPeriodCurrent = async (req, res) => {
 export const recordPeriodStart = async (req, res) => {
   try {
     const payload = req.body;
-    const currentDate = new Date(payload.currentDate);
 
-    // Reject unparseable date strings early
-    if (Number.isNaN(currentDate.getTime())) {
+    const currentDate = parseAsUTCDateOnly(payload.currentDate);
+    if (!currentDate || Number.isNaN(currentDate.getTime())) {
       return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
     }
 
-    // Prevent logging future start dates
-    if (currentDate.getTime() > Date.now()) {
-      return badRequestResponse(
-        res,
-        "Current date cannot be in the future.",
-        "Current date cannot be in the future."
-      );
+    const periodDuration = AVERAGE_PERIOD_DURATION;
+
+    const newDate = new Date(payload.currentDate);
+
+    // 1. Get latest tracker
+    const tracker = await PeriodTracker.findOne({ userId: payload.userId });
+
+    if (tracker?.period?.length) {
+      // 2. Sort all period entries by date
+      const sortedPeriods = [...tracker.period].sort((a, b) => new Date(a.currentDate) - new Date(b.currentDate));
+
+      // 3. Find immediate past and future
+      let previous = null;
+      let next = null;
+
+      for (let i = 0; i < sortedPeriods.length; i++) {
+        const current = new Date(sortedPeriods[i].currentDate);
+
+        if (current < newDate) {
+          previous = sortedPeriods[i];
+        }
+
+        if (current > newDate && !next) {
+          next = sortedPeriods[i];
+          break;
+        }
+      }
+
+      // 4. Validate previous gap
+      if (previous) {
+        const diffDays = Math.floor((newDate - new Date(previous.currentDate)) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < AVERAGE_PERIOD_DURATION) {
+          return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
+        }
+      }
+
+      // 5. Validate future overlap (optional safety rule)
+      if (next) {
+        const diffDays = Math.floor((new Date(next.currentDate) - newDate) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < AVERAGE_PERIOD_DURATION) {
+          return badRequestResponse(res, "Invalid period date.", "This date overlaps with an existing recorded period window.");
+        }
+      }
     }
 
-    // startDate is mandatory for this endpoint
+    // return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
+
+    if (currentDate.getTime() > todayUTC().getTime()) {
+      return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
+    }
+
     if (!payload.startDate) {
       return badRequestResponse(res, "Start date is required.", "Start date is required.");
     }
 
-    const startDate = new Date(payload.startDate);
-
-    if (Number.isNaN(startDate.getTime())) {
+    const startDate = parseAsUTCDateOnly(payload.startDate);
+    if (!startDate || Number.isNaN(startDate.getTime())) {
       return badRequestResponse(res, "Start date is invalid.", "Start date is invalid.");
     }
 
-    // The period must be started on the same day it is recorded —
-    // back-dated period starts are not allowed through this endpoint
-    const isSameDay = currentDate.getUTCFullYear() === startDate.getUTCFullYear() && currentDate.getUTCMonth() === startDate.getUTCMonth() && currentDate.getUTCDate() === startDate.getUTCDate();
-
-    if (!isSameDay) {
-      return badRequestResponse(
-        res,
-        "Current date and start date must be the same.",
-        "Current date and start date must be the same."
-      );
+    if (currentDate.getTime() !== startDate.getTime()) {
+      return badRequestResponse(res, "Current date and start date must be the same.", "Current date and start date must be the same.");
     }
 
-    // Run shared payload validation (userId, user existence, required period fields)
     const isValid = await validateRecordPeriodData(res, payload);
     if (isValid === false) return;
 
-    // Resolve bleeding title from DB if not supplied in payload
     let bleedingTitle;
     if (!payload.period.bleeding.title || payload.period.bleeding.title == null) {
       bleedingTitle = await getBleedingTitle(payload.period.bleeding._id);
@@ -954,25 +524,20 @@ export const recordPeriodStart = async (req, res) => {
       bleedingTitle = null;
     }
 
-    // Normalise bleeding — clamp flowLevel, derive hadFlow
     const bleeding = payload.period?.bleeding
       ? {
           id: payload.period.bleeding._id,
           title: bleedingTitle,
-          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel)
-            ? payload.period.bleeding.flowLevel
-            : 0,
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
         }
       : undefined;
 
-    // Secondary guard for out-of-range flowLevel
     const rawFlow = payload.period?.bleeding?.flowLevel;
     if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
       return badRequestResponse(res, "Invalid flow field.", "flowLevel must be 0, 1, 2, or 3");
     }
 
-    // Resolve symptom titles from DB for any missing title
     let symptoms = payload.period?.symptoms;
     if (payload.period?.symptoms) {
       if (symptoms?.length) {
@@ -980,25 +545,22 @@ export const recordPeriodStart = async (req, res) => {
           symptoms.map(async (symptom) => ({
             ...symptom,
             title: symptom.title || (await getSymptomTitle(symptom._id)),
-          }))
+          })),
         );
       }
     }
 
-    // Resolve spotting titles from DB for any missing title
     let spotting = payload.period?.spotting ?? [];
     if (spotting.length) {
       spotting = await Promise.all(
         spotting.map(async (item) => ({
           ...item,
           title: item.title || (await getSpottingTitle(item._id)),
-        }))
+        })),
       );
     }
 
-      const periodDuration = AVERAGE_PERIOD_DURATION;
-
-      const newPeriodEntry = {
+    const newPeriodEntry = {
       currentDate,
       bleeding,
       symptoms: symptoms ?? [],
@@ -1006,59 +568,36 @@ export const recordPeriodStart = async (req, res) => {
       ...(payload.period?.hasOwnProperty("selfTestDate") ? { selfTestDate: payload.period.selfTestDate } : {}),
     };
 
-  const periodEntries = [newPeriodEntry];
+    const periodEntries = [newPeriodEntry];
 
+    for (let i = 1; i < periodDuration; i++) {
+      const nextDate = new Date(currentDate);
+      nextDate.setUTCDate(nextDate.getUTCDate() + i);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  for (let i = 1; i < periodDuration; i++) {
-    periodEntries.push({
-      currentDate: new Date(currentDate.getTime() + i * 24 * 60 * 60 * 1000),
-      bleeding:{
+      periodEntries.push({
+        currentDate: nextDate,
+        bleeding: {
           id: payload.period.bleeding._id,
           title: bleedingTitle,
-          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel)
-            ? payload.period.bleeding.flowLevel
-            : 0,
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
-        }
-    });
-  }
+        },
+        symptoms: [],
+        spotting: [],
+      });
+    }
 
-    // Assemble the first period sub-document for the new tracker doc
+    if (payload.endDate) {
+      return badRequestResponse(res, "Bad request occurred.", "Cannot provide an end date when no period has been started.");
+    }
 
-
-    // Get the user's most recent period doc to check the inter-period gap
     const latestPeriod = await PeriodTracker.findOne({ userId: payload.userId }).sort({
       createdAt: -1,
     });
 
-    // endDate is only set via recordPeriodEnd — reject if provided here
-    if (payload.endDate) {
-      return badRequestResponse(
-        res,
-        "Bad request occurred.",
-        "Cannot provide an end date when no period has been started."
-      );
-    }
+    const endDate = new Date(currentDate.getTime() + periodDuration * 24 * 60 * 60 * 1000);
 
-    // ── FIRST-EVER PERIOD ─────────────────────────────────────────────────────
-    // No prior doc exists; create the initial tracker with an estimated end date
     if (!latestPeriod) {
-      const endDate = new Date(currentDate.getTime() + periodDuration * 24 * 60 * 60 * 1000);
-      console.log("🚀 ~ trackPeriod.js:1030 ~ recordPeriodStart ~ endDate:", endDate)
-
       const newRecord = await PeriodTracker.create({
         userId: payload.userId,
         currentDate,
@@ -1067,27 +606,15 @@ export const recordPeriodStart = async (req, res) => {
         period: periodEntries,
       });
 
-      return successResponse(
-        res,
-        newRecord,
-        "Period log recorded successfully.",
-        "Successfully recorded period log."
-      );
+      // Format dates as date-only strings for mobile
+      return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
     }
 
-    // ── SUBSEQUENT PERIOD ─────────────────────────────────────────────────────
-    // Ensure enough days have passed since the last period ended before allowing a new one
+    const previousEndDate = parseAsUTCDateOnly(latestPeriod.endDate.toISOString());
 
-    const previousEndDate = new Date(latestPeriod.endDate);
-
-    // Gap in days between the previous period's end and this new start
-    const gapInDays = Math.floor((startDate - previousEndDate) / (1000 * 60 * 60 * 24));
-
-    // const periodDuration = AVERAGE_PERIOD_DURATION;
-    const endDate = new Date(currentDate.getTime() + periodDuration * 24 * 60 * 60 * 1000);
+    const gapInDays = Math.floor((startDate.getTime() - previousEndDate.getTime()) / (1000 * 60 * 60 * 24));
 
     if (gapInDays >= POST_MENSTRUAL_INTERVAL) {
-      // Gap is sufficient — create the new period doc
       const newRecord = await PeriodTracker.create({
         userId: payload.userId,
         currentDate,
@@ -1099,70 +626,12 @@ export const recordPeriodStart = async (req, res) => {
       return successResponse(res, newRecord, "Period created successfully");
     }
 
-    // Gap is too short — reject to prevent back-to-back period entries
-    return badRequestResponse(
-      res,
-      "Frequent period entry detected.",
-      "A new period cannot start this soon after the previous one."
-    );
+    return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ─── RECORD PERIOD END ────────────────────────────────────────────────────────
 // Closes the user's most recent active period by setting its endDate.
@@ -1173,71 +642,56 @@ export const recordPeriodEnd = async (req, res) => {
     const payload = req.body;
     const { userId, endDate } = payload;
 
-    // userId is mandatory — all period records are user-scoped
     if (!userId) {
       return badRequestResponse(res, "User not found.", "User ID is required.");
     }
 
-    // endDate is the primary input for this endpoint
     if (!endDate) {
       return badRequestResponse(res, "Bad request occurred.", "End date is required.");
     }
 
-    const parsedEndDate = new Date(endDate);
-
-    if (Number.isNaN(parsedEndDate.getTime())) {
+    const parsedEndDate = parseAsUTCDateOnly(endDate);
+    if (!parsedEndDate || Number.isNaN(parsedEndDate.getTime())) {
       return badRequestResponse(res, "End date is invalid.", "End date is invalid.");
     }
 
-    // currentDate is required to confirm the request is being made on the same day as the end
     if (!payload.currentDate) {
       return badRequestResponse(res, "Current date is required.", "Current date is required.");
     }
 
-    const currentDate = new Date(payload.currentDate);
-
-    if (Number.isNaN(currentDate.getTime())) {
+    const currentDate = parseAsUTCDateOnly(payload.currentDate);
+    if (!currentDate || Number.isNaN(currentDate.getTime())) {
       return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
     }
 
-    // Enforce that the period is ended on the day it actually ended —
-    // back-dated or future-dated end submissions are rejected
-    const isSameDay = currentDate.getUTCFullYear() === parsedEndDate.getUTCFullYear() && currentDate.getUTCMonth() === parsedEndDate.getUTCMonth() && currentDate.getUTCDate() === parsedEndDate.getUTCDate();
-
-    if (!isSameDay) {
-      return badRequestResponse(
-        res,
-        "Current date and end date must be the same.",
-        "Current date and end date must be the same."
-      );
+    if (currentDate.getTime() > todayUTC().getTime()) {
+      return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
     }
 
-    // Target only the most recently created period doc for this user
+    if (currentDate.getTime() !== parsedEndDate.getTime()) {
+      return badRequestResponse(res, "Current date and end date must be the same.", "Current date and end date must be the same.");
+    }
+
     const latestPeriod = await PeriodTracker.findOne({ userId }).sort({ createdAt: -1 });
 
     if (!latestPeriod) {
       return notFoundResponse(res, "Period not found.", "No period records found.");
     }
 
-    // endDate must not be earlier than the period's own start date
-    if (parsedEndDate < latestPeriod.startDate) {
-      return badRequestResponse(
-        res,
-        "Invalid end date.",
-        "End date cannot be earlier than start date."
-      );
+    const startDateOnly = toDateOnly(latestPeriod.startDate);
+    const endDateOnly = toDateOnly(parsedEndDate);
+
+    if (endDateOnly < startDateOnly) {
+      return badRequestResponse(res, "Invalid end date.", "End date cannot be earlier than start date.");
     }
 
-    // Apply the confirmed end date
     latestPeriod.endDate = parsedEndDate;
 
-    // Trim period[] entries that are now beyond the official end date —
-    // keeps the sub-document array consistent with the declared range
+    // Trim sub-documents that fall after the user-confirmed end date
     latestPeriod.period = latestPeriod.period.filter((item) => {
-      return new Date(item.currentDate) <= parsedEndDate;
+      return toDateOnly(item.currentDate) <= endDateOnly;
     });
 
-    // Update the isEndedByUser flag
     latestPeriod.isEndedByUser = true;
 
     const result = await latestPeriod.save();
@@ -1246,46 +700,12 @@ export const recordPeriodEnd = async (req, res) => {
       return badRequestResponse(res, "Unable to save the end date.", "Failed to update period.");
     }
 
-
-
-    return successResponse(
-      res,
-      result,
-      "Period end date updated successfully.",
-      "Successfully updated period."
-    );
+    return successResponse(res, result, "Period end date updated successfully.", "Successfully updated period.");
   } catch (error) {
     console.error(error);
     return badRequestResponse(res, "Bad request occurred.", error.message);
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getPeriodData = async (req, res) => {
   try {
@@ -1327,46 +747,6 @@ export const getPeriodData = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // previous version version of controller.
 
@@ -1571,7 +951,7 @@ export const getPeriodData = async (req, res) => {
 //         result.sixMonthCycleHistory = periodSelfTests.slice(0, 6);
 
 //         successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
-        
+
 //         // return
 
 //         // latest 6 cycles
@@ -1757,17 +1137,13 @@ export const getPeriodData = async (req, res) => {
 //   }
 // };
 
-
 // ─── Helper: Average period duration (in days) ───────────────────────────────
 // Takes the array of period docs and returns the rounded average of periodDuration
 
 const getAveragePeriodDuration = (periodDocs) => {
   if (!periodDocs.length) return 0;
 
-  const totalPeriodDuration = periodDocs.reduce(
-    (sum, p) => sum + (p.periodDuration || 0),
-    0,
-  );
+  const totalPeriodDuration = periodDocs.reduce((sum, p) => sum + (p.periodDuration || 0), 0);
 
   return Math.round(totalPeriodDuration / periodDocs.length);
 };
@@ -1776,11 +1152,9 @@ const getAveragePeriodDuration = (periodDocs) => {
 // // Takes the array of period docs (any order) and returns the rounded average
 // // gap between consecutive cycle start dates
 const getAverageCycleLength = (periodDocs) => {
-  const sorted = [...periodDocs].sort(
-    (a, b) => new Date(a.startDate) - new Date(b.startDate),
-  );
+  const sorted = [...periodDocs].sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
-  console.log("🚀 ~ trackPeriod.js:982 ~ getAverageCycleLength ~ sorted.length:", sorted.length)
+  console.log("🚀 ~ trackPeriod.js:982 ~ getAverageCycleLength ~ sorted.length:", sorted.length);
   if (sorted.length < 2) return 0;
 
   let totalCycleDays = 0;
@@ -1804,7 +1178,7 @@ export const getPeriodBasicInsights = async (req, res) => {
         {
           userId,
           startDate: { $exists: true, $ne: null },
-          endDate:   { $exists: true, $ne: null },
+          endDate: { $exists: true, $ne: null },
         },
         { period: 0 },
       ).sort({ startDate: -1 });
@@ -1812,23 +1186,21 @@ export const getPeriodBasicInsights = async (req, res) => {
       if (allPeriodDocs.length > 0) {
         const result = {
           estimatedNextPeriodDate: null,
-          averageDaysOfPeriods:    null,
-          averageCycleLength:      null,
-          sixMonthCycleHistory:    [],
+          averageDaysOfPeriods: null,
+          averageCycleLength: null,
+          sixMonthCycleHistory: [],
         };
 
         // ── Averages ─────────────────────────────────────────────────────────
-        const averageCycleLength     = getAverageCycleLength(allPeriodDocs);
-        const averageDaysOfPeriods   = getAveragePeriodDuration(allPeriodDocs);
+        const averageCycleLength = getAverageCycleLength(allPeriodDocs);
+        const averageDaysOfPeriods = getAveragePeriodDuration(allPeriodDocs);
 
-        result.averageCycleLength   = averageCycleLength;
+        result.averageCycleLength = averageCycleLength;
         result.averageDaysOfPeriods = averageDaysOfPeriods;
 
         // ── Estimated next period date ───────────────────────────────────────
         const estimatedNextPeriodDate = new Date(allPeriodDocs[0].startDate);
-        estimatedNextPeriodDate.setDate(
-          estimatedNextPeriodDate.getDate() + averageCycleLength,
-        );
+        estimatedNextPeriodDate.setDate(estimatedNextPeriodDate.getDate() + averageCycleLength);
         result.estimatedNextPeriodDate = estimatedNextPeriodDate;
 
         // ── Last 6 months of self-test records ───────────────────────────────
@@ -1837,33 +1209,26 @@ export const getPeriodBasicInsights = async (req, res) => {
         sixMonthsAgo.setDate(1);
         sixMonthsAgo.setHours(0, 0, 0, 0);
 
-        const selfTests = await UserSelfTest.find(
-          { userId, currentDate: { $gte: sixMonthsAgo } },
-          { selfTest: 0 },
-        )
+        const selfTests = await UserSelfTest.find({ userId, currentDate: { $gte: sixMonthsAgo } }, { selfTest: 0 })
           .sort({ currentDate: 1 })
           .lean();
 
         // ── Expand latest 6 periods across month boundaries ──────────────────
-        const toMonthName = (d) =>
-          d.toLocaleString("en-US", { month: "short" }).toUpperCase();
+        const toMonthName = (d) => d.toLocaleString("en-US", { month: "short" }).toUpperCase();
 
         const latestSixPeriods = allPeriodDocs.slice(0, 6);
 
         const expandedPeriods = latestSixPeriods.flatMap((period) => {
           const startDate = new Date(period.startDate);
-          const endDate   = new Date(period.endDate);
+          const endDate = new Date(period.endDate);
 
           // Period fits inside a single calendar month
-          if (
-            startDate.getMonth()    === endDate.getMonth() &&
-            startDate.getFullYear() === endDate.getFullYear()
-          ) {
+          if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
             return [
               {
                 monthName: toMonthName(startDate),
                 startDate: period.startDate,
-                endDate:   period.endDate,
+                endDate: period.endDate,
               },
             ];
           }
@@ -1872,15 +1237,12 @@ export const getPeriodBasicInsights = async (req, res) => {
           const segments = [];
           let cursor = new Date(startDate);
 
-          while (
-            cursor.getMonth()    !== endDate.getMonth() ||
-            cursor.getFullYear() !== endDate.getFullYear()
-          ) {
+          while (cursor.getMonth() !== endDate.getMonth() || cursor.getFullYear() !== endDate.getFullYear()) {
             const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
             segments.push({
               monthName: toMonthName(cursor),
               startDate: new Date(cursor),
-              endDate:   new Date(monthEnd),
+              endDate: new Date(monthEnd),
             });
             cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
           }
@@ -1889,7 +1251,7 @@ export const getPeriodBasicInsights = async (req, res) => {
           segments.push({
             monthName: toMonthName(endDate),
             startDate: new Date(cursor),
-            endDate:   new Date(endDate),
+            endDate: new Date(endDate),
           });
 
           return segments;
@@ -1898,9 +1260,7 @@ export const getPeriodBasicInsights = async (req, res) => {
         // ── Attach self-test dates to their matching months ──────────────────
         const periodSelfTests = expandedPeriods.flatMap((period) => {
           const matchingSelfTests = selfTests.filter((selfTest) => {
-            const monthName = new Date(selfTest.currentDate)
-              .toLocaleString("en-US", { month: "short" })
-              .toUpperCase();
+            const monthName = new Date(selfTest.currentDate).toLocaleString("en-US", { month: "short" }).toUpperCase();
             return monthName === period.monthName;
           });
 
@@ -1916,25 +1276,14 @@ export const getPeriodBasicInsights = async (req, res) => {
 
         result.sixMonthCycleHistory = periodSelfTests.slice(0, 6);
 
-        return successResponse(
-          res,
-          result,
-          "Period insights generated successfully.",
-          "Successfully generated period insights.",
-        );
+        return successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
       }
     } catch (error) {
-      return somethingWentWrong(
-        res,
-        error,
-        "Something went wrong while fetching period data.",
-      );
+      return somethingWentWrong(res, error, "Something went wrong while fetching period data.");
     }
 
     // ─── Branch B: fallback — user has legacy period[] array docs ────────────
-    const POST_MENSTRUAL_INTERVAL = Number(
-      process.env.POST_MENSTRUAL_INTERVAL || 10,
-    );
+    const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
 
     const periodDocs = await PeriodTracker.find({ userId }).sort({ createdAt: 1 });
 
@@ -1944,12 +1293,7 @@ export const getPeriodBasicInsights = async (req, res) => {
       .sort((a, b) => a.date - b.date);
 
     if (!allPeriods.length) {
-      return successResponse(
-        res,
-        { cycles: [] },
-        "No period data found.",
-        "Empty dataset.",
-      );
+      return successResponse(res, { cycles: [] }, "No period data found.", "Empty dataset.");
     }
 
     // Group individual period days into cycles separated by POST_MENSTRUAL_INTERVAL
@@ -1976,14 +1320,11 @@ export const getPeriodBasicInsights = async (req, res) => {
 
     const cycleInsights = cycles.map((cycle, index) => {
       const startDate = cycle[0].date;
-      const endDate   = cycle[cycle.length - 1].date;
+      const endDate = cycle[cycle.length - 1].date;
 
-      const cycleDuration    = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+      const cycleDuration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
       const bleedingDuration = cycle.filter((d) => d?.bleeding?.flowLevel >= 1).length;
-      const symptomFrequency = cycle.reduce(
-        (acc, day) => acc + (day.symptoms?.length || 0),
-        0,
-      );
+      const symptomFrequency = cycle.reduce((acc, day) => acc + (day.symptoms?.length || 0), 0);
 
       return {
         cycleNumber: index + 1,
@@ -1995,64 +1336,12 @@ export const getPeriodBasicInsights = async (req, res) => {
       };
     });
 
-    return successResponse(
-      res,
-      { totalCycles: cycles.length, cycleInsights },
-      "Cycle insights generated successfully.",
-      "Insights computed successfully.",
-    );
+    return successResponse(res, { totalCycles: cycles.length, cycleInsights }, "Cycle insights generated successfully.", "Insights computed successfully.");
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(
-      res,
-      error,
-      "Something went wrong while generating insights.",
-    );
+    return somethingWentWrong(res, error, "Something went wrong while generating insights.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const addDailyNote = async (req, res) => {
   const payload = req.body;

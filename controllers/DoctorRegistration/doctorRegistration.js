@@ -34,89 +34,6 @@ const uploadToImgBB = async (file) => {
   }
 };
 
-// export const registerUser = async (req, res) => {
-//   try {
-//     // 🔥 parse qualifications
-//     if (req.body.qualifications) {
-//       req.body.qualifications = JSON.parse(req.body.qualifications);
-//     }
-
-//     const {
-//       type,
-//       fullName,
-//       email,
-//       phoneNumber,
-//       doctorRegistrationNumber,
-//       currentWorkplace,
-//       currentDesignation,
-//       aboutMe,
-//       qualifications,
-//     } = req.body;
-
-//     // 🔍 Check existing user
-//     const existing = await User.findOne({
-//       $or: [{ phoneNumber }, { email }],
-//     });
-
-//     if (existing) {
-//       return res.status(200).json({
-//         success: false,
-//         message: existing.email === email
-//           ? "User already exists with this email"
-//           : "User already exists with this phone number",
-//       });
-//     }
-
-//     // 🔥 Upload image to ImgBB
-//     let doctorIdCardData = {};
-
-//     if (req.file) {
-//       const uploaded = await uploadToImgBB(req.file);
-
-//       if (uploaded) {
-//         doctorIdCardData = {
-//           url: uploaded.url,
-//           deleteUrl: uploaded.delete_url,
-//         };
-//       }
-//     }
-
-//     // 🔥 Generate userId
-//     const userId = generateUserId(type);
-
-//     // 🧠 Create user
-//     const newUser = await User.create({
-//       userId,
-//       type,
-//       fullName,
-//       email,
-//       phoneNumber,
-//       doctorRegistrationNumber,
-//       currentWorkplace,
-//       currentDesignation,
-//       aboutMe,
-//       qualifications,
-//       doctorIdCard: doctorIdCardData,
-//     });
-
-//     // 🔐 JWT TOKEN GENERATE
-//     const token = generateToken(newUser);
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Registration successful",
-//       token, // 🔥 JWT ADDED
-//       data: newUser,
-//     });
-//   } catch (error) {
-//     console.error(error);
-
-//     return res.status(200).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
 
 export const registerUser = async (req, res) => {
   try {
@@ -152,21 +69,7 @@ export const registerUser = async (req, res) => {
       conditions.push({ email });
     }
 
-    // if (type === 1 && !phoneNumber) {
-    //   badRequestResponse(res, "Phone Number is required for doctor registration.", "Phone number is not found.");
-    //   return;
-    // }
-
-    // if (phoneNumber) {
-    //   const phoneExists = await User.findOne({ phoneNumber });
-
-    //   if (phoneExists) {
-    //     return res.status(200).json({
-    //       success: false,
-    //       message: "User already exists with this phone number" + (phoneExists.type === 1 ? " as a doctor" : " as a user"),
-    //     });
-    //   }
-    // }
+  
 
     // 🔍 check existing
     const existing = await User.findOne({
@@ -187,16 +90,7 @@ export const registerUser = async (req, res) => {
     // 🔥 upload image
     let doctorIdCardData = {};
 
-    // if (req.file) {
-    //   const uploaded = await uploadToImgBB(req.file);
 
-    //   if (uploaded) {
-    //     doctorIdCardData = {
-    //       url: uploaded.url,
-    //       deleteUrl: uploaded.delete_url,
-    //     };
-    //   }
-    // }
 
     // 🔥 generate userId
     const userId = generateUserId(type);
@@ -721,13 +615,11 @@ export const removeSchedule = async (req, res) => {
       {
         doctorUserId,
       },
-
       {
         $pull: {
           [`${dayKey}.time`]: removingSlot,
         },
       },
-
       {
         new: true,
       },
@@ -876,9 +768,7 @@ export const getDoctorMonthlySchedule = async (req, res) => {
   const month = req.query.month;
 
 
-  // if(!MonthMap.existingSchedule){
-  //   return badRequestResponse(res, "Invalid month", "Month is not valid (1-12 required).");
-  // }
+
 
 
   try {

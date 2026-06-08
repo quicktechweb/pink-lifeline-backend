@@ -18,7 +18,7 @@ export const bleedingSchema = new mongoose.Schema(
     // 🔹 Added from DailyLog schema
     hadFlow: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   { _id: true },

@@ -11,12 +11,10 @@ const selfTestItemSchema = new mongoose.Schema(
       required: true,
       ref: "SelfTestQuestion",
     },
-
     answerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
-
     answerScore: {
       type: Number,
       default: 0,
