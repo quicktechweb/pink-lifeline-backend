@@ -932,10 +932,7 @@ export const recordPeriodStart = async (req, res) => {
 
     // The period must be started on the same day it is recorded —
     // back-dated period starts are not allowed through this endpoint
-    const isSameDay =
-      currentDate.getUTCFullYear() === startDate.getUTCFullYear() &&
-      currentDate.getUTCMonth() === startDate.getUTCMonth() &&
-      currentDate.getUTCDate() === startDate.getUTCDate();
+    const isSameDay = currentDate.getUTCFullYear() === startDate.getUTCFullYear() && currentDate.getUTCMonth() === startDate.getUTCMonth() && currentDate.getUTCDate() === startDate.getUTCDate();
 
     if (!isSameDay) {
       return badRequestResponse(
@@ -999,14 +996,48 @@ export const recordPeriodStart = async (req, res) => {
       );
     }
 
-    // Assemble the first period sub-document for the new tracker doc
-    const newPeriodEntry = {
+      const periodDuration = AVERAGE_PERIOD_DURATION;
+
+      const newPeriodEntry = {
       currentDate,
       bleeding,
       symptoms: symptoms ?? [],
       spotting: spotting ?? [],
       ...(payload.period?.hasOwnProperty("selfTestDate") ? { selfTestDate: payload.period.selfTestDate } : {}),
     };
+
+  const periodEntries = [newPeriodEntry];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  for (let i = 1; i < periodDuration; i++) {
+    periodEntries.push({
+      currentDate: new Date(currentDate.getTime() + i * 24 * 60 * 60 * 1000),
+      bleeding:{
+          id: payload.period.bleeding._id,
+          title: bleedingTitle,
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel)
+            ? payload.period.bleeding.flowLevel
+            : 0,
+          hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
+        }
+    });
+  }
+
+    // Assemble the first period sub-document for the new tracker doc
+
 
     // Get the user's most recent period doc to check the inter-period gap
     const latestPeriod = await PeriodTracker.findOne({ userId: payload.userId }).sort({
@@ -1025,15 +1056,15 @@ export const recordPeriodStart = async (req, res) => {
     // ── FIRST-EVER PERIOD ─────────────────────────────────────────────────────
     // No prior doc exists; create the initial tracker with an estimated end date
     if (!latestPeriod) {
-      const periodDuration = AVERAGE_PERIOD_DURATION;
       const endDate = new Date(currentDate.getTime() + periodDuration * 24 * 60 * 60 * 1000);
+      console.log("🚀 ~ trackPeriod.js:1030 ~ recordPeriodStart ~ endDate:", endDate)
 
       const newRecord = await PeriodTracker.create({
         userId: payload.userId,
         currentDate,
         startDate: currentDate,
         endDate,
-        period: [newPeriodEntry],
+        period: periodEntries,
       });
 
       return successResponse(
@@ -1052,7 +1083,7 @@ export const recordPeriodStart = async (req, res) => {
     // Gap in days between the previous period's end and this new start
     const gapInDays = Math.floor((startDate - previousEndDate) / (1000 * 60 * 60 * 24));
 
-    const periodDuration = AVERAGE_PERIOD_DURATION;
+    // const periodDuration = AVERAGE_PERIOD_DURATION;
     const endDate = new Date(currentDate.getTime() + periodDuration * 24 * 60 * 60 * 1000);
 
     if (gapInDays >= POST_MENSTRUAL_INTERVAL) {
@@ -1062,7 +1093,7 @@ export const recordPeriodStart = async (req, res) => {
         currentDate,
         startDate: currentDate,
         endDate,
-        period: [newPeriodEntry],
+        period: periodEntries,
       });
 
       return successResponse(res, newRecord, "Period created successfully");
