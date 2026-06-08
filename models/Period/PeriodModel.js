@@ -32,6 +32,10 @@ const periodSchema = new mongoose.Schema(
       type: [spottingSchema],
       default: [],
     },
+    selfTestDate: {
+      type: Date,
+      required: false,
+    },
   },
   { _id: true },
 );
@@ -53,6 +57,11 @@ const periodTrackerSchema = new mongoose.Schema(
 
     endDate: {
       type: Date,
+    },
+
+    isEndedByUser:{
+      type: Boolean,
+      default: false
     },
 
     currentDate: {

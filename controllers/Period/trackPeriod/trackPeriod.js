@@ -602,181 +602,110 @@ export const recordPeriodLog = async (req, res) => {
 
 
 
-  const validateRecordPeriodData = async (res,payload) => {
-        // ─── 1. VALIDATION ───────────────────────────────────────────────────────
+// ─── SHARED VALIDATOR ─────────────────────────────────────────────────────────
+// Called by recordPeriodStart and recordPeriodCurrent before any DB writes.
+// Returns true if all checks pass, false (with response already sent) otherwise.
+const validateRecordPeriodData = async (res, payload) => {
+  // ─── 1. VALIDATION ──────────────────────────────────────────────────────────
 
-      if (!payload.userId) {
-        notFoundResponse(res, "User not found.", "User ID is missing.");
-        return false
-      }
-
-      const isUserExist = await User.findOne({ userId: payload.userId });
-      if (!isUserExist) {
-        notFoundResponse(res, "User not found.", "User is not registered.");
-        return false
-      }
-
-      if (!payload.currentDate) {
-        badRequestResponse(res, "Bad request occurred.", "Current date is required.");
-        return false
-      }
-
-      if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
-        badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
-        return false
-      }
-
-      if (payload.startDate && payload.endDate) {
-        badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
-        return false
-      }
-      return true
+  // Ensure userId is present in the payload
+  if (!payload.userId) {
+    notFoundResponse(res, "User not found.", "User ID is missing.");
+    return false;
   }
 
+  // Confirm the user actually exists in the DB
+  const isUserExist = await User.findOne({ userId: payload.userId });
+  if (!isUserExist) {
+    notFoundResponse(res, "User not found.", "User is not registered.");
+    return false;
+  }
 
+  // currentDate is required for all period logging operations
+  if (!payload.currentDate) {
+    badRequestResponse(res, "Bad request occurred.", "Current date is required.");
+    return false;
+  }
 
-  export const recordPeriodCurrent = async (req, res) => {
-    try {
-      const payload = req.body;
-      const currentDate = new Date(payload.currentDate);
-
-      if (Number.isNaN(currentDate.getTime())) {
-        return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
-      }
-
-      if (currentDate.getTime() > Date.now()) {
-        return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
-      }
-
-      const isValid = await validateRecordPeriodData(res,payload);
-
-      if(isValid === false){
-        return 
-      }
-
-      const allPeriodDocs = await PeriodTracker.find({ userId: payload.userId });
-      
-      let bleedingTitle;
-      if (!payload.period.bleeding.title || payload.period.bleeding.title == null) {
-        bleedingTitle = await getBleedingTitle(payload.period.bleeding._id);
-      } else {
-        bleedingTitle = null;
-      }
-
-      const bleeding = payload.period?.bleeding 
-        ? {
-            id: payload.period.bleeding._id,
-            title: bleedingTitle,
-            flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
-            hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
-          }
-        : undefined;
-
-      const rawFlow = payload.period?.bleeding?.flowLevel;
-      if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
-        return badRequestResponse(res, "Invalid flow field.", "flowLevel must be 0, 1, 2, or 3");
-      }
-
-      let symptoms = payload.period?.symptoms;
-      if (payload.period?.symptoms) {
-        if (symptoms?.length) {
-          symptoms = await Promise.all(
-            symptoms.map(async (symptom) => ({
-              ...symptom,
-              title: symptom.title || (await getSymptomTitle(symptom._id)),
-            })),
-          );
-        }
-      }
-
-      let spotting = payload.period?.spotting ?? [];
-      if (spotting.length) {
-        spotting = await Promise.all(
-          spotting.map(async (item) => ({
-            ...item,
-            title: item.title || (await getSpottingTitle(item._id)),
-          })),
-        );
-      }
-
-
-      const newPeriodEntry = {
-        currentDate,
-        bleeding: bleeding,
-        symptoms: symptoms ?? [],
-        spotting: spotting ?? [],
-      };
-
-  const matchedPeriod = allPeriodDocs.find((doc) => {
-    const start = new Date(doc.startDate);
-    const end = new Date(doc.endDate);
-
-    return currentDate >= start && currentDate <= end;
-  });
-
-  if (!matchedPeriod) {
-    return badRequestResponse(
+  // At least one of bleeding, spotting, or symptoms must be provided —
+  // an entry with no medical data is meaningless
+  if (
+    !payload.period?.bleeding &&
+    !payload.period?.spotting?.length &&
+    !payload.period?.symptoms?.length
+  ) {
+    badRequestResponse(
       res,
-      "Invalid period date.",
-      "The provided date does not fall within any active period range."
+      "Bad request occurred.",
+      "At least one of bleeding, spotting, or symptoms is required."
     );
+    return false;
   }
 
-  const existingEntry = matchedPeriod.period.find(
-    (p) =>
-      new Date(p.currentDate).toDateString() ===
-      currentDate.toDateString()
-  );
-
-  if (existingEntry) {
-    const updatedResponse = await PeriodTracker.updateOne(
-      {
-        _id: matchedPeriod._id,
-        "period._id": existingEntry._id,
-      },
-      {
-        $set: {
-          "period.$.bleeding": bleeding,
-          "period.$.symptoms": symptoms ?? [],
-          "period.$.spotting": spotting ?? [],
-        },
-      }
+  // startDate and endDate together are ambiguous — only one boundary
+  // should be set per request (start uses recordPeriodStart, end uses recordPeriodEnd)
+  if (payload.startDate && payload.endDate) {
+    badRequestResponse(
+      res,
+      "Bad request occurred.",
+      "startDate and endDate cannot be provided together."
     );
-    return successResponse(res, updatedResponse, "Period updated successfully.", "Period updated successfully.");
-
-  } else {
-  const updatedResponse =  await PeriodTracker.updateOne(
-      { _id: matchedPeriod._id },
-      {
-        $push: {
-          period: newPeriodEntry,
-        },
-      }
-    );
-    return successResponse(res, updatedResponse, "Period updated successfully.", "Period updated successfully.");}
-    }
-    catch (error) {
-      console.error(error);
-      return badRequestResponse(res, "Bad request occurred.", error.message);
-    }
+    return false;
   }
 
+  return true;
+};
 
 
-export const recordPeriodStart = async (req, res) => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ─── RECORD PERIOD CURRENT ────────────────────────────────────────────────────
+// Logs or updates a single day's period data within an already-active period range.
+// If an entry for `currentDate` already exists in the matched doc → $set (update).
+// If not → $push (insert new entry).
+export const recordPeriodCurrent = async (req, res) => {
   try {
     const payload = req.body;
-
     const currentDate = new Date(payload.currentDate);
 
+    // Reject unparseable date strings early
     if (Number.isNaN(currentDate.getTime())) {
-      return badRequestResponse(
-        res,
-        "Current date is invalid.",
-        "Current date is invalid."
-      );
+      return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
     }
 
+    // Prevent logging future dates — period data must be for today or earlier
     if (currentDate.getTime() > Date.now()) {
       return badRequestResponse(
         res,
@@ -785,26 +714,224 @@ export const recordPeriodStart = async (req, res) => {
       );
     }
 
-    // Start Date Validation
-    if (!payload.startDate) {
+    // Run shared payload validation (userId, user existence, required fields)
+    const isValid = await validateRecordPeriodData(res, payload);
+    if (isValid === false) return;
+
+    // Fetch all period docs for this user to find the one whose range
+    // covers currentDate (a user may have multiple historical period docs)
+    const allPeriodDocs = await PeriodTracker.find({ userId: payload.userId });
+
+    // Resolve bleeding title from DB if not provided in payload
+    let bleedingTitle;
+    if (!payload.period.bleeding.title || payload.period.bleeding.title == null) {
+      bleedingTitle = await getBleedingTitle(payload.period.bleeding._id);
+    } else {
+      bleedingTitle = null;
+    }
+
+    // Normalise bleeding object — clamp flowLevel to valid range [0–3],
+    // derive hadFlow boolean from whether flow is non-zero
+    const bleeding = payload.period?.bleeding
+      ? {
+          id: payload.period.bleeding._id,
+          title: bleedingTitle,
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel)
+            ? payload.period.bleeding.flowLevel
+            : 0,
+          hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
+        }
+      : undefined;
+
+    // Secondary guard: if flowLevel was explicitly provided but out of range, reject
+    const rawFlow = payload.period?.bleeding?.flowLevel;
+    if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
+      return badRequestResponse(res, "Invalid flow field.", "flowLevel must be 0, 1, 2, or 3");
+    }
+
+    // Resolve symptom titles from DB for any symptom missing a title
+    let symptoms = payload.period?.symptoms;
+    if (payload.period?.symptoms) {
+      if (symptoms?.length) {
+        symptoms = await Promise.all(
+          symptoms.map(async (symptom) => ({
+            ...symptom,
+            title: symptom.title || (await getSymptomTitle(symptom._id)),
+          }))
+        );
+      }
+    }
+
+    // Resolve spotting titles from DB for any spotting entry missing a title
+    let spotting = payload.period?.spotting ?? [];
+    if (spotting.length) {
+      spotting = await Promise.all(
+        spotting.map(async (item) => ({
+          ...item,
+          title: item.title || (await getSpottingTitle(item._id)),
+        }))
+      );
+    }
+
+    // Assemble the normalised period sub-document to insert or update with
+    const newPeriodEntry = {
+      currentDate,
+      bleeding,
+      symptoms: symptoms ?? [],
+      spotting: spotting ?? [],
+      ...(payload.period?.hasOwnProperty("selfTestDate") ? { selfTestDate: payload.period.selfTestDate } : {}),
+    };
+
+    // Find the period doc whose startDate–endDate window contains currentDate
+    const matchedPeriod = allPeriodDocs.find((doc) => {
+      const start = new Date(doc.startDate);
+      const end = new Date(doc.endDate);
+      return currentDate >= start && currentDate <= end;
+    });
+
+    // currentDate must fall inside an active period range — standalone dates are rejected
+    if (!matchedPeriod) {
       return badRequestResponse(
         res,
-        "Start date is required.",
-        "Start date is required."
+        "Invalid period date.",
+        "The provided date does not fall within any active period range."
       );
+    }
+
+    // Check if this exact calendar day already has an entry in the period array
+    const existingEntry = matchedPeriod.period.find(
+      (p) => new Date(p.currentDate).toDateString() === currentDate.toDateString()
+    );
+
+    if (existingEntry) {
+      // ── UPDATE PATH: overwrite bleeding/symptoms/spotting for the existing day ──
+      const updateFields = {
+        "period.$.bleeding": bleeding,
+        "period.$.symptoms": symptoms ?? [],
+        "period.$.spotting": spotting ?? [],
+      };
+
+      if (payload.period?.hasOwnProperty("selfTestDate")) {
+        updateFields["period.$.selfTestDate"] = payload.period.selfTestDate;
+      }
+
+      const updatedResponse = await PeriodTracker.updateOne(
+        {
+          _id: matchedPeriod._id,
+          "period._id": existingEntry._id, // positional operator target
+        },
+        { 
+          $set: updateFields 
+        },
+        {
+          new: true, // return updated document
+        }
+      );
+      return successResponse(res, updatedResponse, "Period updated successfully.", "Period updated successfully.");
+    } else {
+      // ── INSERT PATH: no entry for this day yet, push a new sub-document ──
+      const updatedResponse = await PeriodTracker.updateOne(
+        { _id: matchedPeriod._id },
+        { $push: { period: newPeriodEntry } }
+      );
+      return successResponse(res, updatedResponse, "Period updated successfully.", "Period updated successfully.");
+    }
+  } catch (error) {
+    console.error(error);
+    return badRequestResponse(res, "Bad request occurred.", error.message);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ─── RECORD PERIOD START ──────────────────────────────────────────────────────
+// Creates a brand-new PeriodTracker document for a user.
+// Enforces that currentDate === startDate (you can only start a period "today").
+// Computes an estimated endDate using AVERAGE_PERIOD_DURATION.
+// Rejects the request if the previous period ended too recently (< POST_MENSTRUAL_INTERVAL days ago).
+export const recordPeriodStart = async (req, res) => {
+  try {
+    const payload = req.body;
+    const currentDate = new Date(payload.currentDate);
+
+    // Reject unparseable date strings early
+    if (Number.isNaN(currentDate.getTime())) {
+      return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
+    }
+
+    // Prevent logging future start dates
+    if (currentDate.getTime() > Date.now()) {
+      return badRequestResponse(
+        res,
+        "Current date cannot be in the future.",
+        "Current date cannot be in the future."
+      );
+    }
+
+    // startDate is mandatory for this endpoint
+    if (!payload.startDate) {
+      return badRequestResponse(res, "Start date is required.", "Start date is required.");
     }
 
     const startDate = new Date(payload.startDate);
 
     if (Number.isNaN(startDate.getTime())) {
-      return badRequestResponse(
-        res,
-        "Start date is invalid.",
-        "Start date is invalid."
-      );
+      return badRequestResponse(res, "Start date is invalid.", "Start date is invalid.");
     }
 
-    // Current Date and Start Date must be the same day
+    // The period must be started on the same day it is recorded —
+    // back-dated period starts are not allowed through this endpoint
     const isSameDay =
       currentDate.getUTCFullYear() === startDate.getUTCFullYear() &&
       currentDate.getUTCMonth() === startDate.getUTCMonth() &&
@@ -818,93 +945,75 @@ export const recordPeriodStart = async (req, res) => {
       );
     }
 
+    // Run shared payload validation (userId, user existence, required period fields)
     const isValid = await validateRecordPeriodData(res, payload);
+    if (isValid === false) return;
 
-    if (isValid === false) {
-      return;
-    }
-
+    // Resolve bleeding title from DB if not supplied in payload
     let bleedingTitle;
-
-    if (
-      !payload.period.bleeding.title ||
-      payload.period.bleeding.title == null
-    ) {
-      bleedingTitle = await getBleedingTitle(
-        payload.period.bleeding._id
-      );
+    if (!payload.period.bleeding.title || payload.period.bleeding.title == null) {
+      bleedingTitle = await getBleedingTitle(payload.period.bleeding._id);
     } else {
       bleedingTitle = null;
     }
 
+    // Normalise bleeding — clamp flowLevel, derive hadFlow
     const bleeding = payload.period?.bleeding
       ? {
           id: payload.period.bleeding._id,
           title: bleedingTitle,
-          flowLevel: [0, 1, 2, 3].includes(
-            payload.period?.bleeding?.flowLevel
-          )
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel)
             ? payload.period.bleeding.flowLevel
             : 0,
-          hadFlow:
-            (payload.period.bleeding.flowLevel ?? 0) !== 0,
+          hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
         }
       : undefined;
 
+    // Secondary guard for out-of-range flowLevel
     const rawFlow = payload.period?.bleeding?.flowLevel;
-
-    if (
-      rawFlow !== undefined &&
-      ![0, 1, 2, 3].includes(rawFlow)
-    ) {
-      return badRequestResponse(
-        res,
-        "Invalid flow field.",
-        "flowLevel must be 0, 1, 2, or 3"
-      );
+    if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
+      return badRequestResponse(res, "Invalid flow field.", "flowLevel must be 0, 1, 2, or 3");
     }
 
+    // Resolve symptom titles from DB for any missing title
     let symptoms = payload.period?.symptoms;
-
     if (payload.period?.symptoms) {
       if (symptoms?.length) {
         symptoms = await Promise.all(
           symptoms.map(async (symptom) => ({
             ...symptom,
-            title:
-              symptom.title ||
-              (await getSymptomTitle(symptom._id)),
+            title: symptom.title || (await getSymptomTitle(symptom._id)),
           }))
         );
       }
     }
 
+    // Resolve spotting titles from DB for any missing title
     let spotting = payload.period?.spotting ?? [];
-
     if (spotting.length) {
       spotting = await Promise.all(
         spotting.map(async (item) => ({
           ...item,
-          title:
-            item.title ||
-            (await getSpottingTitle(item._id)),
+          title: item.title || (await getSpottingTitle(item._id)),
         }))
       );
     }
 
+    // Assemble the first period sub-document for the new tracker doc
     const newPeriodEntry = {
       currentDate,
       bleeding,
       symptoms: symptoms ?? [],
       spotting: spotting ?? [],
+      ...(payload.period?.hasOwnProperty("selfTestDate") ? { selfTestDate: payload.period.selfTestDate } : {}),
     };
 
-    const latestPeriod = await PeriodTracker.findOne({
-      userId: payload.userId,
-    }).sort({
+    // Get the user's most recent period doc to check the inter-period gap
+    const latestPeriod = await PeriodTracker.findOne({ userId: payload.userId }).sort({
       createdAt: -1,
     });
 
+    // endDate is only set via recordPeriodEnd — reject if provided here
     if (payload.endDate) {
       return badRequestResponse(
         res,
@@ -913,14 +1022,11 @@ export const recordPeriodStart = async (req, res) => {
       );
     }
 
-    // First period record
+    // ── FIRST-EVER PERIOD ─────────────────────────────────────────────────────
+    // No prior doc exists; create the initial tracker with an estimated end date
     if (!latestPeriod) {
       const periodDuration = AVERAGE_PERIOD_DURATION;
-
-      const endDate = new Date(
-        currentDate.getTime() +
-          periodDuration * 24 * 60 * 60 * 1000
-      );
+      const endDate = new Date(currentDate.getTime() + periodDuration * 24 * 60 * 60 * 1000);
 
       const newRecord = await PeriodTracker.create({
         userId: payload.userId,
@@ -938,28 +1044,19 @@ export const recordPeriodStart = async (req, res) => {
       );
     }
 
-    // Subsequent period records
-    const postMenstrualInterval =
-      POST_MENSTRUAL_INTERVAL;
+    // ── SUBSEQUENT PERIOD ─────────────────────────────────────────────────────
+    // Ensure enough days have passed since the last period ended before allowing a new one
 
-    const previousEndDate = new Date(
-      latestPeriod.endDate
-    );
+    const previousEndDate = new Date(latestPeriod.endDate);
 
-    const gapInDays = Math.floor(
-      (startDate - previousEndDate) /
-        (1000 * 60 * 60 * 24)
-    );
+    // Gap in days between the previous period's end and this new start
+    const gapInDays = Math.floor((startDate - previousEndDate) / (1000 * 60 * 60 * 24));
 
-    const periodDuration =
-      AVERAGE_PERIOD_DURATION;
+    const periodDuration = AVERAGE_PERIOD_DURATION;
+    const endDate = new Date(currentDate.getTime() + periodDuration * 24 * 60 * 60 * 1000);
 
-    const endDate = new Date(
-      currentDate.getTime() +
-        periodDuration * 24 * 60 * 60 * 1000
-    );
-
-    if (gapInDays >= postMenstrualInterval) {
+    if (gapInDays >= POST_MENSTRUAL_INTERVAL) {
+      // Gap is sufficient — create the new period doc
       const newRecord = await PeriodTracker.create({
         userId: payload.userId,
         currentDate,
@@ -968,13 +1065,10 @@ export const recordPeriodStart = async (req, res) => {
         period: [newPeriodEntry],
       });
 
-      return successResponse(
-        res,
-        newRecord,
-        "Period created successfully"
-      );
+      return successResponse(res, newRecord, "Period created successfully");
     }
 
+    // Gap is too short — reject to prevent back-to-back period entries
     return badRequestResponse(
       res,
       "Frequent period entry detected.",
@@ -982,92 +1076,119 @@ export const recordPeriodStart = async (req, res) => {
     );
   } catch (error) {
     console.error(error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ─── RECORD PERIOD END ────────────────────────────────────────────────────────
+// Closes the user's most recent active period by setting its endDate.
+// Also trims any period[] sub-documents whose currentDate falls after the new endDate
+// (handles the case where daily entries were logged beyond what turned out to be the actual end).
 export const recordPeriodEnd = async (req, res) => {
   try {
     const payload = req.body;
     const { userId, endDate } = payload;
 
-
+    // userId is mandatory — all period records are user-scoped
     if (!userId) {
-      return badRequestResponse(
-        res,
-        "User not found.",
-        "User ID is required."
-      );
+      return badRequestResponse(res, "User not found.", "User ID is required.");
     }
 
+    // endDate is the primary input for this endpoint
     if (!endDate) {
-      return badRequestResponse(
-        res,
-        "Bad request occurred.",
-        "End date is required."
-      );
+      return badRequestResponse(res, "Bad request occurred.", "End date is required.");
     }
 
     const parsedEndDate = new Date(endDate);
 
     if (Number.isNaN(parsedEndDate.getTime())) {
+      return badRequestResponse(res, "End date is invalid.", "End date is invalid.");
+    }
+
+    // currentDate is required to confirm the request is being made on the same day as the end
+    if (!payload.currentDate) {
+      return badRequestResponse(res, "Current date is required.", "Current date is required.");
+    }
+
+    const currentDate = new Date(payload.currentDate);
+
+    if (Number.isNaN(currentDate.getTime())) {
+      return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
+    }
+
+    // Enforce that the period is ended on the day it actually ended —
+    // back-dated or future-dated end submissions are rejected
+    const isSameDay = currentDate.getUTCFullYear() === parsedEndDate.getUTCFullYear() && currentDate.getUTCMonth() === parsedEndDate.getUTCMonth() && currentDate.getUTCDate() === parsedEndDate.getUTCDate();
+
+    if (!isSameDay) {
       return badRequestResponse(
         res,
-        "End date is invalid.",
-        "End date is invalid."
+        "Current date and end date must be the same.",
+        "Current date and end date must be the same."
       );
     }
 
-
-if (!payload.currentDate) {
-  return badRequestResponse(
-    res,
-    "Current date is required.",
-    "Current date is required."
-  );
-}
-
-const currentDate = new Date(payload.currentDate);
-
-
-
-if (Number.isNaN(currentDate.getTime())) {
-  return badRequestResponse(
-    res,
-    "Current date is invalid.",
-    "Current date is invalid."
-  );
-}
-
-
-const isSameDay = currentDate.getUTCFullYear() === parsedEndDate.getUTCFullYear() && currentDate.getUTCMonth() === parsedEndDate.getUTCMonth() && currentDate.getUTCDate() === parsedEndDate.getUTCDate();
-
-  if (!isSameDay) {
-  return badRequestResponse(
-    res,
-    "Current date and end date must be the same.",
-    "Current date and end date must be the same."
-  );
-}
-
-    const latestPeriod = await PeriodTracker.findOne({
-      userId,
-    }).sort({ createdAt: -1 });
+    // Target only the most recently created period doc for this user
+    const latestPeriod = await PeriodTracker.findOne({ userId }).sort({ createdAt: -1 });
 
     if (!latestPeriod) {
-      return notFoundResponse(
-        res,
-        "Period not found.",
-        "No period records found."
-      );
+      return notFoundResponse(res, "Period not found.", "No period records found.");
     }
 
+    // endDate must not be earlier than the period's own start date
     if (parsedEndDate < latestPeriod.startDate) {
       return badRequestResponse(
         res,
@@ -1076,30 +1197,37 @@ const isSameDay = currentDate.getUTCFullYear() === parsedEndDate.getUTCFullYear(
       );
     }
 
+    // Apply the confirmed end date
     latestPeriod.endDate = parsedEndDate;
 
+    // Trim period[] entries that are now beyond the official end date —
+    // keeps the sub-document array consistent with the declared range
     latestPeriod.period = latestPeriod.period.filter((item) => {
       return new Date(item.currentDate) <= parsedEndDate;
     });
 
-    await latestPeriod.save();
+    // Update the isEndedByUser flag
+    latestPeriod.isEndedByUser = true;
+
+    const result = await latestPeriod.save();
+
+    if (!result) {
+      return badRequestResponse(res, "Unable to save the end date.", "Failed to update period.");
+    }
+
+
 
     return successResponse(
       res,
-      latestPeriod,
+      result,
       "Period end date updated successfully.",
       "Successfully updated period."
     );
   } catch (error) {
     console.error(error);
-    return badRequestResponse(
-      res,
-      "Bad request occurred.",
-      error.message
-    );
+    return badRequestResponse(res, "Bad request occurred.", error.message);
   }
 };
-
 
 
 
