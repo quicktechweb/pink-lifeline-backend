@@ -168,22 +168,19 @@ export const updateSteps = async (req, res) => {
     if (req.file?.path) {
       // Delete old cloudinary video
 
-      console.log("🚀 ~ selfTest.js:184 ~ updateSteps ~ existingStep.videoURL:", existingStep.videoURL);
       if (existingStep.videoURL) {
         try {
           const parts = existingStep.videoURL.split("/");
 
           const file = parts[parts.length - 1];
-          console.log("🚀 ~ selfTest.js:190 ~ updateSteps ~ file:", file);
 
           const publicId = "self-test-videos/" + file.split(".")[0];
-          console.log("🚀 ~ selfTest.js:192 ~ updateSteps ~ publicId:", publicId);
 
           await cloudinary.uploader.destroy(publicId, {
             resource_type: "video",
           });
         } catch (err) {
-          console.log("Cloudinary delete failed", err.message);
+          console.error("Cloudinary delete failed", err.message);
         }
       }
 
@@ -301,7 +298,7 @@ export const deleteStep = async (req, res) => {
           resource_type: "video",
         });
       } catch (err) {
-        console.log("Cloudinary delete failed:", err.message);
+        console.error("Cloudinary delete failed:", err.message);
       }
     }
 
@@ -424,7 +421,6 @@ export const getAllStepsQuestionsAnswers = async (req, res) => {
   }
 };
 
-
 export const getAllTestSteps2 = async (req, res) => {
   try {
     const steps = await SelfTestStep.find().sort({ stepNo: 1 });
@@ -441,53 +437,28 @@ export const getAllTestSteps2 = async (req, res) => {
 
 export const updateSteps2 = async (req, res) => {
   const stepId = req.params.stepId;
+
+  const { title, videoURL } = req.body;
+
+  const step = await SelfTestStep.findById(stepId);
+
+  if (step) {
+    step.title = title ? title : step.title;
+    step.videoURL = videoURL ? videoURL : step.videoURL;
+    await step.save();
+    return successResponse(res, step, "Step updated successfully.", "Step updated successfully.");
+  } else {
+    return badRequestResponse(res, "Step not found.", "Step not found.");
+  }
+
   if (!stepId) {
     return badRequestResponse(res, "Bad Request.", "stepId not found.");
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const addSelfTestStepV2 = async (req, res) => {
   try {
     const payload = req.body;
-    console.log("🚀 ~ selfTestSteps.js:490 ~ addSelfTestStepV2 ~ payload:", payload)
 
     let { stepNo, title, questions, videoURL } = payload;
 
@@ -504,26 +475,17 @@ export const addSelfTestStepV2 = async (req, res) => {
     }
 
     if (!videoURL || typeof videoURL !== "string") {
-      return badRequestResponse(
-        res,
-        "Video URL is required.",
-        "Video URL must be a valid string."
-      );
+      return badRequestResponse(res, "Video URL is required.", "Video URL must be a valid string.");
     }
 
     /* =========================
        OPTIONAL: YOUTUBE VALIDATION
     ========================= */
 
-    const isValidYouTube =
-      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(videoURL);
+    const isValidYouTube = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(videoURL);
 
     if (!isValidYouTube) {
-      return badRequestResponse(
-        res,
-        "Invalid YouTube URL.",
-        "Only YouTube links are allowed."
-      );
+      return badRequestResponse(res, "Invalid YouTube URL.", "Only YouTube links are allowed.");
     }
 
     /* =========================
@@ -581,106 +543,101 @@ export const addSelfTestStepV2 = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-export const deleteSelfTestId = async (req,res) => {
-  const { stepId } = req.params
+export const deleteSelfTestId = async (req, res) => {
+  const { stepId } = req.params;
   try {
-    const deletedStep = await SelfTestStep.findById({_id:stepId});
-    if (deleteStep == null ) {
-      notFoundResponse( res,"Data not found",`Delete happens successfully Id: ${stepId}`)
-    }else{
-      const deleteStep = await SelfTestStep.findByIdAndDelete({_id:stepId})
-      deleteStep && successResponse(res,deleteStep,"Data deleted successfully.",`Deleted data is id:${stepId}`)
-      notFoundResponse( res,"Data not found",`Delete happens successfully Id: ${stepId}`)
+    const deletedStep = await SelfTestStep.findById({ _id: stepId });
+    if (deleteStep == null) {
+      notFoundResponse(res, "Data not found", `Delete happens successfully Id: ${stepId}`);
+    } else {
+      const deleteStep = await SelfTestStep.findByIdAndDelete({ _id: stepId });
+      deleteStep && successResponse(res, deleteStep, "Data deleted successfully.", `Deleted data is id:${stepId}`);
+      notFoundResponse(res, "Data not found", `Delete happens successfully Id: ${stepId}`);
     }
   } catch (error) {
-    console.error(error)
-    badRequestResponse(res,"Unable to delete this step.",`Unable to delete this step id:${stepId}`)
+    console.error(error);
+    badRequestResponse(res, "Unable to delete this step.", `Unable to delete this step id:${stepId}`);
   }
-}
-
-
-
-
+};
 
 export const updateSelfTestQuestion2 = async (req, res) => {
   const { stepId } = req.params;
-  const { questionId, title } = req.body;
+  const payload = req.body;
+
+  try {
+    const step = await SelfTestStep.findById(stepId);
+    if (!step) {
+      return notFoundResponse(res, "Step not found.", `Step not found. Id: ${stepId}`);
+    }
+
+    // Edit existing question
+    if (payload.title && payload.questionId) {
+      const question = step.questions.id(payload.questionId);
+
+      if (!question) {
+        return notFoundResponse(res, "Question not found.", `Question not found. Id: ${payload.questionId}`);
+      }
+
+      const newTitle = payload.title.trim();
+
+      // Same title, no update needed
+      if (question.title === newTitle) {
+        return successResponse(res, question, "No changes detected.", `Question title unchanged. Id: ${payload.questionId}`);
+      }
+
+      question.title = newTitle;
+
+      await step.save();
+
+      return successResponse(res, question, "Question updated successfully.", `Updated question id: ${payload.questionId}`);
+    }
+
+    if (!payload.questionId && payload.title) {
+      // Add new question
+      step.questions.push({
+        title: payload.title,
+        answers: [],
+      });
+
+      await step.save();
+
+      return successResponse(res, step.questions[step.questions.length - 1], "Question added successfully.", `Question added to step id: ${stepId}`);
+    }
+
+    return badRequestResponse(res, "Invalid request.", "Missing required fields.");
+  } catch (error) {
+    console.error(error);
+
+    return badRequestResponse(res, "Unable to update question.", error.message);
+  }
+};
+
+export const addUserSelfTest = async (req, res) => {};
+
+export const deleteSelfTestQuestionById2 = async (req, res) => {
+  const { stepId, questionId } = req.params;
 
   try {
     const step = await SelfTestStep.findById(stepId);
 
     if (!step) {
-      return notFoundResponse(
-        res,
-        "Step not found.",
-        `Step not found. Id: ${stepId}`
-      );
+      return notFoundResponse(res, "Step not found.", `Step not found. Id: ${stepId}`);
     }
 
-    // Edit existing question
-    if (questionId) {
-      const question = step.questions.id(questionId);
+    const question = step.questions.id(questionId);
 
-      if (!question) {
-        return notFoundResponse(
-          res,
-          "Question not found.",
-          `Question not found. Id: ${questionId}`
-        );
-      }
-
-      question.title = title;
-
-      await step.save();
-
-      return successResponse(
-        res,
-        question,
-        "Question updated successfully.",
-        `Updated question id: ${questionId}`
-      );
+    if (!question) {
+      return notFoundResponse(res, "Question not found.", `Question not found. Id: ${questionId}`);
     }
 
-    // Add new question
-    step.questions.push({
-      title,
-      answers: [],
-    });
+    step.questions.pull({ _id: questionId });
 
     await step.save();
 
-    return successResponse(
-      res,
-      step.questions[step.questions.length - 1],
-      "Question added successfully.",
-      `Question added to step id: ${stepId}`
-    );
+    return successResponse(res, question, "Question deleted successfully.", `Deleted question id: ${questionId}`);
   } catch (error) {
     console.error(error);
 
-    return badRequestResponse(
-      res,
-      "Unable to update question.",
-      error.message
-    );
+    return badRequestResponse(res, "Unable to delete question.", error.message);
   }
 };
-
-
-
-
-
-
-
-
-
-
-export const addUserSelfTest = async (req,res) => {
-  
-}

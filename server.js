@@ -53,7 +53,6 @@ app.use("/api/user", userRoutes);
 
 
 
-
 app.use("/other",internalUtilRoutes)
 
 
