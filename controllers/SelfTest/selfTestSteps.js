@@ -641,3 +641,64 @@ export const deleteSelfTestQuestionById2 = async (req, res) => {
     return badRequestResponse(res, "Unable to delete question.", error.message);
   }
 };
+
+export const updateSelfTestAnswerV2 = async (req, res) => {
+  const params = req.params;
+  const { questionId, title, score } = req.body;
+  console.log("🚀 ~ selfTestSteps.js:653 ~ updateSelfTestAnswerV2 ~ req.body:", req.body);
+
+  try {
+    const step = await SelfTestStep.findById(params.stepId);
+
+    if (!step) {
+      return notFoundResponse(res, "Step not found.", `Step not found. Id: ${params.stepId}`);
+    }
+
+    if (!questionId) {
+      return badRequestResponse(res, "Question ID is required.", "questionId is missing.");
+    }
+
+    const question = step.questions.id(questionId);
+
+    if (!question) {
+      return notFoundResponse(res, "Question not found.", `Question not found. Id: ${questionId}`);
+    }
+
+    // UPDATE FLOW (PRIMARY)
+    if (params.answerId) {
+      const answer = question.answers.id(params.answerId);
+
+      if (!answer) {
+        return notFoundResponse(res, "Answer not found.", `Answer not found. Id: ${params.answerId}`);
+      }
+
+      if (title !== undefined) {
+        answer.title = title;
+      }
+
+      if (score !== undefined) {
+        answer.score = score;
+      }
+
+      await step.save();
+
+      return successResponse(res, answer, "Answer updated successfully.", `Updated answer id: ${params.answerId}`);
+    }
+
+    // CREATE FLOW (FALLBACK)
+    question.answers.push({
+      title,
+      score,
+    });
+
+    await step.save();
+
+    const createdAnswer = question.answers[question.answers.length - 1];
+
+    return successResponse(res, createdAnswer, "Answer added successfully.", `Answer added to question id: ${questionId}`);
+  } catch (error) {
+    console.error(error);
+    const answerId = params.answerId;
+    return badRequestResponse(res, answerId ? "Unable to update answer." : "Unable to add answer.", error.message);
+  }
+};

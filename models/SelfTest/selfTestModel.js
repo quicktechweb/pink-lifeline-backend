@@ -15,7 +15,9 @@ const selfTestAnswerSchema = new mongoose.Schema(
     score: {
       type: Number,
       required: true,
-      default: 0,
+      min: 1,
+      max: 100,
+      default: 1,
     },
   },
   {
