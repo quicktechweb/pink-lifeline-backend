@@ -763,6 +763,32 @@ export const addExceptionalSchedule = async (req, res) => {
 };
 
 
+
+
+
+
+export const setDoctorScore = async (req,res) => {
+  const { userId } = req.params;
+  const { score, isVerified } = req.body;
+  if (!isVerified) {
+      return badRequestResponse(res, "Doctor is not verified", "Doctor is not verified");
+  }
+  try {
+    const updated = await DoctorRegistration.findOneAndUpdate({ userId, type:1 }, { score }, { new: true });
+    return successResponse(res, updated, "Score updated successfully", "Score updated successfully");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to update score");
+  }
+}
+
+
+
+
+
+
+
+
 export const getDoctorMonthlySchedule = async (req, res) => {
   const { userId } = req.params;
   const month = req.query.month;

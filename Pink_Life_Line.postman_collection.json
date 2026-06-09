@@ -1,0 +1,3468 @@
+{
+  "info": {
+    "_postman_id": "48ba0f35-e98a-4a7c-b31d-e815cd91b8f5",
+    "name": "Pink_Life_Line",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40964410"
+  },
+  "item": [
+    {
+      "name": "Doctor",
+      "item": [
+        {
+          "name": "Degrees",
+          "item": [
+            {
+              "name": "get-all-degree",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/degree/v1/get-all-degrees",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "degree",
+                    "v1",
+                    "get-all-degrees"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add-degree",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"degreeName\": [\r\n    \"1Master of Business Administratio1n\",\r\n    \"1Bachelor of Dental Su1rgery\",\r\n    \"1Doctor of Med1icine\"\r\n  ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/degree/v1/add-degree",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "degree",
+                    "v1",
+                    "add-degree"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-userId",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"id\": \"6a112958f6b811d8fdd0e7d8\",\r\n    \"degreeName\": \"111****\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/degree/v1/update-degree/:userId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "degree",
+                    "v1",
+                    "update-degree",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "6a112958f6b811d8fdd0e7d8"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete-degree",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"degreeName\": [\r\n    \"Master of Business Administratio1n\",\r\n    \"Bachelor of Dental Su1rgery\",\r\n    \"Doctor of Med1icine\"\r\n  ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/degree/v1/delete-degree/:userId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "degree",
+                    "v1",
+                    "delete-degree",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "6a112958f6b811d8fdd0e7d7"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "registration doctor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "type",
+                  "value": "0",
+                  "type": "text",
+                  "uuid": "e537dda1-b3dc-4457-9418-9c100821ebc2"
+                },
+                {
+                  "key": "fullName",
+                  "value": "Sayed",
+                  "type": "text",
+                  "uuid": "1f83be58-2b4b-4d1a-8fc8-79be6f37d73c"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "01533639422",
+                  "type": "text",
+                  "uuid": "e4ec83fa-caa9-4631-b533-d30c9b1982b7"
+                },
+                {
+                  "key": "doctorRegistrationNumber",
+                  "value": "Docodad",
+                  "type": "text",
+                  "uuid": "fe709a48-87dd-4850-8a8a-8beea13ba32a"
+                },
+                {
+                  "key": "currentWorkplace",
+                  "value": "Consultant",
+                  "type": "text",
+                  "uuid": "8c9b7f05-1a92-4987-899f-95660c3881a4"
+                },
+                {
+                  "key": "aboutMe",
+                  "value": "I am a good handsome engineer.",
+                  "type": "text",
+                  "uuid": "7f937ea9-8224-4f66-85da-1fb90310f32e"
+                },
+                {
+                  "key": "email",
+                  "value": "sayed@gmail.com",
+                  "type": "text",
+                  "uuid": "cdfc4366-38a2-482c-b883-4d442fc7e267"
+                },
+                {
+                  "key": "qualifications",
+                  "value": "[{\"degree\":[\"MBBS\"],\"institutionName\":\"Dhaka Medical College\",\"passingYear\":2015},{\"degree\":[\"MD\"],\"institutionName\":\"BSMMU\",\"passingYear\":2020}]\n",
+                  "type": "text",
+                  "uuid": "f9b1a855-6cf8-4ebe-835a-f60e4b5d9016"
+                },
+                {
+                  "key": "docktorCard",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "b571bae2-ad0a-4627-bdd4-773534a425d6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/registration/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "registration",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all doctors",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "type",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "e537dda1-b3dc-4457-9418-9c100821ebc2"
+                },
+                {
+                  "key": "fullName",
+                  "value": "sadik hasan",
+                  "type": "text",
+                  "uuid": "1f83be58-2b4b-4d1a-8fc8-79be6f37d73c"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "01533639422",
+                  "type": "text",
+                  "uuid": "e4ec83fa-caa9-4631-b533-d30c9b1982b7"
+                },
+                {
+                  "key": "doctorRegistrationNumber",
+                  "value": "Docodad",
+                  "type": "text",
+                  "uuid": "fe709a48-87dd-4850-8a8a-8beea13ba32a"
+                },
+                {
+                  "key": "currentWorkplace",
+                  "value": "Consultant",
+                  "type": "text",
+                  "uuid": "8c9b7f05-1a92-4987-899f-95660c3881a4"
+                },
+                {
+                  "key": "aboutMe",
+                  "value": "I am a good engineer.",
+                  "type": "text",
+                  "uuid": "7f937ea9-8224-4f66-85da-1fb90310f32e"
+                },
+                {
+                  "key": "email",
+                  "value": "doctor@gmail.com",
+                  "type": "text",
+                  "uuid": "cdfc4366-38a2-482c-b883-4d442fc7e267"
+                },
+                {
+                  "key": "qualifications",
+                  "value": "[{\"degree\":[\"MBBS\"],\"institutionName\":\"Dhaka Medical College\",\"passingYear\":2015},{\"degree\":[\"MD\"],\"institutionName\":\"BSMMU\",\"passingYear\":2020}]\n",
+                  "type": "text",
+                  "uuid": "f9b1a855-6cf8-4ebe-835a-f60e4b5d9016"
+                },
+                {
+                  "key": "docktorCard",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "b571bae2-ad0a-4627-bdd4-773534a425d6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/registration/get-all-doctors",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "registration",
+                "get-all-doctors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get doctor by doctor registration number",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "type",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "e537dda1-b3dc-4457-9418-9c100821ebc2"
+                },
+                {
+                  "key": "fullName",
+                  "value": "sadik hasan",
+                  "type": "text",
+                  "uuid": "1f83be58-2b4b-4d1a-8fc8-79be6f37d73c"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "01533639422",
+                  "type": "text",
+                  "uuid": "e4ec83fa-caa9-4631-b533-d30c9b1982b7"
+                },
+                {
+                  "key": "doctorRegistrationNumber",
+                  "value": "Docodad",
+                  "type": "text",
+                  "uuid": "fe709a48-87dd-4850-8a8a-8beea13ba32a"
+                },
+                {
+                  "key": "currentWorkplace",
+                  "value": "Consultant",
+                  "type": "text",
+                  "uuid": "8c9b7f05-1a92-4987-899f-95660c3881a4"
+                },
+                {
+                  "key": "aboutMe",
+                  "value": "I am a good engineer.",
+                  "type": "text",
+                  "uuid": "7f937ea9-8224-4f66-85da-1fb90310f32e"
+                },
+                {
+                  "key": "email",
+                  "value": "doctor@gmail.com",
+                  "type": "text",
+                  "uuid": "cdfc4366-38a2-482c-b883-4d442fc7e267"
+                },
+                {
+                  "key": "qualifications",
+                  "value": "[{\"degree\":[\"MBBS\"],\"institutionName\":\"Dhaka Medical College\",\"passingYear\":2015},{\"degree\":[\"MD\"],\"institutionName\":\"BSMMU\",\"passingYear\":2020}]\n",
+                  "type": "text",
+                  "uuid": "f9b1a855-6cf8-4ebe-835a-f60e4b5d9016"
+                },
+                {
+                  "key": "docktorCard",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "b571bae2-ad0a-4627-bdd4-773534a425d6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/registration/get-doctor-by-registration-number/:doctorRegistrationNumber",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "registration",
+                "get-doctor-by-registration-number",
+                ":doctorRegistrationNumber"
+              ],
+              "variable": [
+                {
+                  "key": "doctorRegistrationNumber",
+                  "value": "BMDC-987654"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete doctor",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "type",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "e537dda1-b3dc-4457-9418-9c100821ebc2"
+                },
+                {
+                  "key": "fullName",
+                  "value": "sadik hasan",
+                  "type": "text",
+                  "uuid": "1f83be58-2b4b-4d1a-8fc8-79be6f37d73c"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "01533639422",
+                  "type": "text",
+                  "uuid": "e4ec83fa-caa9-4631-b533-d30c9b1982b7"
+                },
+                {
+                  "key": "doctorRegistrationNumber",
+                  "value": "Docodad",
+                  "type": "text",
+                  "uuid": "fe709a48-87dd-4850-8a8a-8beea13ba32a"
+                },
+                {
+                  "key": "currentWorkplace",
+                  "value": "Consultant",
+                  "type": "text",
+                  "uuid": "8c9b7f05-1a92-4987-899f-95660c3881a4"
+                },
+                {
+                  "key": "aboutMe",
+                  "value": "I am a good engineer.",
+                  "type": "text",
+                  "uuid": "7f937ea9-8224-4f66-85da-1fb90310f32e"
+                },
+                {
+                  "key": "email",
+                  "value": "doctor@gmail.com",
+                  "type": "text",
+                  "uuid": "cdfc4366-38a2-482c-b883-4d442fc7e267"
+                },
+                {
+                  "key": "qualifications",
+                  "value": "[{\"degree\":[\"MBBS\"],\"institutionName\":\"Dhaka Medical College\",\"passingYear\":2015},{\"degree\":[\"MD\"],\"institutionName\":\"BSMMU\",\"passingYear\":2020}]\n",
+                  "type": "text",
+                  "uuid": "f9b1a855-6cf8-4ebe-835a-f60e4b5d9016"
+                },
+                {
+                  "key": "docktorCard",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "b571bae2-ad0a-4627-bdd4-773534a425d6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/registration/delete-doctor/:userId",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "registration",
+                "delete-doctor",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-GM-_BB"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify doctor",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "type",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "e537dda1-b3dc-4457-9418-9c100821ebc2"
+                },
+                {
+                  "key": "fullName",
+                  "value": "sadik hasan",
+                  "type": "text",
+                  "uuid": "1f83be58-2b4b-4d1a-8fc8-79be6f37d73c"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "01533639422",
+                  "type": "text",
+                  "uuid": "e4ec83fa-caa9-4631-b533-d30c9b1982b7"
+                },
+                {
+                  "key": "doctorRegistrationNumber",
+                  "value": "Docodad",
+                  "type": "text",
+                  "uuid": "fe709a48-87dd-4850-8a8a-8beea13ba32a"
+                },
+                {
+                  "key": "currentWorkplace",
+                  "value": "Consultant",
+                  "type": "text",
+                  "uuid": "8c9b7f05-1a92-4987-899f-95660c3881a4"
+                },
+                {
+                  "key": "aboutMe",
+                  "value": "I am a good engineer.",
+                  "type": "text",
+                  "uuid": "7f937ea9-8224-4f66-85da-1fb90310f32e"
+                },
+                {
+                  "key": "email",
+                  "value": "doctor@gmail.com",
+                  "type": "text",
+                  "uuid": "cdfc4366-38a2-482c-b883-4d442fc7e267"
+                },
+                {
+                  "key": "qualifications",
+                  "value": "[{\"degree\":[\"MBBS\"],\"institutionName\":\"Dhaka Medical College\",\"passingYear\":2015},{\"degree\":[\"MD\"],\"institutionName\":\"BSMMU\",\"passingYear\":2020}]\n",
+                  "type": "text",
+                  "uuid": "f9b1a855-6cf8-4ebe-835a-f60e4b5d9016"
+                },
+                {
+                  "key": "docktorCard",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "b571bae2-ad0a-4627-bdd4-773534a425d6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/registration/verify-doctor/:userId",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "registration",
+                "verify-doctor",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-EEI-EL"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\":\"doctor@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/registration/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "registration",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Period Track",
+      "item": [
+        {
+          "name": "record-period-data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": \"USR-CHJNB1\",\r\n  \"currentDate\": \"2026-02-22T10:53:32.27Z\",\r\n  \"startDate\": \"2026-02-28T00:00:00.000Z\",\r\n  \"period\": {\r\n    \"bleeding\": {\r\n                       \r\n\r\n                       \r\n                        \"flowLevel\": 3,\r\n                        \"hadFlow\": true,\r\n                        \"_id\": \"6a11766eb9dec79489ffc050\"\r\n                    },\r\n    \r\n         \r\n                    \"symptoms\": [\r\n                        {\r\n                            \"title\": \"meh\",\r\n                            \"isRecent\": 1,\r\n                            \"_id\": \"6a12ed3a85f3e0ddcd0ad964\"\r\n                        },\r\n                        {\r\n                            \"title\": \"1231\",\r\n                            \"isRecent\": 1,\r\n                            \"_id\": \"6a12ef120da755ffc1b3c8b7\"\r\n                        }\r\n                    ],\r\n                    \"spotting\": []\r\n  }\r\n}\r\n\r\n\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/period/v1/insert-period",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "insert-period"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-users-period-data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"USR-D8TNXE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/period/v1/get-period-info-date-wise",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "get-period-info-date-wise"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-basic-insights",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/period/v1/get-period-basics-insights/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "get-period-basics-insights",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "previous-period-history",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/period/v1/previous-periods/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "previous-periods",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "add-notes",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"date\": \"2027-06-24T00:00:00.000Z\",\r\n  \"time\": \"08:45 PM\",\r\n  \"note\": \"Feeling tired today with mild cramps and bloating.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/period/v1/add-daily-notes/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "add-daily-notes",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-QGY79X"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "record-start-data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"USR-1HQSUU\",\r\n    \"currentDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"startDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"endDate\": null,\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"_id\": \"6a12ef550da755ffc1b3c8d8\",\r\n            \"flowLevel\": 1,\r\n            \"hadFlow\": true\r\n        },\r\n        \"symptoms\": [],\r\n        \"spotting\": []\r\n    }\r\n}\r\n\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/period/v1/record-start-data",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "record-start-data"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "record-current-data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"USR-1HQSUU\",\r\n    \"currentDate\": \"2026-05-09T20:22:43.430\",\r\n    //   \"startDate\": \"2026-02-28T00:00:00.000Z\",\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"flowLevel\": 2,\r\n            \"hadFlow\": true,\r\n            \"_id\": \"6a11766eb9dec79489ffc050\"\r\n        },\r\n        \"symptoms\": [\r\n            {\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ed3a85f3e0ddcd0ad964\"\r\n            },\r\n            {\r\n                \"title\": \"1231\",\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ef120da755ffc1b3c8b7\"\r\n            }\r\n        ],\r\n        \"spotting\": []\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/period/v1/record-current-data",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "record-current-data"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "record-end-data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"USR-1HQSUU\",\r\n    \"currentDate\": \"2026-05-11T00:12:43.430\",\r\n    \"endDate\": \"2026-05-11T00:12:43.430\",\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"flowLevel\": 3,\r\n            \"hadFlow\": true,\r\n            \"_id\": \"6a11766eb9dec79489ffc050\"\r\n        },\r\n        \"symptoms\": [\r\n            {\r\n                \"title\": \"meh\",\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ed3a85f3e0ddcd0ad964\"\r\n            },\r\n            {\r\n                \"title\": \"1231\",\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ef120da755ffc1b3c8b7\"\r\n            }\r\n        ],\r\n        \"spotting\": []\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/period/v1/record-end-data",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v1",
+                "record-end-data"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Doctor",
+          "item": [
+            {
+              "name": "registration user",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n \r\n  \"type\": 0,\r\n  \"isDoctor\": 1,\r\n  \"isUser\": 0,\r\n  \"fullName\": \"szkjdfk \",\r\n  \"email\": \"pink@example.com\"\r\n//   \"aboutMe\": \"Experienced gynecologist with 8 years of clinical practice.\",\r\n\r\n//   \"doctorRegistrationNumber\": \"BMDC-987654\",\r\n//   \"currentWorkplace\": \"Dhaka Medical College Hospital\",\r\n//   \"currentDesignation\": \"Consultant Gynecologist\",\r\n\r\n//   \"qualifications\": [\r\n//     {\r\n//       \"degree\": [\"MBBS\"],\r\n//       \"institutionName\": \"Dhaka Medical College\",\r\n//       \"passingYear\": 2014\r\n//     },\r\n//     {\r\n//       \"degree\": [\"FCPS\", \"MD\"],\r\n//       \"institutionName\": \"Bangabandhu Sheikh Mujib Medical University\",\r\n//       \"passingYear\": 2019\r\n//     }\r\n//   ],\r\n\r\n//   \"doctorIdCard\": {\r\n//     \"url\": \"https://example.com/doctor-id-card.jpg\",\r\n//     \"publicId\": \"doctor-id-card-001\"\r\n//   }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/register",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-profile",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "type",
+                      "value": "1",
+                      "type": "text",
+                      "uuid": "6672658e-f0d3-4606-87bf-02da4b94a84e"
+                    },
+                    {
+                      "key": "aboutMe",
+                      "value": "quicktech apps",
+                      "type": "text",
+                      "uuid": "b3af6ee5-9a5a-43a8-a166-57f1d05c7d97"
+                    },
+                    {
+                      "key": "doctorRegistrationNumber",
+                      "value": "hajak",
+                      "type": "text",
+                      "uuid": "52dc945f-a00c-427c-b0d4-034b2f76ded2"
+                    },
+                    {
+                      "key": "currentWorkplace",
+                      "value": "djak",
+                      "type": "text",
+                      "uuid": "0a7d6434-0a47-4b65-b919-b3686ae91199"
+                    },
+                    {
+                      "key": "currentDesignation",
+                      "value": "sjsj",
+                      "type": "text",
+                      "uuid": "2ef09bf0-0245-487f-a75a-f4411e60beb0"
+                    },
+                    {
+                      "key": "isVerified",
+                      "value": "true",
+                      "type": "text",
+                      "uuid": "8da35fbe-3054-47bc-ae03-d20dc79532fe"
+                    },
+                    {
+                      "key": "qualifications",
+                      "value": "[{\"degree\":[\"BDS\",\"BS\"],\"institutionName\":\"s\",\"passingYear\":3808}]",
+                      "type": "text",
+                      "uuid": "42cb5e0a-6bc9-4c72-b334-97c4b7b5c076"
+                    },
+                    {
+                      "key": "phoneNumber",
+                      "value": "01714345878",
+                      "type": "text",
+                      "uuid": "ad92f04b-0cdc-483d-ae4d-a96d82fe19cd"
+                    },
+                    {
+                      "key": "fullName",
+                      "value": "quicktech apps",
+                      "type": "text",
+                      "uuid": "2c7c4c4b-1fce-48ac-9b4d-afc249c61438"
+                    },
+                    {
+                      "key": "doctorIdCard",
+                      "type": "file",
+                      "uuid": "8087d174-749a-460f-b4df-35d1645e95d5",
+                      "src": "postman-cloud:///1f12b253-d792-4590-b5c0-8b2f0bb9ed5c"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/registration/update-profile/:userId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "update-profile",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-profile with live api",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "type",
+                      "value": "1",
+                      "type": "text",
+                      "uuid": "6672658e-f0d3-4606-87bf-02da4b94a84e"
+                    },
+                    {
+                      "key": "aboutMe",
+                      "value": "doctor registration",
+                      "type": "text",
+                      "uuid": "b3af6ee5-9a5a-43a8-a166-57f1d05c7d97"
+                    },
+                    {
+                      "key": "doctorRegistrationNumber",
+                      "value": "doctor registration number ",
+                      "type": "text",
+                      "uuid": "52dc945f-a00c-427c-b0d4-034b2f76ded2"
+                    },
+                    {
+                      "key": "currentWorkplace",
+                      "value": "current workplace ",
+                      "type": "text",
+                      "uuid": "0a7d6434-0a47-4b65-b919-b3686ae91199"
+                    },
+                    {
+                      "key": "currentDesignation",
+                      "value": "current designation",
+                      "type": "text",
+                      "uuid": "2ef09bf0-0245-487f-a75a-f4411e60beb0"
+                    },
+                    {
+                      "key": "isVerified",
+                      "value": "false",
+                      "type": "text",
+                      "uuid": "8da35fbe-3054-47bc-ae03-d20dc79532fe"
+                    },
+                    {
+                      "key": "qualifications",
+                      "value": "[{\"degree\":[\"MBBS\",\"B0S\"],\"institutionName\":\"ssjwjj\",\"passingYear\":2000},{\"degree\":[\"MBBS\",\"BS\"],\"institutionName\":\"ssjwjj\",\"passingYear\":2000}]",
+                      "type": "text",
+                      "uuid": "42cb5e0a-6bc9-4c72-b334-97c4b7b5c076"
+                    },
+                    {
+                      "key": "phoneNumber",
+                      "value": "01714345834",
+                      "type": "text",
+                      "uuid": "ad92f04b-0cdc-483d-ae4d-a96d82fe19cd"
+                    },
+                    {
+                      "key": "doctorIdCard",
+                      "type": "file",
+                      "uuid": "e0a04a84-aee4-4003-ba9c-9d9176d5ca15",
+                      "src": "JoCmAP3r8/Screenshot 2026-05-23 at 9.29.38 AM.png"
+                    },
+                    {
+                      "key": "fullName",
+                      "value": "quicktech apps",
+                      "type": "text",
+                      "uuid": "2c7c4c4b-1fce-48ac-9b4d-afc249c61438"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "https://pink-lifeline-backend.onrender.com/api/registration/update-profile/USR-UAL29I",
+                  "protocol": "https",
+                  "host": [
+                    "pink-lifeline-backend",
+                    "onrender",
+                    "com"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "update-profile",
+                    "USR-UAL29I"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "user login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\":\"teamquicktech2@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/login",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-profile",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\":\"teamquicktech2@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-profile/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-profile",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add doctor daily schedule",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"doctorUserId\": \"USR-UAL29I\",\r\n    \"day\": 4,\r\n    \"startTime\": \"01:00\",\r\n    \"endTime\": \"07:00\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/add-doctor-daily-schedule/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "add-doctor-daily-schedule",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add exceptional day",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"date\": \"2026-07-19T00:00:00.000Z\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"11:00\",\r\n  \"maxAppointments\": 0\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/add-exceptional-day/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "add-exceptional-day",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete doctor daily schedule",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"doctorUserId\": \"USR-UAL29I\",\r\n    \"day\": 4,\r\n    \"startTime\": \"01:00\",\r\n    \"endTime\": \"07:00\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/delete-doctor-daily-schedule/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "delete-doctor-daily-schedule",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "search doctor",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\":\"teamquicktech2@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/search-doctors/:query",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "search-doctors",
+                    ":query"
+                  ],
+                  "variable": [
+                    {
+                      "key": "query",
+                      "value": "Anm Rezwan"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get doctor schedule",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\":\"teamquicktech2@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-doctor-monthly-schedule/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-doctor-monthly-schedule",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User ( patient )",
+          "item": [
+            {
+              "name": "update-user-profile",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"fullName\": \"rafarafa\",\r\n  \"phoneNumber\": \"199999999\",\r\n  \"autoReminderLimit\": 4,\r\n  \"notificationPreferenceTime\": \"2076-06-30T00:00:00.000Z\",\r\n  \"dateOfBirth\": \"2000-05-15T00:00:00.000Z\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/update-profile/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "update-profile",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-7YCFSN"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add doctor wish list",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"doctorUserId\": \"USR-CIOXCQ\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/add-doctor-wish-list/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "add-doctor-wish-list",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-EWJK4J"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add doctor wish list Copy",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"doctorUserId\": \"USR-CIOXCQ\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-user-doctor-list/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-user-doctor-list",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-EWJK4J"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Self Test",
+      "item": [
+        {
+          "name": "_Question",
+          "item": [
+            {
+              "name": "add-question",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"Look the mirror with your arms and notice and check. Is all ok ?\",\r\n    \"stepNo\":1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/add-question",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "add-question"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-question-by-id",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"Lookin g in the mirror with arms on your hips, do you notice any changes in the size of shape of your breasts?\",\r\n    \"stepNo\":1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/get-questions/:stepNo",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "get-questions",
+                    ":stepNo"
+                  ],
+                  "variable": [
+                    {
+                      "key": "stepNo",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-qeustions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/get-all-questions",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "get-all-questions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-question-by-id",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"m123123123123ew\",\r\n    \"stepNo\":\"126574\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/update-question/:questionId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "update-question",
+                    ":questionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "questionId",
+                      "value": "6a0a98a4bb3646975c42df97"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-question-by-id",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"as breasts?\",\r\n    \"stepNo\":100\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/delete-question/:questionId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "delete-question",
+                    ":questionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "questionId",
+                      "value": "6a0a98a4bb3646975c42df97"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "_Steps",
+          "item": [
+            {
+              "name": "delete-step",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/delete-step-by-id/6a099bd8cabbbfdf3b659b47",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "delete-step-by-id",
+                    "6a099bd8cabbbfdf3b659b47"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-step-by-id",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "video",
+                      "type": "file",
+                      "uuid": "8fc500a0-7314-417a-b6f1-e1a28085d7f6",
+                      "src": "/E:/rafi/projects/pink-lifeline-backend/uploads/4.mp4"
+                    },
+                    {
+                      "key": "stepNo",
+                      "value": "12",
+                      "type": "text",
+                      "uuid": "c1250090-c6c7-45b2-a7aa-b475e5e62e58"
+                    },
+                    {
+                      "key": "title",
+                      "value": "ten1",
+                      "type": "text",
+                      "uuid": "6d8e8139-6e31-451d-b78e-818b515d1b2f"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/update-step-by-id/:stepId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "update-step-by-id",
+                    ":stepId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "stepId",
+                      "value": "6a099bd8cabbbfdf3b659b47"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create-step",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "stepNo",
+                      "value": "1",
+                      "type": "text",
+                      "uuid": "6d4bbc75-b3dd-4b06-95a2-fde0cb84d961"
+                    },
+                    {
+                      "key": "videoURL",
+                      "value": "",
+                      "type": "text",
+                      "uuid": "5ce958f8-8daa-4a06-b0d6-edc89bb29fcc",
+                      "disabled": true
+                    },
+                    {
+                      "key": "title",
+                      "value": "Visual checkup",
+                      "type": "text",
+                      "uuid": "53a0a389-37e9-4aa9-bb5b-5058a0a051cb"
+                    },
+                    {
+                      "key": "video",
+                      "type": "file",
+                      "uuid": "81201d11-4530-49f3-a1e2-bcc9e4082166",
+                      "src": "/C:/Users/USER/Videos/YTDown_YouTube_Fall-Out-Boy-Centuries-Official-Video_Media_LBr7kECsjcQ_006_144p.mp4"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/add-step",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "add-step"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-video",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"date\": \"2027-06-24T00:00:00.000Z\",\r\n  \"time\": \"08:45 PM\",\r\n  \"note\": \"Feeling tired today with mild cramps and bloating.\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/video/:videoId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "video",
+                    ":videoId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "videoId",
+                      "value": "6a0ea5caa3e176da41e24eeb"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "_Answers",
+          "item": [
+            {
+              "name": "add-answer",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"asnwer 8\",\r\n    \"questionId\":\"6a0a988363576d16a5deb0cb\",\r\n    \"score\":30\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/add-answer",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "add-answer"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-answer-by-question-id",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"asnwer 8\",\r\n    \"questionId\":\"6a0a988363576d16a5deb0cb\",\r\n    \"score\":30\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/get-answers/:questionId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "get-answers",
+                    ":questionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "questionId",
+                      "value": "6a0a988363576d16a5deb0cb"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-answer",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"asdasdsda\",\r\n    \"score\":130\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/update-answer/:answerId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "update-answer",
+                    ":answerId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "answerId",
+                      "value": "6a0aa1ae878072a6897ae121"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-answers",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"asdasdsda\",\r\n    \"score\":130\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/get-all-answers",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "get-all-answers"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete-answer-by-id",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"asdasdsda\",\r\n    \"score\":130\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/delete-answer/:answerId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "delete-answer",
+                    ":answerId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "answerId",
+                      "value": "6a0aa1ae878072a6897ae121"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "v2",
+          "item": [
+            {
+              "name": "Client",
+              "item": [
+                {
+                  "name": "perform-self-test_dont use",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"currentDate\": \"2026-04-02T16:00:00.000Z\",\r\n\r\n  \"selfTest\": [\r\n    {\r\n      \"questionId\": \"6a12d83ff8006fd66e605dcc\",\r\n      \"answerId\": \"6a12d83ff8006fd66e605dcd\",\r\n      \"answerScore\": 10\r\n    },\r\n    {\r\n      \"questionId\": \"6a12d83ef8006fd66e605da2\",\r\n      \"answerId\": \"6a12d83ef8006fd66e605da4\",\r\n      \"answerScore\": 20\r\n    }\r\n  ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/self-test/v1/perform-self-test/:userId",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "self-test",
+                        "v1",
+                        "perform-self-test",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "USR-1HQSUU"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "perform-self-test-2",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"userId\": \"USR-1HQSUU\",\r\n  \"currentDate\": \"2026-06-09T00:00:00.000Z\",\r\n  \"score\": 75\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/api/self-test/v2/create-user-self-test",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "self-test",
+                        "v2",
+                        "create-user-self-test"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "get-all-steps",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseurl}}/api/self-test/v1/get-all-steps",
+                      "host": [
+                        "{{baseurl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "self-test",
+                        "v1",
+                        "get-all-steps"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "create-step-v2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"stepNo\": \"5\",\r\n    \"title\": \"title 1\",\r\n    \"questions\": \"[{\\\"title\\\":\\\"question 1\\\",\\\"answers\\\":[{\\\"title\\\":\\\"answer 1\\\",\\\"score\\\":\\\"10\\\"},{\\\"title\\\":\\\"answer 2\\\",\\\"score\\\":\\\"20\\\"}]}]\",\r\n    \"videoURL\": \"https://www.youtube.com/watch?v=xTKx4qTRsEk\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v2/create-self-test-step",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v2",
+                    "create-self-test-step"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete-self-test",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "stepNo",
+                      "value": "3",
+                      "type": "text"
+                    },
+                    {
+                      "key": "title",
+                      "value": "Check emotional state",
+                      "type": "text"
+                    },
+                    {
+                      "key": "questions",
+                      "value": "[\n  {\n    \"title\": \"Do you often feel sad or low without a clear reason?\",\n    \"answers\": [\n      { \"title\": \"Never\", \"score\": 0 },\n      { \"title\": \"Sometimes\", \"score\": 2 },\n      { \"title\": \"Often\", \"score\": 4 },\n      { \"title\": \"Almost always\", \"score\": 5 }\n    ]\n  },\n  {\n    \"title\": \"Do you lose interest in activities you usually enjoy?\",\n    \"answers\": [\n      { \"title\": \"Not at all\", \"score\": 0 },\n      { \"title\": \"Occasionally\", \"score\": 2 },\n      { \"title\": \"Frequently\", \"score\": 4 },\n      { \"title\": \"Completely\", \"score\": 5 }\n    ]\n  },\n  {\n    \"title\": \"Do you feel anxious or worried most of the time?\",\n    \"answers\": [\n      { \"title\": \"Rarely\", \"score\": 0 },\n      { \"title\": \"Sometimes\", \"score\": 2 },\n      { \"title\": \"Often\", \"score\": 4 },\n      { \"title\": \"Almost always\", \"score\": 5 }\n    ]\n  },\n  {\n    \"title\": \"Do you find it hard to concentrate on tasks?\",\n    \"answers\": [\n      { \"title\": \"No difficulty\", \"score\": 0 },\n      { \"title\": \"Mild difficulty\", \"score\": 2 },\n      { \"title\": \"Moderate difficulty\", \"score\": 4 },\n      { \"title\": \"Severe difficulty\", \"score\": 5 }\n    ]\n  },\n  {\n    \"title\": \"Do you feel emotionally exhausted or drained?\",\n    \"answers\": [\n      { \"title\": \"Never\", \"score\": 0 },\n      { \"title\": \"Sometimes\", \"score\": 2 },\n      { \"title\": \"Often\", \"score\": 4 },\n      { \"title\": \"Almost always\", \"score\": 5 }\n    ]\n  }\n]",
+                      "type": "text"
+                    },
+                    {
+                      "key": "videoURL",
+                      "type": "file",
+                      "uuid": "7cbde07e-ba38-4b9b-9eac-183a7590c182",
+                      "src": "/C:/Users/USER/Videos/YTDown_YouTube_Imagine-Dragons-x-J-I-D-Enemy-from-the-s_Media_D9G1VOjN_84_006_144p.mp4"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v2/delete-self-test/:stepId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v2",
+                    "delete-self-test",
+                    ":stepId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "stepId",
+                      "value": "6a127e328fe00844051e68e0"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-step-question-answer",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/self-test/v1/get-all-question-by-steps",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v1",
+                    "get-all-question-by-steps"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-test-steps",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseurl}}/api/self-test/v2/get-all-test-steps",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "self-test",
+                    "v2",
+                    "get-all-test-steps"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "test",
+      "item": [
+        {
+          "name": "_test",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "OPTIONS",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"success\": true,\r\n  \"data\": [\r\n    {\r\n      \"_id\": \"6a09994c9bc7b9e8dbbf93f8\",\r\n      \"stepNo\": 3,\r\n      \"title\": \"New Step 100\",\r\n      \"videoURL\": \"100.mp4\",\r\n      \"createdAt\": \"2026-05-17T10:32:44.548Z\",\r\n      \"updatedAt\": \"2026-05-18T03:37:17.147Z\",\r\n      \"__v\": 0,\r\n      \"questions\": [\r\n        {\r\n          \"_id\": \"6a0a988363576d16a5deb0cb\",\r\n          \"title\": \"Lookin g in the mirror with arms on your hips 12321, do you notice any changes in the size of shape of your breasts?\",\r\n          \"stepId\": \"6a09994c9bc7b9e8dbbf93f8\",\r\n          \"stepNo\": 3,\r\n          \"createdAt\": \"2026-05-18T04:41:39.053Z\",\r\n          \"updatedAt\": \"2026-05-18T04:41:39.053Z\",\r\n          \"__v\": 0,\r\n          \"answers\": [\r\n            {\r\n              \"_id\": \"6a0aa1c8878072a6897ae128\",\r\n              \"title\": \"asnwer 4\",\r\n              \"questionId\": \"6a0a988363576d16a5deb0cb\",\r\n              \"score\": 3,\r\n              \"createdAt\": \"2026-05-18T05:21:12.656Z\",\r\n              \"updatedAt\": \"2026-05-18T05:21:12.656Z\",\r\n              \"__v\": 0\r\n            },\r\n            {\r\n              \"_id\": \"6a0aa1d0878072a6897ae12b\",\r\n              \"title\": \"asnwer 8\",\r\n              \"questionId\": \"6a0a988363576d16a5deb0cb\",\r\n              \"score\": 30,\r\n              \"createdAt\": \"2026-05-18T05:21:20.400Z\",\r\n              \"updatedAt\": \"2026-05-18T05:21:20.400Z\",\r\n              \"__v\": 0\r\n            }\r\n          ]\r\n        },\r\n        {\r\n          \"_id\": \"6a0a988563576d16a5deb0ce\",\r\n          \"title\": \"Lookin g in the mirror with arms on your hips 12321, do you notice any changes in the size of shape of your breasts?\",\r\n          \"stepId\": \"6a09994c9bc7b9e8dbbf93f8\",\r\n          \"stepNo\": 3,\r\n          \"createdAt\": \"2026-05-18T04:41:41.349Z\",\r\n          \"updatedAt\": \"2026-05-18T04:41:41.349Z\",\r\n          \"__v\": 0,\r\n          \"answers\": [\r\n            {\r\n              \"_id\": \"6a0aa1a1878072a6897ae11e\",\r\n              \"title\": \"asnwer 1\",\r\n              \"questionId\": \"6a0a988563576d16a5deb0ce\",\r\n              \"score\": 32,\r\n              \"createdAt\": \"2026-05-18T05:20:33.927Z\",\r\n              \"updatedAt\": \"2026-05-18T05:20:33.927Z\",\r\n              \"__v\": 0\r\n            },\r\n            {\r\n              \"_id\": \"6a0aa1b3878072a6897ae124\",\r\n              \"title\": \"asnwer 3\",\r\n              \"questionId\": \"6a0a988563576d16a5deb0ce\",\r\n              \"score\": 32,\r\n              \"createdAt\": \"2026-05-18T05:20:51.971Z\",\r\n              \"updatedAt\": \"2026-05-18T05:20:51.971Z\",\r\n              \"__v\": 0\r\n            }\r\n          ]\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Community",
+      "item": [
+        {
+          "name": "create-post",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "post 321-22",
+                  "type": "text",
+                  "uuid": "b305de6f-7ac2-40f3-840e-3423550e1b33"
+                },
+                {
+                  "key": "description",
+                  "value": "IT IS POST 321-22-22",
+                  "type": "text",
+                  "uuid": "87fb988a-2d52-4544-991a-fada21e23511"
+                },
+                {
+                  "key": "hashtags",
+                  "value": "[\"pk\",\"p\",\"u\",\"r\",\"b\",\"a\"]",
+                  "type": "text",
+                  "uuid": "2f96d931-9abb-43b4-b86f-978bc7ae8488"
+                },
+                {
+                  "key": "hashtags",
+                  "value": "#nurse",
+                  "type": "text",
+                  "uuid": "426a3dc2-4b05-4634-94a7-413ca0ca8e91",
+                  "disabled": true
+                },
+                {
+                  "key": "hashtags",
+                  "value": "#patient",
+                  "type": "text",
+                  "uuid": "10757990-e3bd-4a96-a3b8-249ce8e7b215",
+                  "disabled": true
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "uuid": "e3bc015f-e05a-413d-92ce-7098db23a678",
+                  "src": "YhyFBkNLO/Screenshot 2026-05-21 at 10.07.30 AM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/create-post/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "create-post",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-CHJNB1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "save-post",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"postId\":\"6a11320c017a6a5c96389858\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/save-post/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "save-post",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-USUOGB"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-all-posts",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "new sad post",
+                  "type": "text",
+                  "uuid": "b305de6f-7ac2-40f3-840e-3423550e1b33",
+                  "disabled": true
+                },
+                {
+                  "key": "description",
+                  "value": "meh",
+                  "type": "text",
+                  "uuid": "87fb988a-2d52-4544-991a-fada21e23511",
+                  "disabled": true
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "uuid": "0e3e0adc-01ce-4f7e-b1ed-a6cc97db926e",
+                  "src": "postman-cloud:///1f12b255-336f-4150-9264-7c916cec6c6f",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/get-all-posts/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-all-posts",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-all-saved-posts",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "new sad post",
+                  "type": "text",
+                  "uuid": "b305de6f-7ac2-40f3-840e-3423550e1b33",
+                  "disabled": true
+                },
+                {
+                  "key": "description",
+                  "value": "meh",
+                  "type": "text",
+                  "uuid": "87fb988a-2d52-4544-991a-fada21e23511",
+                  "disabled": true
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "uuid": "0e3e0adc-01ce-4f7e-b1ed-a6cc97db926e",
+                  "src": "postman-cloud:///1f12b255-336f-4150-9264-7c916cec6c6f",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/get-all-saved-posts/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-all-saved-posts",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-EEI-EL"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "upvote-post",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"postId\":\"6a1ff6a5ff327924f076f6c3\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/post-upvote/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "post-upvote",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "downvote-post",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"postId\":\"6a11320c017a6a5c96389858\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/post-downvote/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "post-downvote",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-USUOGB"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "post-comment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"postId\": \"6a279a534e6635ea9b8d31d1\",\r\n  \"text\": \"comments postman 2 abcd\"  \r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/post-comment/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "post-comment",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-CIOXCQ"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-single-post-comment-reply",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"postId\": \"6a279a534e6635ea9b8d31d1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/get-post-by-id/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-post-by-id",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "upvote-comment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a278f970b7c5bffb5d1dd36\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/comment-upvote/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "comment-upvote",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "downvote-comment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a278f970b7c5bffb5d1dd36\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/comment-downvote/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "comment-downvote",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-users-upvoted-posts",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/get-upvoted-posts/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-upvoted-posts",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-LQ3JYD"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-users-upvoted-comments",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/get-upvoted-comments/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-upvoted-comments",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-LQ3JYD"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-users-downvoted-posts",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/get-downvoted-posts/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-downvoted-posts",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-LQ3JYD"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-users-downvoted-comments",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/get-downvoted-comments/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-downvoted-comments",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-LQ3JYD"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-user-posts",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/get-user-posts/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-user-posts",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-USUOGB"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete-post",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/delete-post/:userId/:postId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "delete-post",
+                ":userId",
+                ":postId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-IHDWAG"
+                },
+                {
+                  "key": "postId",
+                  "value": "6a222ddfa85655d2d381b8aa"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete-post Copy",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/search-posts/:query",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "search-posts",
+                ":query"
+              ],
+              "variable": [
+                {
+                  "key": "query",
+                  "value": "jj"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dropdowns",
+      "item": [
+        {
+          "name": "sympotms",
+          "item": [
+            {
+              "name": "add-symptoms",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"symptopms 2111\", \r\n    \"isRecent\":1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/add-symptom",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "add-symptom"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-symptom",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"symptopms 22131231\", \r\n    \"isRecent\":1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/update-symptom/:symptomId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "update-symptom",
+                    ":symptomId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "symptomId",
+                      "value": "6a1175c761339ba9027189b9"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete-symptoms",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"symptopms 2\", \r\n    \"isRecent\":1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/dropdowns/v1/delete-symptom/:symptomId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "delete-symptom",
+                    ":symptomId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "symptomId",
+                      "value": "6a1175d961339ba9027189bc"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-sympotms",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\": \"Light Spotting 2\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/dropdowns/v1/get-all-symptoms",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "get-all-symptoms"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "bleeding",
+          "item": [
+            {
+              "name": "add-bleeding",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"bleeding 01\",\r\n    \"flowLevel\":0,\r\n    \"hadFlow\":true\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/add-bleeding",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "add-bleeding"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-bleeding",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"blee1ding 0\",\r\n    \"flowLevel\":0,\r\n    \"hadFlow\":true\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/update-bleeding/:bleedingId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "update-bleeding",
+                    ":bleedingId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "bleedingId",
+                      "value": "6a117664b9dec79489ffc04c"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete-bleeding",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/delete-bleeding/:bleedingId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "delete-bleeding",
+                    ":bleedingId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "bleedingId",
+                      "value": "6a117664b9dec79489ffc04c"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-bleeding",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseurl}}/api/dropdowns/v1/get-all-bleeding",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "get-all-bleeding"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "spotting",
+          "item": [
+            {
+              "name": "get-all-spotting",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseurl}}/api/dropdowns/v1/get-all-spotting",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "get-all-spotting"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add-spotting",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"spotting 2\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/add-spotting",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "add-spotting"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update-spotting",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"spotting 2 updates 2\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/update-spotting/:spottingId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "update-spotting",
+                    ":spottingId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "spottingId",
+                      "value": "6a11777509f9bdc51a5365e8"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete-spotting",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"title\":\"spotting 2\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/dropdowns/v1/delete-spotting/:spottingId",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "dropdowns",
+                    "v1",
+                    "delete-spotting",
+                    ":spottingId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "spottingId",
+                      "value": "6a11777509f9bdc51a5365e8"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "supportive apis",
+      "item": [
+        {
+          "name": "delete period data by id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/clear-user-data/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "clear-user-data",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "run specific scripts",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"script\": \"testPeriodInsertScript.js\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/run-script",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "run-script"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all from indivisual database",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/collection/:collectionName",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "collection",
+                ":collectionName"
+              ],
+              "variable": [
+                {
+                  "key": "collectionName",
+                  "value": "doctors"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-all-connections",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/get-all-connections",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "get-all-connections"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseurl",
+      "value": ""
+    },
+    {
+      "key": "render_url",
+      "value": ""
+    }
+  ]
+}
