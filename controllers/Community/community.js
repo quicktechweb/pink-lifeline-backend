@@ -459,14 +459,10 @@ export const postDownVote = async (req, res) => {
 export const postComment = async (req, res) => {
   const userId = req.params.userId;
 
-
-  
-
   const isUserExist = await User.findOne({ userId });
 
-
   const isVerified = isUserExist.isVerified;
-  
+  const type = isUserExist.type;
 
   const { text, postId, parentId = null } = req.body;
 
@@ -520,7 +516,7 @@ export const postComment = async (req, res) => {
       isVerified,
       userId,
       postId,
-
+      type,
       text: text.trim(),
 
       parentId: parentId || null,
@@ -550,31 +546,11 @@ export const postComment = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getSinglePost = async (req, res) => {
   const { userId } = req.params;
   const { postId } = req.body;
 
   try {
-
-
     // =========================
     // VALIDATE POST ID
     // =========================
@@ -607,11 +583,11 @@ export const getSinglePost = async (req, res) => {
     // FETCH ALL COMMENTS
     // =========================
 
-const comments = await Comment.find({ postId })
-  .sort({
-    isVerified: -1, // true first
-    createdAt: -1,  // latest first
-  });
+    const comments = await Comment.find({ postId }).sort({
+      isVerified: -1, // true first
+      type: 1,
+      createdAt: -1, // latest first
+    });
 
     // =========================
     // BUILD COMMENT TREE
@@ -664,54 +640,6 @@ const comments = await Comment.find({ postId })
     return somethingWentWrong(res, error, "Unable to fetch post.", "Unable to fetch post.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const commentDownVote = async (req, res) => {
   const userId = req.params.userId;
@@ -800,40 +728,6 @@ export const commentDownVote = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const commentUpVote = async (req, res) => {
   const userId = req.params.userId;
   const { commentId } = req.body;
@@ -900,7 +794,6 @@ export const commentUpVote = async (req, res) => {
 
     // CASE 3: previously downvoted → switch to upvote
     if (existingVote.type === "downvote") {
-      
       existingVote.type = "upvote";
       await existingVote.save();
 
@@ -921,31 +814,6 @@ export const commentUpVote = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getUpvotedPosts = async (req, res) => {
   const userId = req.params.userId;

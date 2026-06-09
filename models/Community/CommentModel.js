@@ -20,31 +20,26 @@ const commentSchema = new mongoose.Schema(
       default: false,
     },
 
-
     isUpvotedByUser: {
       type: Boolean,
       default: false,
     },
 
-    
     /**
      * user type:
      * 0 = normal user
      * 1 = doctor
      */
-    // type: {
-    //   type: Number,
-    //   enum: [0, 1],
-    //   required: true,
-    // },
-
+    type: {
+      type: Number,
+      enum: [0, 1],
+      required: true,
+    },
 
     isDownvotedByUser: {
       type: Boolean,
       default: false,
     },
-
-
 
     name: {
       type: String,
@@ -98,7 +93,7 @@ const commentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 commentSchema.virtual("netvote").get(function () {
