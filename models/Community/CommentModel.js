@@ -15,11 +15,28 @@ const commentSchema = new mongoose.Schema(
       index: true,
     },
 
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
 
     isUpvotedByUser: {
       type: Boolean,
       default: false,
     },
+
+    
+    /**
+     * user type:
+     * 0 = normal user
+     * 1 = doctor
+     */
+    // type: {
+    //   type: Number,
+    //   enum: [0, 1],
+    //   required: true,
+    // },
 
 
     isDownvotedByUser: {

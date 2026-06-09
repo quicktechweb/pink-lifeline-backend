@@ -459,6 +459,15 @@ export const postDownVote = async (req, res) => {
 export const postComment = async (req, res) => {
   const userId = req.params.userId;
 
+
+  
+
+  const isUserExist = await User.findOne({ userId });
+
+
+  const isVerified = isUserExist.isVerified;
+  
+
   const { text, postId, parentId = null } = req.body;
 
   try {
@@ -508,7 +517,7 @@ export const postComment = async (req, res) => {
     const userComment = {
       name: isUserExist.fullName,
       profilePhoto: isUserExist.profilePhoto || null,
-
+      isVerified,
       userId,
       postId,
 
@@ -541,11 +550,31 @@ export const postComment = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getSinglePost = async (req, res) => {
   const { userId } = req.params;
   const { postId } = req.body;
 
   try {
+
+
     // =========================
     // VALIDATE POST ID
     // =========================
@@ -578,11 +607,11 @@ export const getSinglePost = async (req, res) => {
     // FETCH ALL COMMENTS
     // =========================
 
-    const comments = await Comment.find({
-      postId,
-    }).sort({
-      createdAt: 1,
-    });
+const comments = await Comment.find({ postId })
+  .sort({
+    isVerified: -1, // true first
+    createdAt: -1,  // latest first
+  });
 
     // =========================
     // BUILD COMMENT TREE
@@ -636,6 +665,54 @@ export const getSinglePost = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const commentDownVote = async (req, res) => {
   const userId = req.params.userId;
   const { commentId } = req.body;
@@ -678,6 +755,7 @@ export const commentDownVote = async (req, res) => {
 
       comment.downvote += 1;
       comment.isDownvotedByUser = true;
+      comment.isUpvotedByUser = false;
       await comment.save();
 
       return successResponse(res, comment, "Comment downvoted successfully", "comment downvoted");
@@ -691,6 +769,7 @@ export const commentDownVote = async (req, res) => {
 
       comment.downvote -= 1;
       comment.isDownvotedByUser = false;
+      comment.isUpvotedByUser = false;
       await comment.save();
 
       return successResponse(res, comment, "Comment downvote removed", "comment downvote removed");
@@ -706,6 +785,7 @@ export const commentDownVote = async (req, res) => {
       comment.upvote -= 1;
       comment.downvote += 1;
       comment.isDownvotedByUser = true;
+      comment.isUpvotedByUser = false;
       await comment.save();
 
       return successResponse(res, comment, "Switched to comment downvote", "switch comment vote to downvote");
@@ -719,6 +799,40 @@ export const commentDownVote = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const commentUpVote = async (req, res) => {
   const userId = req.params.userId;
@@ -762,6 +876,7 @@ export const commentUpVote = async (req, res) => {
 
       comment.upvote += 1;
       comment.isUpvotedByUser = true;
+      comment.isDownvotedByUser = false;
 
       await comment.save();
 
@@ -776,6 +891,8 @@ export const commentUpVote = async (req, res) => {
 
       comment.upvote -= 1;
       comment.isUpvotedByUser = false;
+      comment.isDownvotedByUser = false;
+
       await comment.save();
 
       return successResponse(res, comment, "Comment upvote removed", "comment upvote removed");
@@ -783,14 +900,14 @@ export const commentUpVote = async (req, res) => {
 
     // CASE 3: previously downvoted → switch to upvote
     if (existingVote.type === "downvote") {
+      
       existingVote.type = "upvote";
-      existingVote.isUpvotedByUser = true;
-      existingVote.isDownvotedByUser = false;
       await existingVote.save();
 
       comment.downvote -= 1;
       comment.upvote += 1;
       comment.isUpvotedByUser = true;
+      comment.isDownvotedByUser = false;
       await comment.save();
 
       return successResponse(res, comment, "Switched to comment upvote", "switch comment vote to upvote");
@@ -804,6 +921,31 @@ export const commentUpVote = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const getUpvotedPosts = async (req, res) => {
   const userId = req.params.userId;
