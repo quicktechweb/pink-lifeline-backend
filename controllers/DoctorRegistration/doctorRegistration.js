@@ -777,56 +777,99 @@ export const getDailySchedule = async (req, res) => {
 };
 
 export const addExceptionalSchedule = async (req, res) => {
-  const { date, startTime, endTime, maxAppointments = 0 } = req.body;
+  const { userId } = req.params;
+  const { date, time, maxAppointments = 20 } = req.body;
 
   // 1. Validate required fields
-  if (!date || !startTime || !endTime) {
+  if (!date || !time || !Array.isArray(time) || time.length === 0) {
     return res.status(400).json({
       success: false,
-      message: "date, startTime, and endTime are required",
+      message: "Date and Time array are required.",
     });
   }
 
-  try {
-    // 2. Parse date from Flutter and extract month
-    const parsedDate = new Date(date);
+  // 2. Validate each slot in the incoming array
+  for (const slot of time) {
+    const { startTime, endTime } = slot;
 
-    if (isNaN(parsedDate.getTime())) {
+    if (!startTime || !endTime) {
       return res.status(400).json({
         success: false,
-        message: "Invalid date format",
+        message: "Each slot must have start time and end time.",
       });
     }
 
-    const monthNumber = parsedDate.getMonth() + 1; // getMonth() is 0-indexed
-    const monthName = MonthMap[monthNumber];
+    if (!isValid24h(startTime) || !isValid24h(endTime)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid 24h format in slot: ${startTime} - ${endTime}`,
+      });
+    }
 
-    // 3. Check if an exceptional day already exists for this date
-    const existingSchedule = await ExceptionalDays.findOne({
-      date: parsedDate,
-    });
+    if (toMinutes(startTime) >= toMinutes(endTime)) {
+      return res.status(400).json({
+        success: false,
+        message: `Start time must be before end time in slot: ${startTime} - ${endTime}`,
+      });
+    }
+  }
 
-    if (existingSchedule) {
-      // 4a. Date already exists — just push the new time slot in
-      const slotAlreadyExists = existingSchedule.time.some((slot) => slot.startTime === startTime && slot.endTime === endTime);
-
-      if (slotAlreadyExists) {
-        return res.status(409).json({
+  // 3. Check overlap within the incoming array itself
+  for (let i = 0; i < time.length; i++) {
+    for (let j = i + 1; j < time.length; j++) {
+      const a = time[i];
+      const b = time[j];
+      if (toMinutes(a.startTime) < toMinutes(b.endTime) && toMinutes(a.endTime) > toMinutes(b.startTime)) {
+        return res.status(400).json({
           success: false,
-          message: "This time slot already exists for the given date",
+          message: `Slots overlap each other: ${a.startTime}-${a.endTime} and ${b.startTime}-${b.endTime}`,
         });
       }
+    }
+  }
 
+  // 4. Validate and normalize date
+  const parsedDate = new Date(date);
+  if (isNaN(parsedDate.getTime())) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid date format.",
+    });
+  }
+
+  const dateKey = parsedDate.toISOString().split("T")[0];
+  const monthName = MonthMap[parsedDate.getMonth() + 1];
+
+  // normalize incoming slots
+  const newSlots = time.map((slot) => ({
+    startTime: slot.startTime,
+    endTime: slot.endTime,
+    maxAppointments: slot.maxAppointments ?? maxAppointments,
+  }));
+
+  try {
+    // 5. Find existing record for this doctor + date
+    const existing = await ExceptionalDays.findOne({
+      doctorUserId: userId,
+      date: dateKey,
+    });
+
+    if (existing) {
+      // 6a. Check each new slot against already stored slots
+      for (const slot of newSlots) {
+        if (isOverlapping(slot.startTime, slot.endTime, existing.time)) {
+          return res.status(409).json({
+            success: false,
+            message: `Slot ${slot.startTime}-${slot.endTime} overlaps with an existing slot.`,
+          });
+        }
+      }
+
+      // 6b. Push all new slots
       const updated = await ExceptionalDays.findOneAndUpdate(
-        { date: parsedDate },
+        { doctorUserId: userId, date: dateKey },
         {
-          $push: {
-            time: {
-              startTime,
-              endTime,
-              maxAppointments: maxAppointments ?? 20,
-            },
-          },
+          $push: { time: { $each: newSlots } },
           $set: { isEnable: true },
         },
         { new: true },
@@ -835,38 +878,54 @@ export const addExceptionalSchedule = async (req, res) => {
       return res.status(200).json({
         success: true,
         data: updated,
-        message: `Slot added to existing exceptional day (${monthName})`,
+        message: `Slots added to existing exceptional day (${monthName})`,
       });
     }
 
-    // 4b. No existing record — create a fresh exceptional day
-    const newExceptionalDay = await ExceptionalDays.create({
-      date: parsedDate,
-      month: monthName, // extracted from MonthMap
+    // 6c. No record yet — create fresh
+    const created = await ExceptionalDays.create({
+      doctorUserId: userId,
+      date: dateKey,
       isEnable: true,
-      time: [
-        {
-          startTime,
-          endTime,
-          maxAppointments: maxAppointments ?? 20,
-        },
-      ],
+      time: newSlots,
     });
 
     return res.status(201).json({
       success: true,
-      data: newExceptionalDay,
+      data: created,
       message: `Exceptional schedule created for ${monthName}`,
     });
   } catch (error) {
     console.error(error);
-
     return res.status(500).json({
       success: false,
-      message: "Failed to add exceptional schedule",
+      message: "Failed to add exceptional schedule.",
     });
   }
 };
+
+
+export const removeExceptionalDay = async (req, res) => {
+  const { userId } = req.params;
+  const { date } = req.body;
+  const formattedDate = new Date(date).toISOString().split("T")[0];
+
+
+  try {
+    const deleted = await ExceptionalDays.findOneAndDelete({ doctorUserId: userId, date:formattedDate });
+    return res.status(200).json({
+      success: true,
+      data: deleted,
+      message: "Exceptional day removed",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove exceptional day",
+    });
+  }
+}
 
 export const setDoctorScore = async (req, res) => {
   const { userId } = req.params;
@@ -918,3 +977,5 @@ export const getDoctorMonthlySchedule = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to fetch schedule");
   }
 };
+
+

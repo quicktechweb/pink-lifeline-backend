@@ -188,7 +188,7 @@
                 },
                 {
                   "key": "email",
-                  "value": "sayed@gmail.com",
+                  "value": "s2ay2ed@gmail.com2",
                   "type": "text",
                   "uuid": "cdfc4366-38a2-482c-b883-4d442fc7e267"
                 },
@@ -200,9 +200,21 @@
                 },
                 {
                   "key": "docktorCard",
-                  "value": "",
+                  "value": "12",
                   "type": "text",
                   "uuid": "b571bae2-ad0a-4627-bdd4-773534a425d6"
+                },
+                {
+                  "key": "location",
+                  "value": "Bogra",
+                  "type": "text",
+                  "uuid": "c27c30c3-e0a0-4fc4-a0a8-3c0604a5b4dc"
+                },
+                {
+                  "key": "specialties",
+                  "value": "[\"nurology\",\"psychology\"]",
+                  "type": "text",
+                  "uuid": "fc037f19-be33-4a18-b164-62f9864d615b"
                 }
               ]
             },
@@ -960,7 +972,25 @@
                       "key": "doctorIdCard",
                       "type": "file",
                       "uuid": "8087d174-749a-460f-b4df-35d1645e95d5",
-                      "src": "postman-cloud:///1f12b253-d792-4590-b5c0-8b2f0bb9ed5c"
+                      "src": "/E:/rafi/assests/A_Death_Note.webp"
+                    },
+                    {
+                      "key": "location",
+                      "value": "dhaka",
+                      "type": "text",
+                      "uuid": "c9dac363-0ebb-44b3-a186-25587dcfc6d2"
+                    },
+                    {
+                      "key": "specialties",
+                      "value": "[\"nurology\",\"psychology\"]",
+                      "type": "text",
+                      "uuid": "e990f999-47de-4f26-9708-159a488832de"
+                    },
+                    {
+                      "key": "profilePhoto",
+                      "type": "file",
+                      "uuid": "27818785-6438-4a64-87e2-91ca25044822",
+                      "src": "/E:/rafi/assests/Levi_Ackermann_29_character_image.webp"
                     }
                   ]
                 },
@@ -978,7 +1008,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-UAL29I"
+                      "value": "USR-QDIOZR"
                     }
                   ]
                 }
@@ -1052,6 +1082,18 @@
                       "value": "quicktech apps",
                       "type": "text",
                       "uuid": "2c7c4c4b-1fce-48ac-9b4d-afc249c61438"
+                    },
+                    {
+                      "key": "location",
+                      "value": "dhaka",
+                      "type": "text",
+                      "uuid": "1c700628-56b3-4344-b502-4de6124359ca"
+                    },
+                    {
+                      "key": "specialties",
+                      "value": "[\"nurology\",\"psychology\"]",
+                      "type": "text",
+                      "uuid": "50453598-2b7e-4272-a34f-e5834cbb9827"
                     }
                   ]
                 },
@@ -1146,7 +1188,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"doctorUserId\": \"USR-UAL29I\",\r\n    \"day\": 4,\r\n    \"startTime\": \"01:00\",\r\n    \"endTime\": \"07:00\"\r\n}",
+                  "raw": "{\r\n  \"day\": 5,\r\n  \"startTime\": \"05:00\",\r\n  \"endTime\": \"06:00\",\r\n  \"maxAppointments\": 20\r\n}\r\n\r\n",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1167,7 +1209,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-UAL29I"
+                      "value": "USR-QDIOZR"
                     }
                   ]
                 }
@@ -1181,7 +1223,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"date\": \"2026-07-19T00:00:00.000Z\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"11:00\",\r\n  \"maxAppointments\": 0\r\n}",
+                  "raw": "{\r\n  \"date\": \"2026-06-15\",\r\n  \"maxAppointments\": 20,\r\n  \"time\": [\r\n    {\r\n      \"startTime\": \"09:00\",\r\n      \"endTime\": \"12:00\",\r\n      \"maxAppointments\": 10\r\n    },\r\n    {\r\n      \"startTime\": \"14:00\",\r\n      \"endTime\": \"17:00\",\r\n      \"maxAppointments\": 15\r\n    },\r\n    {\r\n      \"startTime\": \"19:00\",\r\n      \"endTime\": \"21:00\"\r\n    }\r\n  ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1210,13 +1252,13 @@
               "response": []
             },
             {
-              "name": "delete doctor daily schedule",
+              "name": "remove exceptional day",
               "request": {
                 "method": "DELETE",
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"doctorUserId\": \"USR-UAL29I\",\r\n    \"day\": 4,\r\n    \"startTime\": \"01:00\",\r\n    \"endTime\": \"07:00\"\r\n}",
+                  "raw": "{\r\n  \"date\": \"2026-06-15T18:00:00.000Z\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1224,14 +1266,119 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseurl}}/api/registration/delete-doctor-daily-schedule/:userId",
+                  "raw": "{{baseurl}}/api/registration/remove-exceptional-day/:userId",
                   "host": [
                     "{{baseurl}}"
                   ],
                   "path": [
                     "api",
                     "registration",
-                    "delete-doctor-daily-schedule",
+                    "remove-exceptional-day",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "remove doctor daily schedule",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "\r\n\r\n{\r\n        \"doctorUserId\": \"USR-QDIOZR\",\r\n\r\n  \"day\": 1,\r\n\r\n\r\n                  \"startTime\": \"05:00\",\r\n                    \"endTime\": \"06:00\",\r\n\r\n\r\n\r\n\r\n  \"maxAppointments\": 23\r\n}\r\n\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/remove-doctor-daily-schedule/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "remove-doctor-daily-schedule",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-QDIOZR"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "enable disable week day",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "\r\n\r\n{\r\n        \r\n\r\n  \"day\": 4\r\n\r\n}\r\n\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/enable-disable-week-day/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "enable-disable-week-day",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-daily-schedule-by-doctor",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "\r\n\r\n{\r\n        \"date\":\"2026-06-15T14:30:00.000Z\"\r\n}\r\n\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-daily-schedule-by-doctor/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-daily-schedule-by-doctor",
                     ":userId"
                   ],
                   "variable": [
@@ -1281,41 +1428,6 @@
                 }
               },
               "response": []
-            },
-            {
-              "name": "get doctor schedule",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n    \"email\":\"teamquicktech2@gmail.com\"\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseurl}}/api/registration/get-doctor-monthly-schedule/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "get-doctor-monthly-schedule",
-                    ":userId"
-                  ],
-                  "variable": [
-                    {
-                      "key": "userId",
-                      "value": "USR-UAL29I"
-                    }
-                  ]
-                }
-              },
-              "response": []
             }
           ]
         },
@@ -1328,16 +1440,48 @@
                 "method": "PUT",
                 "header": [],
                 "body": {
-                  "mode": "raw",
-                  "raw": "{\r\n  \"fullName\": \"rafarafa\",\r\n  \"phoneNumber\": \"199999999\",\r\n  \"autoReminderLimit\": 4,\r\n  \"notificationPreferenceTime\": \"2076-06-30T00:00:00.000Z\",\r\n  \"dateOfBirth\": \"2000-05-15T00:00:00.000Z\"\r\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "fullName",
+                      "value": "Sadik hasan ",
+                      "type": "text",
+                      "uuid": "21962670-a823-456b-98ec-a49f0bc44093"
+                    },
+                    {
+                      "key": "phoneNumber",
+                      "value": "01818341962",
+                      "type": "text",
+                      "uuid": "00a70207-7d4d-4ae2-b946-619d2f750697"
+                    },
+                    {
+                      "key": "autoReminderLimit",
+                      "value": "4",
+                      "type": "text",
+                      "uuid": "a0eaeed5-09a0-41f6-869b-da52412a5a0a"
+                    },
+                    {
+                      "key": "notificationPreferenceTime",
+                      "value": "2000-05-15T00:00:00.000Z",
+                      "type": "text",
+                      "uuid": "99d1898f-3fe4-44d8-9c7f-22e1f38c0275"
+                    },
+                    {
+                      "key": "dateOfBirth",
+                      "value": "1998-06-30T00:00:00.000Z",
+                      "type": "text",
+                      "uuid": "e15eaaac-1532-43f3-b99b-e611af2b7e96"
+                    },
+                    {
+                      "key": "profilePhoto",
+                      "type": "file",
+                      "uuid": "c7315b70-a729-4e64-99a1-1ea342d96e0d",
+                      "src": "/E:/rafi/assests/images.webp"
                     }
-                  }
+                  ]
                 },
                 "url": {
-                  "raw": "{{baseurl}}/api/user/v1/update-profile/:userId",
+                  "raw": "{{baseurl}}/api/user/v1/update-user-profile/:userId",
                   "host": [
                     "{{baseurl}}"
                   ],
@@ -1345,7 +1489,7 @@
                     "api",
                     "user",
                     "v1",
-                    "update-profile",
+                    "update-user-profile",
                     ":userId"
                   ],
                   "variable": [
@@ -1395,7 +1539,7 @@
               "response": []
             },
             {
-              "name": "add doctor wish list Copy",
+              "name": "get-user-doctor-list",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -1427,6 +1571,213 @@
                     {
                       "key": "userId",
                       "value": "USR-EWJK4J"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-doctors",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-all-doctors",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-all-doctors"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-profile-insights",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"doctorUserId\": \"USR-CIOXCQ\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-user-profile-insights/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-user-profile-insights",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-1HQSUU"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get doctor monthly schedule",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"month\": 6\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-doctor-monthly-schedule/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-doctor-monthly-schedule",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "book appointment",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"userId\": \"USR-UAL29I\",\r\n  \"doctorUserId\": \"USR-QDIOZR\",\r\n  \"appointmentDate\": \"2026-06-15\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"10:00\",\r\n  \"note\": \"Regular checkup\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/book-appointment",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "book-appointment"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "reschedule-appointment",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"month\": 6\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/reschedule-appointment/:appointmentId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "reschedule-appointment",
+                    ":appointmentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "appointmentId",
+                      "value": ""
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "cancel-appointment",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"month\": 6\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/cancel-appointment/:appointmentId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "cancel-appointment",
+                    ":appointmentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "appointmentId",
+                      "value": ""
                     }
                   ]
                 }
@@ -1989,13 +2340,13 @@
                   "response": []
                 },
                 {
-                  "name": "perform-self-test-2",
+                  "name": "perform-self-get-doctor",
                   "request": {
                     "method": "POST",
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n  \"userId\": \"USR-1HQSUU\",\r\n  \"currentDate\": \"2026-06-09T00:00:00.000Z\",\r\n  \"score\": 75\r\n}",
+                      "raw": "{\r\n  \"currentDate\": \"2026-06-09T00:00:00.000Z\",\r\n  \"score\": 2\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -2003,7 +2354,7 @@
                       }
                     },
                     "url": {
-                      "raw": "{{base_url}}/api/self-test/v2/create-user-self-test",
+                      "raw": "{{base_url}}/api/self-test/v2/doctor-recommendations/:userId",
                       "host": [
                         "{{base_url}}"
                       ],
@@ -2011,7 +2362,14 @@
                         "api",
                         "self-test",
                         "v2",
-                        "create-user-self-test"
+                        "doctor-recommendations",
+                        ":userId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "userId",
+                          "value": "USR-CHJNB1"
+                        }
                       ]
                     }
                   },
@@ -2404,7 +2762,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-EEI-EL"
+                  "value": "USR-1HQSUU"
                 }
               ]
             }
@@ -2512,7 +2870,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-CIOXCQ"
+                  "value": "USR-UAL29I"
                 }
               ]
             }
@@ -2529,7 +2887,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"postId\": \"6a279a534e6635ea9b8d31d1\"\r\n}",
+              "raw": "{\r\n  \"postId\": \"6a20192ea85655d2d381ae97\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2701,7 +3059,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-LQ3JYD"
+                  "value": "USR-1HQSUU"
                 }
               ]
             }
@@ -2818,7 +3176,46 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-USUOGB"
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-user's-comments only",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/get-user-comments/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-user-comments",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
                 }
               ]
             }
@@ -2867,7 +3264,7 @@
           "response": []
         },
         {
-          "name": "delete-post Copy",
+          "name": "search-post",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -3327,7 +3724,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1HQSUU"
+                  "value": "USR-7YCFSN"
                 }
               ]
             }
@@ -3356,6 +3753,45 @@
               "path": [
                 "other",
                 "run-script"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update property by _id",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"score\": 20\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/update-property-by-id/:collectionName/:id",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "update-property-by-id",
+                ":collectionName",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "collectionName",
+                  "value": "doctors"
+                },
+                {
+                  "key": "id",
+                  "value": "6a27a706498ac15de93ce6e2"
+                }
               ]
             }
           },
@@ -3391,7 +3827,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "doctors"
+                  "value": "weeklydays"
                 }
               ]
             }
