@@ -1,9 +1,9 @@
 {
   "info": {
-    "_postman_id": "48ba0f35-e98a-4a7c-b31d-e815cd91b8f5",
+    "_postman_id": "ceede128-5bc7-4be9-a270-4373f68eabe3",
     "name": "Pink_Life_Line",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "40964410"
+    "_exporter_id": "46088714"
   },
   "item": [
     {
@@ -1363,7 +1363,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "\r\n\r\n{\r\n        \"date\":\"2026-06-15T14:30:00.000Z\"\r\n}\r\n\r\n",
+                  "raw": "{\r\n    \"date\": \"2026-06-15T14:30:00.000Z\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1379,6 +1379,41 @@
                     "api",
                     "registration",
                     "get-daily-schedule-by-doctor",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-daily-doctor-appointments",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"date\": \"2026-06-15T00:00:00.000Z\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-daily-doctor-appointments/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-daily-doctor-appointments",
                     ":userId"
                   ],
                   "variable": [
@@ -1690,7 +1725,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"userId\": \"USR-UAL29I\",\r\n  \"doctorUserId\": \"USR-QDIOZR\",\r\n  \"appointmentDate\": \"2026-06-15\",\r\n  \"startTime\": \"09:00\",\r\n  \"endTime\": \"10:00\",\r\n  \"note\": \"Regular checkup\"\r\n}",
+                  "raw": "{\r\n    \"userId\":\"USR-QR1TYH\",\r\n    \"doctorUserId\":\"USR-UAL29I\",\r\n      \"appointmentDate\": \"2026-06-12T00:00:00.000Z\",\r\n  \"startTime\": \"7:00 PM\",\r\n  \"endTime\": \"8:00 PM\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1719,7 +1754,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"month\": 6\r\n}",
+                  "raw": "{\r\n    \"userId\":\"USR-QR1TYH\",\r\n    \"doctorUserId\":\"USR-UAL29I\",\r\n      \"appointmentDate\": \"2026-06-11T00:00:00.000Z\",\r\n                        \"startTime\": \"01:00\",\r\n                        \"endTime\": \"07:00\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1741,7 +1776,7 @@
                   "variable": [
                     {
                       "key": "appointmentId",
-                      "value": ""
+                      "value": "6a29a7b869af5a4f4210b0dc"
                     }
                   ]
                 }
@@ -1755,7 +1790,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"month\": 6\r\n}",
+                  "raw": "{\r\n    \"userId\":\"USR-QR1TYH\",\r\n    \"cancelledBy\":\"user\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1777,7 +1812,46 @@
                   "variable": [
                     {
                       "key": "appointmentId",
-                      "value": ""
+                      "value": "6a29a7b869af5a4f4210b0dc"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-appointments",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-user-appointments/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-user-appointments",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-QR1TYH"
                     }
                   ]
                 }
@@ -2542,6 +2616,9 @@
                   "language": "json"
                 }
               }
+            },
+            "url": {
+              "raw": ""
             }
           },
           "response": []
@@ -3765,7 +3842,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"score\": 20\r\n}",
+              "raw": "{\r\n    \"status\": \"pending\",\r\n    \"cancelledBy\": null,\r\n    \"isDeleted\": false\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3786,11 +3863,11 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "doctors"
+                  "value": "appointments"
                 },
                 {
                   "key": "id",
-                  "value": "6a27a706498ac15de93ce6e2"
+                  "value": "6a29a7b869af5a4f4210b0dc"
                 }
               ]
             }
@@ -3827,7 +3904,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "weeklydays"
+                  "value": "appointments"
                 }
               ]
             }

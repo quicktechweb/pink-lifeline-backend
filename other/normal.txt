@@ -1,0 +1,63 @@
+user can see doctor's appointment based on date
+{{baseurl}}/api/registration/get-daily-schedule-by-doctor/:userId
+{{baseurl}}/api/registration/get-doctor-monthly-schedule/:userId
+
+
+
+
+
+
+user can book appointment
+{{baseurl}}/api/user/v1/book-appointment
+
+
+
+
+
+
+
+
+
+user can cancel appointment`
+{{baseurl}}/api/user/v1/cancel-appointment/:appointmentId
+
+
+
+
+
+user can reschedule appointment
+{{baseurl}}/api/user/v1/reschedule-appointment/:appointmentId
+
+
+
+
+
+
+
+
+user can see their own appointment
+{{baseurl}}/api/user/v1/get-user-appointments/:userId
+
+
+
+
+
+
+doctor can see how many appointment they have today
+{{baseurl}}/api/registration/get-daily-doctor-appointments/:userId
+
+
+
+
+
+
+doctor can reschedule user's appointment
+
+
+
+
+doctor can cancel user's appointment
+
+
+
+

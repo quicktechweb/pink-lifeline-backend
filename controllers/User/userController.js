@@ -1,10 +1,11 @@
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
+import { ENV } from "../../constant/constant.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import { Post } from "../../models/Community/PostModel.js";
 import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
-import { formatQuantityNumber, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -229,19 +230,55 @@ function getDayKey(dateStr) {
   return DAY_KEYS[d.getUTCDay()];
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ─── POST /appointments/book ──────────────────────────────────────────────────
 // Body: { userId, doctorUserId, appointmentDate, startTime, endTime, note? }
 export async function bookAppointment(req, res) {
   try {
-    const { userId, doctorUserId, appointmentDate, startTime, endTime, note } = req.body;
+    let { userId, doctorUserId, appointmentDate, startTime, endTime, note } = req.body;
+    startTime = convertTo24Hour(startTime);
+    endTime = convertTo24Hour(endTime);
 
     // ── 1. Basic field check ──────────────────────────────────────────────────
     if (!userId || !doctorUserId || !appointmentDate || !startTime || !endTime) {
       return res.status(400).json({
         success: false,
-        message: "userId, doctorUserId, appointmentDate, startTime, endTime are required.",
+        message: ENV=="dev"? "userId, doctorUserId, appointmentDate, startTime, endTime are required.":"Necessary fields are missing.",
       });
     }
+
+    appointmentDate = new Date(appointmentDate).toISOString().split("T")[0];
 
     // ── 2. Date format guard ──────────────────────────────────────────────────
     if (!/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
@@ -298,22 +335,26 @@ export async function bookAppointment(req, res) {
       });
     }
 
-    // ── 5. Check slot capacity ────────────────────────────────────────────────
-    const bookedCount = await Appointment.countDocuments({
-      doctorUserId,
-      appointmentDate,
-      startTime,
-      endTime,
-      status: { $in: ["pending", "confirmed"] },
-      isDeleted: false,
-    });
 
-    if (bookedCount >= matchedSlot.maxAppointments) {
-      return res.status(400).json({
-        success: false,
-        message: `This slot is fully booked. Maximum ${matchedSlot.maxAppointments} appointments allowed.`,
-      });
-    }
+
+    // ── 5. Check slot capacity ────────────────────────────────────────────────
+    // const bookedCount = await Appointment.countDocuments({
+    //   doctorUserId,
+    //   appointmentDate,
+    //   startTime,
+    //   endTime,
+    //   status: { $in: ["pending", "confirmed"] },
+    //   isDeleted: false,
+    // });
+
+
+
+    // if (bookedCount >= matchedSlot.maxAppointments) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: `This slot is fully booked. Maximum ${matchedSlot.maxAppointments} appointments allowed.`,
+    //   });
+    // }
 
     // ── 6. Prevent duplicate booking (same user, same slot) ───────────────────
     const duplicate = await Appointment.findOne({
@@ -358,6 +399,41 @@ export async function bookAppointment(req, res) {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const editAppointment = async (req, res) => {
   const { appointmentId } = req.params;
   const { note, appointmentDate, startTime, endTime } = req.body;
@@ -384,15 +460,17 @@ export const editAppointment = async (req, res) => {
     }
 
     // validate times if provided
-    if (startTime && !isValid24h(startTime)) {
-      return res.status(400).json({ success: false, message: "Invalid startTime format." });
-    }
-    if (endTime && !isValid24h(endTime)) {
-      return res.status(400).json({ success: false, message: "Invalid endTime format." });
-    }
+    // if (startTime && !isValid24h(startTime)) {
+    //   return res.status(400).json({ success: false, message: "Invalid startTime format." });
+    // }
+    // if (endTime && !isValid24h(endTime)) {
+    //   return res.status(400).json({ success: false, message: "Invalid endTime format." });
+    // }
 
-    const resolvedStart = startTime || appointment.startTime;
-    const resolvedEnd = endTime || appointment.endTime;
+ 
+
+    const resolvedStart = isValid24h(startTime) ? startTime : isValid24h(endTime) ? startTime :  convertTo24Hour(startTime) || convertTo24Hour(appointment.startTime);
+    const resolvedEnd =isValid24h(endTime) ? endTime :  convertTo24Hour(endTime) || convertTo24Hour(appointment.endTime);
 
     if (toMinutes(resolvedStart) >= toMinutes(resolvedEnd)) {
       return res.status(400).json({
@@ -405,8 +483,8 @@ export const editAppointment = async (req, res) => {
     const updates = {};
     if (note !== undefined) updates.note = note;
     if (appointmentDate) updates.appointmentDate = appointmentDate;
-    if (startTime) updates.startTime = startTime;
-    if (endTime) updates.endTime = endTime;
+    if (startTime) updates.startTime = resolvedStart;
+    if (endTime) updates.endTime = resolvedEnd;
 
     const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: updates }, { new: true, runValidators: true });
 
@@ -417,9 +495,45 @@ export const editAppointment = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const deleteAppointment = async (req, res) => {
   const { appointmentId } = req.params;
-  const { cancelledBy } = req.body; // "user" | "doctor" | "admin"
+  const { cancelledBy, userId } = req.body; // "user" | "doctor" | "admin"
 
   if (!["user", "doctor", "admin"].includes(cancelledBy)) {
     return res.status(400).json({
@@ -471,5 +585,62 @@ export const deleteAppointment = async (req, res) => {
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+
+
+
+export const getUserAppointments = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const appointments = await Appointment.find({
+      userId,
+      isDeleted: false,
+    }).lean();
+
+    const doctorIds = [
+      ...new Set(appointments.map((a) => a.doctorUserId)),
+    ];
+
+    const doctors = await User.find({
+      userId: { $in: doctorIds },
+    }).lean();
+
+    const doctorMap = new Map(
+      doctors.map((doctor) => [doctor.userId, doctor])
+    );
+
+    const enrichedAppointments = appointments.map((appointment) => {
+      const doctor = doctorMap.get(appointment.doctorUserId);
+
+      if (!doctor) {
+        return {
+          ...appointment,
+          status: "cancelled",
+          doctor: null,
+        };
+      }
+
+      return {
+        ...appointment,
+        doctor,
+      };
+    });
+
+    return successResponse(
+      res,
+      enrichedAppointments,
+      "Appointments retrieved successfully.",
+      "Get appointments successful."
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(
+      res,
+      error,
+      "Something went wrong."
+    );
   }
 };

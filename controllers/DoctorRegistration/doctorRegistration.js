@@ -2,10 +2,11 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, isOverlapping, isValid24h, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, isOverlapping, isValid24h, normalizeDate, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { DayMap, MonthMap } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
+import { Appointment } from "../../models/Schedule/userBooking.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -904,15 +905,13 @@ export const addExceptionalSchedule = async (req, res) => {
   }
 };
 
-
 export const removeExceptionalDay = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
   const formattedDate = new Date(date).toISOString().split("T")[0];
 
-
   try {
-    const deleted = await ExceptionalDays.findOneAndDelete({ doctorUserId: userId, date:formattedDate });
+    const deleted = await ExceptionalDays.findOneAndDelete({ doctorUserId: userId, date: formattedDate });
     return res.status(200).json({
       success: true,
       data: deleted,
@@ -925,7 +924,7 @@ export const removeExceptionalDay = async (req, res) => {
       message: "Failed to remove exceptional day",
     });
   }
-}
+};
 
 export const setDoctorScore = async (req, res) => {
   const { userId } = req.params;
@@ -978,4 +977,29 @@ export const getDoctorMonthlySchedule = async (req, res) => {
   }
 };
 
+export const getDailyAppointments = async (req, res) => {
+  const { userId } = req.params;
+  const { date } = req.body;
 
+  const formattedDate = normalizeDate(date);
+  console.log("🚀 ~ doctorRegistration.js:990 ~ getDailyAppointments ~ formattedDate:", formattedDate);
+
+  if (!formattedDate) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid date format.",
+    });
+  }
+
+  try {
+    const appointments = await Appointment.find({
+      doctorUserId: userId,
+      appointmentDate: formattedDate, // assuming your schema uses appointmentDate
+    });
+
+    return successResponse(res, appointments, "Appointments retrieved successfully.", "Get appointments successful.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};

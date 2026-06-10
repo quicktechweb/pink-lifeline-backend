@@ -113,6 +113,7 @@ export const formatQuantityNumber = (num) => {
 };
 
 
+
 export const isOverlapping = (newStart, newEnd, existingSlots) => {
   const newS = toMinutes(newStart);
   const newE = toMinutes(newEnd);
@@ -123,6 +124,8 @@ export const isOverlapping = (newStart, newEnd, existingSlots) => {
     return newS < e && newE > s;
   });
 };
+
+
 
 
 
@@ -148,3 +151,37 @@ export const toMinutes = (timeStr) => {
 export const isValid24h = (timeStr) => /^([01]\d|2[0-3]):[0-5]\d$/.test(timeStr);
 
 
+export function convertTo24Hour(timeStr) {
+  const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+
+  if (!match) {
+    throw new Error("Invalid time format");
+  }
+
+  let [, hours, minutes, period] = match;
+
+  hours = parseInt(hours, 10);
+
+  if (period.toUpperCase() === "PM" && hours !== 12) {
+    hours += 12;
+  }
+
+  if (period.toUpperCase() === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  return `${String(hours).padStart(2, "0")}:${minutes}`;
+} 
+
+
+export function normalizeDate(date) {
+  if (!date) return null;
+
+  const parsedDate = new Date(date);
+
+  if (isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate.toISOString().split("T")[0];
+}

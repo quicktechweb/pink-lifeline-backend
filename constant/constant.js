@@ -26,3 +26,5 @@ export const MonthMap = {
 
 export const AVERAGE_PERIOD_DURATION = 5;
 export const POST_MENSTRUAL_INTERVAL=10
+export const ENV = "dev" 
+// export const ENV = "prod" 

@@ -15,6 +15,7 @@ import dns from "dns";
 import "./firebase-admin.js";
 import internalUtilRoutes from "./other/supportive.js";
 import { apiLogger } from "./middleware/logger.js";
+import { devOnly } from "./middleware/checkEnviornment.js";
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
@@ -53,7 +54,7 @@ app.use("/api/user", userRoutes);
 
 
 
-app.use("/other",internalUtilRoutes)
+app.use("/other",devOnly,internalUtilRoutes)
 
 
 
