@@ -5,6 +5,7 @@ import { generateToken } from "../../utils/token.js";
 import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import { DayMap, MonthMap } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
+import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -338,15 +339,19 @@ export const updateProfile = async (req, res) => {
        IMAGE UPLOAD
     ========================= */
 
-    if (req.file) {
-      const uploaded = await uploadToImgBB(req.file);
+    if (req.files?.doctorIdCard?.[0]) {
+      const uploadedDoctorCard = await uploadToImageBB(req.files.doctorIdCard[0]);
 
-      if (uploaded) {
-        updateData.doctorIdCard = {
-          url: uploaded.url,
-          deleteUrl: uploaded.delete_url,
-        };
-      }
+      updateData.doctorIdCard = {
+        url: uploadedDoctorCard,
+        deleteUrl: null,
+      };
+    }
+
+    if (req.files?.profilePhoto?.[0]) {
+      const uploadedProfilePhoto = await uploadToImageBB(req.files.profilePhoto[0]);
+
+      updateData.profilePhoto = uploadedProfilePhoto;
     }
 
     /* =========================

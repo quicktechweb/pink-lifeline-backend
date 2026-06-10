@@ -12,8 +12,15 @@ router.post("/login", loginUser);
 
 router.post("/loginadmin", loginadmin);
 
-router.post("/update-profile/:userId", uploadImage.single("doctorIdCard"), isUserExist, updateProfile);
-
+router.post(
+  "/update-profile/:userId",
+  uploadImage.fields([
+    { name: "doctorIdCard", maxCount: 1 },
+    { name: "profilePhoto", maxCount: 1 },
+  ]),
+  isUserExist,
+  updateProfile
+);
 router.get("/get-profile/:userId", isUserExist, getProfile);
 
 router.get("/get-all-doctors", getAllDoctors);

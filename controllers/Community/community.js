@@ -1154,3 +1154,14 @@ export const getSearchedResults = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to search posts.", "Search posts error");
   }
 };
+
+export const getAllUserComments = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const getAllUserComments = await Comment.find({ userId: userId, parentId: null });
+    return successResponse(res, getAllUserComments, "All user comments are fetched", "All user comments are fetched.");
+  } catch (error) {
+    console.error("GET_ALL_USER_COMMENTS_ERROR:", error);
+    somethingWentWrong(res, "Unable to fetch the user comments.", "Unable to fetch the user comments.");
+  }
+};

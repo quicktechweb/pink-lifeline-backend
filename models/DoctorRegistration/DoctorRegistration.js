@@ -33,8 +33,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-
-        // Custom User ID
+    // Custom User ID
     score: {
       type: Number,
       required: true,
@@ -161,7 +160,7 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    
+
     location: {
       type: String,
       trim: true,
