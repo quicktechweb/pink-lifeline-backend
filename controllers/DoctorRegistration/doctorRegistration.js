@@ -34,7 +34,6 @@ const uploadToImgBB = async (file) => {
   }
 };
 
-
 export const registerUser = async (req, res) => {
   try {
     let {
@@ -49,6 +48,8 @@ export const registerUser = async (req, res) => {
       aboutMe,
       qualifications,
       doctorIdCard,
+      location,
+      specialties,
     } = req.body;
 
     if (type === undefined || (Number(type) !== 0 && Number(type) !== 1)) {
@@ -57,6 +58,11 @@ export const registerUser = async (req, res) => {
 
     if (typeof qualifications === "string") {
       qualifications = JSON.parse(qualifications);
+    }
+
+    if (typeof specialties === "string") {
+      specialties = JSON.parse(specialties);
+      console.log("🚀 ~ doctorRegistration.js:66 ~ registerUser ~ specialties:", specialties);
     }
 
     let conditions = [];
@@ -68,8 +74,6 @@ export const registerUser = async (req, res) => {
     if (email) {
       conditions.push({ email });
     }
-
-  
 
     // 🔍 check existing
     const existing = await User.findOne({
@@ -90,8 +94,6 @@ export const registerUser = async (req, res) => {
     // 🔥 upload image
     let doctorIdCardData = {};
 
-
-
     // 🔥 generate userId
     const userId = generateUserId(type);
 
@@ -110,6 +112,8 @@ export const registerUser = async (req, res) => {
       doctorIdCard: doctorIdCard ? doctorIdCard : null,
       isDoctor,
       isUser,
+      location: location ? location : null,
+      specialties: specialties ? specialties : null,
       isRemoved: false,
       isVerified: isVerified ? isVerified : false,
     });
@@ -132,6 +136,8 @@ export const registerUser = async (req, res) => {
       qualifications: newUser.qualifications || null,
       doctorIdCard: newUser.doctorIdCard || null,
       isVerified: newUser.isVerified || false,
+      location: newUser.location || null,
+      specialties: newUser.specialties || null,
       ...(Number(type) === 1 ? { isDoctor: 1 } : { isUser: 0 }),
     };
 
@@ -235,7 +241,7 @@ export const loginadmin = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  let { phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications } = req.body;
+  let { phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard, location, specialties } = req.body;
 
   const { userId } = req.params;
 
@@ -298,6 +304,10 @@ export const updateProfile = async (req, res) => {
       updateData.qualifications = qualifications;
     }
 
+    if (location !== undefined) {
+      updateData.location = location;
+    }
+
     /* =========================
        PHONE VALIDATION
     ========================= */
@@ -318,6 +328,10 @@ export const updateProfile = async (req, res) => {
 
     if (isVerified === true || isVerified === "true") {
       updateData.isVerified = true;
+    }
+
+    if (specialties !== undefined) {
+      updateData.specialties = JSON.parse(specialties);
     }
 
     /* =========================
@@ -666,9 +680,8 @@ export const removeSchedule = async (req, res) => {
   }
 };
 
-
 export const addExceptionalSchedule = async (req, res) => {
-  const { date, startTime, endTime, maxAppointments=0 } = req.body;
+  const { date, startTime, endTime, maxAppointments = 0 } = req.body;
 
   // 1. Validate required fields
   if (!date || !startTime || !endTime) {
@@ -692,7 +705,6 @@ export const addExceptionalSchedule = async (req, res) => {
     const monthNumber = parsedDate.getMonth() + 1; // getMonth() is 0-indexed
     const monthName = MonthMap[monthNumber];
 
-
     // 3. Check if an exceptional day already exists for this date
     const existingSchedule = await ExceptionalDays.findOne({
       date: parsedDate,
@@ -700,9 +712,7 @@ export const addExceptionalSchedule = async (req, res) => {
 
     if (existingSchedule) {
       // 4a. Date already exists — just push the new time slot in
-      const slotAlreadyExists = existingSchedule.time.some(
-        (slot) => slot.startTime === startTime && slot.endTime === endTime,
-      );
+      const slotAlreadyExists = existingSchedule.time.some((slot) => slot.startTime === startTime && slot.endTime === endTime);
 
       if (slotAlreadyExists) {
         return res.status(409).json({
@@ -736,7 +746,7 @@ export const addExceptionalSchedule = async (req, res) => {
     // 4b. No existing record — create a fresh exceptional day
     const newExceptionalDay = await ExceptionalDays.create({
       date: parsedDate,
-      month: monthName,         // extracted from MonthMap
+      month: monthName, // extracted from MonthMap
       isEnable: true,
       time: [
         {
@@ -762,43 +772,27 @@ export const addExceptionalSchedule = async (req, res) => {
   }
 };
 
-
-
-
-
-
-export const setDoctorScore = async (req,res) => {
+export const setDoctorScore = async (req, res) => {
   const { userId } = req.params;
   const { score, isVerified } = req.body;
   if (!isVerified) {
-      return badRequestResponse(res, "Doctor is not verified", "Doctor is not verified");
+    return badRequestResponse(res, "Doctor is not verified", "Doctor is not verified");
   }
   try {
-    const updated = await DoctorRegistration.findOneAndUpdate({ userId, type:1 }, { score }, { new: true });
+    const updated = await User.findOneAndUpdate({ userId, type: 1 }, { score }, { new: true });
     return successResponse(res, updated, "Score updated successfully", "Score updated successfully");
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Failed to update score");
   }
-}
-
-
-
-
-
-
-
+};
 
 export const getDoctorMonthlySchedule = async (req, res) => {
   const { userId } = req.params;
   const month = req.query.month;
 
-
-
-
-
   try {
-    const schedule = await WeeklyDays.findOne({ doctorUserId:userId });
+    const schedule = await WeeklyDays.findOne({ doctorUserId: userId });
     return successResponse(res, schedule, "Schedule fetched successfully", "Schedule fetched successfully");
   } catch (error) {
     console.error(error);

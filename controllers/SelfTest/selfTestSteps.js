@@ -6,6 +6,7 @@ import { SelfTestStep } from "../../models/SelfTest/selfTestModel.js";
 import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
 import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
 import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
+import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 
 export const getVideoStream = async (req, res) => {
   try {
@@ -702,19 +703,12 @@ export const updateSelfTestAnswerV2 = async (req, res) => {
   }
 };
 
-
-
-
 export const addUserSelfTest = async (req, res) => {
   const { userId, currentDate, score } = req.body;
 
   try {
     if (!userId) {
-      return badRequestResponse(
-        res,
-        "User ID is required.",
-        "userId is missing."
-      );
+      return badRequestResponse(res, "User ID is required.", "userId is missing.");
     }
 
     // normalize date → same day range
@@ -752,21 +746,87 @@ export const addUserSelfTest = async (req, res) => {
       });
     }
 
-    return successResponse(
-      res,
-      result,
-      existing
-        ? "Self test updated successfully."
-        : "Self test created successfully.",
-      "Upsert operation completed."
-    );
+    return successResponse(res, result, existing ? "Self test updated successfully." : "Self test created successfully.", "Upsert operation completed.");
   } catch (error) {
     console.error(error);
 
-    return badRequestResponse(
-      res,
-      "Failed to save self test.",
-      error.message
+    return badRequestResponse(res, "Failed to save self test.", error.message);
+  }
+};
+
+export const getRecommendedDoctors = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { score } = req.body;
+
+    // Save/update today's score
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    await UserSelfTest.findOneAndUpdate(
+      {
+        userId,
+        currentDate: {
+          $gte: startOfDay,
+          $lte: endOfDay,
+        },
+      },
+      {
+        $set: {
+          score,
+        },
+        $setOnInsert: {
+          userId,
+          currentDate: new Date(),
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+      },
     );
+
+    const getScoreRange = (score) => {
+      if (score <= 20) return { min: 1, max: 20 };
+      if (score <= 40) return { min: 21, max: 40 };
+      if (score <= 60) return { min: 41, max: 60 };
+      if (score <= 80) return { min: 61, max: 80 };
+
+      return { min: 81, max: 100 };
+    };
+
+    // Get recommended doctors
+    const { min, max } = getScoreRange(score);
+
+    const doctors = await User.find({
+      isVerified: true,
+      score: {
+        $gte: min,
+        $lte: max,
+      },
+    })
+      .select({
+        specialties: 1,
+        location: 1,
+        qualifications: 1,
+        currentDesignation: 1,
+        currentWorkplace: 1,
+        profilePhoto: 1,
+        fullName: 1,
+        userId: 1,
+        doctorIdCard: 1,
+        doctorRegistrationNumber: 1,
+        _id: 0, // optional
+      })
+      .sort({ score: -1 });
+
+    return successResponse(res, "Recommended doctors fetched successfully.", doctors);
+  } catch (error) {
+    console.error(error);
+
+    return badRequestResponse(res, "Failed to fetch recommended doctors.", error.message);
   }
 };

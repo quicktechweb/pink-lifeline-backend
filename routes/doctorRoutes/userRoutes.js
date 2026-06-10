@@ -8,6 +8,6 @@ router.put("/v1/update-profile/:userId", isUserExist, updateUserProfile);
 router.post("/v1/add-doctor-wish-list/:userId", isUserExist, addToWishList);
 router.get("/v1/get-user-doctor-list/:userId", isUserExist, getUserDoctorWishList);
 
-router.get("/v1/book-an-appointment/:userId", isUserExist, );
+// router.get("/v1/book-an-appointment/:userId", isUserExist, );
 
 export default router;

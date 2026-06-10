@@ -187,10 +187,12 @@ internalUtilRoutes.put("/update-property-by-id/:collectionName/:id", async (req,
 
       const result = await mongoose.connection.db
         .collection(collectionName)
-        .updateOne(
+        .findOneAndUpdate(
           { _id: new mongoose.Types.ObjectId(id) },
-          { $set: updateData }
+          { $set: updateData },
+              { returnDocument: "after" } // MongoDB Driver v4+
         );
+
 
       if (result.matchedCount === 0) {
         return res.status(404).json({

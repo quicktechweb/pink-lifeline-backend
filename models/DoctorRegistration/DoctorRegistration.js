@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: 10,
     },
+    profilePhoto: {
+      type: String,
+      default: null,
+    },
 
     /**
      * type:
@@ -151,6 +155,16 @@ const userSchema = new mongoose.Schema(
     qualifications: {
       type: [qualificationSchema],
       default: [],
+    },
+
+    specialties: {
+      type: [String],
+      default: [],
+    },
+    
+    location: {
+      type: String,
+      trim: true,
     },
 
     doctorIdCard: {
