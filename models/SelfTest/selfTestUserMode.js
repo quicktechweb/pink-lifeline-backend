@@ -40,10 +40,15 @@ const userSelfTestSchema = new mongoose.Schema(
       default: Date.now,
     },
 
-    selfTest: {
-      type: [selfTestItemSchema],
-      default: [],
-    },
+    score:{
+      type: Number,
+      default: 0
+    }
+
+    // selfTest: {
+    //   type: [selfTestItemSchema],
+    //   default: [],
+    // },
   },
   {
     timestamps: true,

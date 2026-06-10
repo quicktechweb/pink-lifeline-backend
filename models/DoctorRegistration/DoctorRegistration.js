@@ -33,6 +33,14 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+
+        // Custom User ID
+    score: {
+      type: Number,
+      required: true,
+      default: 10,
+    },
+
     /**
      * type:
      * 0 = normal user

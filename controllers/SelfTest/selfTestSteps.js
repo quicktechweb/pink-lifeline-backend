@@ -5,6 +5,7 @@ import { badRequestResponse, notFoundResponse, somethingWentWrong, successRespon
 import { SelfTestStep } from "../../models/SelfTest/selfTestModel.js";
 import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
 import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
+import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
 
 export const getVideoStream = async (req, res) => {
   try {
@@ -612,8 +613,6 @@ export const updateSelfTestQuestion2 = async (req, res) => {
   }
 };
 
-export const addUserSelfTest = async (req, res) => {};
-
 export const deleteSelfTestQuestionById2 = async (req, res) => {
   const { stepId, questionId } = req.params;
 
@@ -700,5 +699,74 @@ export const updateSelfTestAnswerV2 = async (req, res) => {
     console.error(error);
     const answerId = params.answerId;
     return badRequestResponse(res, answerId ? "Unable to update answer." : "Unable to add answer.", error.message);
+  }
+};
+
+
+
+
+export const addUserSelfTest = async (req, res) => {
+  const { userId, currentDate, score } = req.body;
+
+  try {
+    if (!userId) {
+      return badRequestResponse(
+        res,
+        "User ID is required.",
+        "userId is missing."
+      );
+    }
+
+    // normalize date → same day range
+    const targetDate = currentDate ? new Date(currentDate) : new Date();
+
+    const startOfDay = new Date(targetDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(targetDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // find existing record for same user + same day
+    const existing = await UserSelfTest.findOne({
+      userId,
+      currentDate: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+
+    let result;
+
+    if (existing) {
+      // UPDATE FLOW
+      existing.score = score ?? existing.score;
+      existing.currentDate = targetDate;
+
+      result = await existing.save();
+    } else {
+      // CREATE FLOW
+      result = await UserSelfTest.create({
+        userId,
+        currentDate: targetDate,
+        score: score ?? 0,
+      });
+    }
+
+    return successResponse(
+      res,
+      result,
+      existing
+        ? "Self test updated successfully."
+        : "Self test created successfully.",
+      "Upsert operation completed."
+    );
+  } catch (error) {
+    console.error(error);
+
+    return badRequestResponse(
+      res,
+      "Failed to save self test.",
+      error.message
+    );
   }
 };

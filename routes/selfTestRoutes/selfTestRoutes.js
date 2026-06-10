@@ -45,7 +45,6 @@ router.post("/v1/perform-self-test/:userId", isUserExist, performSelfTest);
 
 router.post("/v2/create-self-test-step", addSelfTestStepV2);
 
-router.post("/v2/create-user-self-test", addUserSelfTest);
 
 router.delete("/v2/delete-self-test/:stepId", deleteSelfTestId);
 
@@ -65,5 +64,12 @@ router.put("/v2/update-self-test-question/:stepId", updateSelfTestQuestion2);
 // v3
 
 router.post("/v3/create-steps/", getVideoStream);
+
+
+
+
+//_______________________________________________________!** USERS ** !_______________________________________________________
+
+router.post("/v2/create-user-self-test", addUserSelfTest);
 
 export default router;
