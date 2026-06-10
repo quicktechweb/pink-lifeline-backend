@@ -2,7 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { badRequestResponse, isOverlapping, isValid24h, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { DayMap, MonthMap } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
@@ -522,64 +522,57 @@ export const addSchedule = async (req, res) => {
 
   // 1. Validate day
   if (!dayKey) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid day (1-7 required)",
-    });
+    return res.status(400).json({ success: false, message: "Invalid day." });
   }
 
-  // 2. Validate time
+  // 2. Validate time presence
   if (!startTime || !endTime) {
     return res.status(400).json({
       success: false,
-      message: "startTime and endTime are required",
+      message: "Start time and end time are required.",
     });
   }
 
-  if (startTime >= endTime) {
+  // 3. Validate 24h format
+  if (!isValid24h(startTime) || !isValid24h(endTime)) {
     return res.status(400).json({
       success: false,
-      message: "startTime must be before endTime",
+      message: "Times must be in 24-hour format HH:MM (e.g. 09:00, 17:30).",
     });
   }
 
-  const schedule = {
-    startTime,
-    endTime,
-    maxAppointments,
-  };
+  // 4. Validate range
+  if (toMinutes(startTime) >= toMinutes(endTime)) {
+    return res.status(400).json({
+      success: false,
+      message: "Start time must be before end time.",
+    });
+  }
+
+  const schedule = { startTime, endTime, maxAppointments };
 
   try {
-    // 3. Check duplicate slot (IMPORTANT FIX)
-    const existing = await WeeklyDays.findOne({
-      doctorUserId: userId,
-      [`${dayKey}.time`]: {
-        $elemMatch: { startTime, endTime },
-      },
-    });
+    // 5. Overlap check
+    const existing = await WeeklyDays.findOne({ doctorUserId: userId });
 
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "This time slot already exists",
-      });
+    if (existing?.[dayKey]?.time?.length > 0) {
+      if (isOverlapping(startTime, endTime, existing[dayKey].time)) {
+        return res.status(400).json({
+          success: false,
+          message: "Time slot overlaps with an existing schedule.",
+        });
+      }
     }
 
-    // 4. Safe update
+    // 6. Upsert
     const updated = await WeeklyDays.findOneAndUpdate(
       { doctorUserId: userId },
-
       {
         $setOnInsert: { doctorUserId: userId },
         $set: { [`${dayKey}.isEnable`]: true },
         $push: { [`${dayKey}.time`]: schedule },
       },
-
-      {
-        new: true,
-        upsert: true,
-        runValidators: true,
-      },
+      { new: true, upsert: true, runValidators: true },
     );
 
     return res.status(200).json({
@@ -597,17 +590,16 @@ export const addSchedule = async (req, res) => {
 };
 
 export const removeSchedule = async (req, res) => {
-  const { doctorUserId, day, startTime, endTime, maxAppointments } = req.body;
+  const { doctorUserId, day, startTime, endTime, maxAppointments = 20 } = req.body;
 
   const dayNumber = Number(day);
   const dayKey = DayMap[dayNumber];
-  console.log("🚀 ~ doctorRegistration.js:726 ~ removeSchedule ~ dayKey:", dayKey);
 
   // 1. Validate day
   if (!dayKey) {
     return res.status(400).json({
       success: false,
-      message: "Invalid day (1-7 required)",
+      message: "Invalid day",
     });
   }
 
@@ -630,7 +622,7 @@ export const removeSchedule = async (req, res) => {
     };
 
     // 3. Remove exact slot
-    const updated = await WeeklyDays.findOneAndUpdate(
+    let updated = await WeeklyDays.findOneAndUpdate(
       {
         doctorUserId,
       },
@@ -651,23 +643,14 @@ export const removeSchedule = async (req, res) => {
       doctorUserId,
       [`${dayKey}.isEnable`]: true,
     });
+    console.log("🚀 ~ doctorRegistration.js:700 ~ removeSchedule ~ ifSlotExist:", remainingSlots);
+    return res.send({ ifSlotExist });
 
     if (!ifSlotExist) {
       return res.status(404).json({
         success: false,
         message: "Schedule slot not found",
       });
-    }
-
-    if (remainingSlots === 0) {
-      await WeeklyDays.updateOne(
-        { doctorUserId },
-        {
-          $set: {
-            [`${dayKey}.isEnable`]: false,
-          },
-        },
-      );
     }
 
     return res.status(200).json({
@@ -682,6 +665,114 @@ export const removeSchedule = async (req, res) => {
       success: false,
       message: "Failed to remove schedule",
     });
+  }
+};
+
+export const enableDisableWeekDay = async (req, res) => {
+  const { day } = req.body;
+  const { userId } = req.params;
+  const doctorUserId = userId;
+
+  const dayNumber = Number(day);
+  const dayKey = DayMap[dayNumber];
+
+  // 1. Validate day
+  if (!dayKey) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid day",
+    });
+  }
+
+  try {
+    // 2. Check if doctor schedule exists
+    const doctorSchedule = await WeeklyDays.findOne({
+      doctorUserId,
+    });
+
+    if (!doctorSchedule) {
+      return res.status(404).json({
+        success: false,
+        message: "Schedule not found",
+      });
+    }
+
+    // 3. Disable day
+    const updated = await WeeklyDays.findOneAndUpdate(
+      {
+        doctorUserId,
+      },
+      [
+        {
+          $set: {
+            [`${dayKey}.isEnable`]: { $not: [`$${dayKey}.isEnable`] },
+          },
+        },
+      ],
+      {
+        new: true,
+      },
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: updated,
+      message: "Weekday disabled successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to disable weekday",
+    });
+  }
+};
+
+export const getDailySchedule = async (req, res) => {
+  const { userId } = req.params;
+  const { date } = req.body;
+  const day = new Date(date).getDay();
+
+  const dateStringWithoutTime = date.split("T")[0];
+
+  try {
+    const dayNumber = Number(day);
+    const dayKey = DayMap[dayNumber];
+
+    if (!dayKey) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid day",
+      });
+    }
+
+    const dailySchedule = await ExceptionalDays.findOne({
+      doctorUserId: userId,
+      date: dateStringWithoutTime, // Matches the target date record specifically
+    });
+
+    if (dailySchedule) {
+      return successResponse(res, dailySchedule, "Schedule fetched successfully.", "Schedule fetched successfully.");
+    }
+
+    const weeklySchedule = await WeeklyDays.findOne(
+      { doctorUserId: userId },
+      { [dayKey]: 1, doctorUserId: 1 }, // Projection: 1 means include, exclude everything else
+    );
+
+    const daySchedule = weeklySchedule[dayKey];
+
+    if (daySchedule) {
+      return successResponse(res, daySchedule, "Schedule fetched successfully.", "Schedule fetched successfully.");
+    }
+
+    return res.status(404).json({
+      success: false,
+      message: "Schedule not found",
+    });
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to fetch schedule");
   }
 };
 
@@ -794,11 +885,34 @@ export const setDoctorScore = async (req, res) => {
 
 export const getDoctorMonthlySchedule = async (req, res) => {
   const { userId } = req.params;
-  const month = req.query.month;
+  const month = Number(req.body.month);
 
   try {
-    const schedule = await WeeklyDays.findOne({ doctorUserId: userId });
-    return successResponse(res, schedule, "Schedule fetched successfully", "Schedule fetched successfully");
+    if (!MonthMap[month]) {
+      return badRequestResponse(res, "Invalid month", "Month must be between 1 and 12");
+    }
+
+    const weekDay = await WeeklyDays.findOne({
+      doctorUserId: userId,
+    });
+
+    const exceptionalDay = await ExceptionalDays.find({
+      doctorUserId: userId,
+    });
+
+    const filteredExceptionalDays = exceptionalDay.filter((item) => {
+      return new Date(item.date).getMonth() + 1 === month;
+    });
+
+    return successResponse(
+      res,
+      {
+        weekDay,
+        exceptionalDay: filteredExceptionalDays,
+      },
+      "Schedule fetched successfully",
+      "Schedule fetched successfully",
+    );
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Failed to fetch schedule");

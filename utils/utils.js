@@ -111,3 +111,40 @@ export const formatQuantityNumber = (num) => {
 
   return num.toString();
 };
+
+
+export const isOverlapping = (newStart, newEnd, existingSlots) => {
+  const newS = toMinutes(newStart);
+  const newE = toMinutes(newEnd);
+
+  return existingSlots.some((slot) => {
+    const s = toMinutes(slot.startTime);
+    const e = toMinutes(slot.endTime);
+    return newS < e && newE > s;
+  });
+};
+
+
+
+
+
+export const toMinutes = (timeStr) => {
+  const str = timeStr.trim().toLowerCase();
+  const isPM = str.endsWith("pm");
+  const isAM = str.endsWith("am");
+
+  const clean = str.replace("am", "").replace("pm", "").trim();
+  const [hStr, mStr] = clean.split(":");
+  let h = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+
+  if (isAM && h === 12) h = 0;          // 12:00am → 0
+  if (isPM && h !== 12) h += 12;        // 1:00pm → 13
+
+  return h * 60 + m;
+};
+
+// Validates strict 24h format "HH:MM"
+export const isValid24h = (timeStr) => /^([01]\d|2[0-3]):[0-5]\d$/.test(timeStr);
+
+

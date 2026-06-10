@@ -2,10 +2,7 @@ import mongoose from "mongoose";
 
 const timeSlotSchema = new mongoose.Schema(
   {
-    //       slotId: {
-    //     type: String,
-    //     required: true,
-    //   },
+
 
     startTime: {
       type: String,
@@ -21,8 +18,7 @@ const timeSlotSchema = new mongoose.Schema(
       required: true,
       default: 20,
     },
-  },
-  { _id: false },
+  }
 );
 
 const daySchema = new mongoose.Schema(
@@ -36,8 +32,7 @@ const daySchema = new mongoose.Schema(
       type: [timeSlotSchema],
       default: [],
     },
-  },
-  { _id: false },
+  }
 );
 
 const weeklyDaysSchema = new mongoose.Schema(
@@ -94,7 +89,11 @@ export const WeeklyDays = mongoose.model("WeeklyDays", weeklyDaysSchema);
 const exceptionalDaySchema = new mongoose.Schema(
   {
     date: {
-      type: Date,
+      type: String,
+      required: true,
+    },
+    doctorUserId: {
+      type: String,
       required: true,
     },
 

@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -29,11 +29,27 @@ router.put("/delete-doctor/:userId", isUserExist, deleteDoctor);
 router.get("/get-doctor-by-registration-number/:doctorRegistrationNumber", getDoctorByRegistrationNumber);
 router.get("/search-doctors/:query", searchDoctors);
 
-router.post("/add-doctor-daily-schedule/:userId", isDoctor, addSchedule);
-router.delete("/delete-doctor-daily-schedule/:userId", isDoctor, removeSchedule);
-router.post("/add-exceptional-day/:userId", isDoctor, addExceptionalSchedule);
-router.post("/get-doctor-monthly-schedule/:userId", isDoctor, getDoctorMonthlySchedule);
 router.put("/update-doctor-score/:userId", isUserExist, setDoctorScore);
+
+
+
+
+
 // router.post("/show-doctor-weekly-schedule/:userId",isDoctor,getDoctorWeeklySchedule)
+router.post("/add-doctor-daily-schedule/:userId", isDoctor, addSchedule);
+router.delete("/remove-doctor-daily-schedule/:userId", isDoctor, removeSchedule);
+router.patch("/enable-disable-week-day/:userId", isDoctor, enableDisableWeekDay);
+router.post("/get-daily-schedule-by-doctor/:userId", isDoctor, getDailySchedule);
+router.post("/get-doctor-monthly-schedule/:userId", isDoctor, getDoctorMonthlySchedule);
+
+
+
+
+
+router.post("/add-exceptional-day/:userId", isDoctor, addExceptionalSchedule);
+
+
+
+
 
 export default router;
