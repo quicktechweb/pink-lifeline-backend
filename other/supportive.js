@@ -151,4 +151,68 @@ internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
   }
 });
 
+
+
+
+
+internalUtilRoutes.put("/update-property-by-id/:collectionName/:id", async (req, res) => {
+    try {
+      const { collectionName, id } = req.params;
+
+      // Check collection exists
+      const collections = await mongoose.connection.db
+        .listCollections({}, { nameOnly: true })
+        .toArray();
+
+      const exists = collections.some(
+        (c) => c.name === collectionName
+      );
+
+      if (!exists) {
+        return res.status(404).json({
+          success: false,
+          message: `Collection '${collectionName}' not found.`,
+        });
+      }
+
+      // body becomes update object directly
+      const updateData = req.body;
+
+      if (!Object.keys(updateData).length) {
+        return res.status(400).json({
+          success: false,
+          message: "No properties provided to update.",
+        });
+      }
+
+      const result = await mongoose.connection.db
+        .collection(collectionName)
+        .updateOne(
+          { _id: new mongoose.Types.ObjectId(id) },
+          { $set: updateData }
+        );
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Document not found.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Property updated successfully",
+        result,
+      });
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+);
+
 export default internalUtilRoutes;
