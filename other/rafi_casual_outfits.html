@@ -1,138 +1,413 @@
-
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>STYLING GUIDE - Rafi's Casual Looks</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-tertiary-fixed":"#001f27","on-error-container":"#93000a","primary-fixed-dim":"#c8c6c5","on-primary-fixed-variant":"#474746","tertiary":"#000000","surface-container":"#efeeeb","primary":"#000000","on-primary-container":"#858383","surface-container-lowest":"#ffffff","on-background":"#1a1c1a","surface-dim":"#dbdad7","surface-variant":"#e3e2e0","on-surface":"#1a1c1a","on-secondary":"#ffffff","surface-container-high":"#e9e8e5","on-primary":"#ffffff","error-container":"#ffdad6","on-tertiary-container":"#5b8b9b","surface-tint":"#5f5e5e","on-error":"#ffffff","background":"#faf9f6","on-secondary-fixed-variant":"#524436","surface-container-low":"#f4f3f1","inverse-surface":"#2f312f","secondary-fixed-dim":"#d7c3b1","tertiary-fixed":"#b9eafc","outline":"#747878","secondary":"#6b5c4d","error":"#ba1a1a","secondary-fixed":"#f4dfcc","on-surface-variant":"#444748","tertiary-container":"#001f27","inverse-primary":"#c8c6c5","on-secondary-fixed":"#24190e","inverse-on-surface":"#f2f1ee","surface-bright":"#faf9f6","surface-container-highest":"#e3e2e0","on-primary-fixed":"#1c1b1b","secondary-container":"#f1dcc9","on-tertiary":"#ffffff","on-secondary-container":"#6f6051","primary-container":"#1c1b1b","outline-variant":"#c4c7c7","primary-fixed":"#e5e2e1","surface":"#faf9f6","on-tertiary-fixed-variant":"#184d5c","tertiary-fixed-dim":"#9dcee0"
+      },
+      borderRadius: {"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
+      spacing: {"stack-md":"16px","unit":"8px","margin-mobile":"16px","margin-desktop":"48px","gutter":"24px","stack-sm":"8px","container-max":"1280px","stack-lg":"32px"},
+      fontFamily: {"headline-lg-mobile":["Inter"],"label-sm":["Inter"],"label-caps":["Inter"],"headline-md":["Inter"],"display":["Inter"],"body-lg":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"]},
+      fontSize: {"headline-lg-mobile":["24px",{"lineHeight":"1.2","fontWeight":"600"}],"label-sm":["12px",{"lineHeight":"1","fontWeight":"500"}],"label-caps":["12px",{"lineHeight":"1","letterSpacing":"0.15em","fontWeight":"700"}],"headline-md":["20px",{"lineHeight":"1.4","fontWeight":"500"}],"display":["48px",{"lineHeight":"1.1","letterSpacing":"-0.02em","fontWeight":"600"}],"body-lg":["18px",{"lineHeight":"1.6","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"1.2","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["16px",{"lineHeight":"1.6","fontWeight":"400"}]}
+    }
+  }
+}
+</script>
 <style>
-  .og { padding: 12px 0; font-family: var(--font-sans); }
-  .og-title { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 16px; }
-  .card { background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 14px; }
-  .look-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 2px; }
-  .look-name { font-size: 17px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
-  .vibe { display: inline-block; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; background: var(--color-background-tertiary); color: var(--color-text-secondary); padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
-  .pieces { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
-  .piece { display: flex; align-items: center; gap: 12px; }
-  .sw { width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0; border: 1px solid rgba(128,128,128,0.15); }
-  .pname { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1px; }
-  .phex { font-size: 11px; color: var(--color-text-tertiary); font-family: var(--font-mono); }
-  .tip { font-size: 12px; color: var(--color-text-secondary); border-top: 1px solid var(--color-border-tertiary); padding-top: 10px; line-height: 1.6; }
-  .tip b { color: var(--color-text-primary); font-weight: 500; }
-  .rule-card { background: var(--color-background-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
-  .rule-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 10px; }
-  .rule { font-size: 12px; color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 4px; }
-  .rule b { color: var(--color-text-primary); font-weight: 500; }
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;display:inline-block;line-height:1;text-transform:none;letter-spacing:normal;word-wrap:normal;white-space:nowrap;direction:ltr}
+body{font-family:'Inter',sans-serif;scroll-behavior:smooth}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.editorial-border{border-bottom:1px solid rgba(0,0,0,0.1)}
+.dark .editorial-border{border-bottom:1px solid rgba(255,255,255,0.1)}
+.swatch-reveal{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+.swatch-reveal:hover{transform:scale(1.05)}
+
+/* Dark mode overrides */
+.dark body{background-color:#121212;color:#e8e6e3}
+.dark .bg-background{background-color:#121212 !important}
+.dark .bg-surface-container-lowest{background-color:#1e1e1e !important}
+.dark .text-on-surface{color:#e8e6e3 !important}
+.dark .text-primary{color:#c8c6c5 !important}
+.dark .text-on-surface-variant{color:#a8a9ab !important}
+.dark .text-secondary{color:#d7c3b1 !important}
+.dark .text-on-secondary-container{color:#f4dfcc !important}
+.dark .bg-secondary-container{background-color:#3a2e24 !important}
+.dark .border-outline-variant\/20{border-color:rgba(255,255,255,0.08) !important}
+.dark .border-outline-variant\/10{border-color:rgba(255,255,255,0.06) !important}
+.dark .bg-primary{background-color:#1c1c1c !important}
+.dark .text-on-primary{color:#e8e6e3 !important}
+.dark .border-on-primary\/20{border-color:rgba(255,255,255,0.15) !important}
+.dark header{background-color:#121212 !important;border-color:rgba(255,255,255,0.08) !important}
+.dark .opacity-70{color:rgba(200,198,197,0.85) !important}
+
+/* Image zoom overlay */
+#img-zoom-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,0.92);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+#img-zoom-overlay.active{opacity:1;pointer-events:all}
+#img-zoom-overlay img{
+  max-width:92vw;max-height:92vh;
+  object-fit:contain;
+  border-radius:8px;
+  transform:scale(0.88);
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 32px 80px rgba(0,0,0,0.7);
+}
+#img-zoom-overlay.active img{transform:scale(1)}
+#img-zoom-overlay .close-btn{
+  position:absolute;top:20px;right:24px;
+  background:rgba(255,255,255,0.12);
+  border:none;cursor:pointer;
+  border-radius:50%;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:22px;
+  transition:background 0.2s;
+}
+#img-zoom-overlay .close-btn:hover{background:rgba(255,255,255,0.25)}
+#img-zoom-overlay .zoom-label{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:0.1em;font-family:'Inter',sans-serif;
+}
+
+/* Clickable image cursor */
+.outfit-img{cursor:zoom-in;transition:transform 0.7s ease}
+.outfit-img:hover{transform:scale(1.05)}
 </style>
+</head>
+<body class="bg-background text-on-surface transition-colors duration-300">
 
-<div class="og">
-  <div class="og-title">Rafi's casual looks</div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background border-b border-outline-variant/10 flex justify-between items-center px-4 md:px-12 h-16">
+  <!-- <button class="text-primary hover:bg-surface-variant/50 transition-colors p-2 rounded-full scale-95 active:opacity-80">
+    <span class="material-symbols-outlined">menu</span>
+  </button> -->
+  <h1 class="font-headline-md text-headline-md text-primary tracking-widest">STYLING GUIDE</h1>
+  <button class="text-primary hover:bg-surface-variant/50 transition-colors p-2 rounded-full scale-95 active:opacity-80" id="theme-toggle" aria-label="Toggle dark mode">
+    <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+  </button>
+</header>
 
-  <div class="card">
-    <div class="look-label">Look 01</div>
-    <div class="look-name">Clean minimal</div>
-    <span class="vibe">Everyday smart</span>
-    <div class="pieces">
-      <div class="piece">
-        <div class="sw" style="background:#E8E0D0;"></div>
-        <div><div class="pname">Slim crew neck tee</div><div class="phex">#E8E0D0 — warm off-white</div></div>
+<main class="pt-24 pb-32 max-w-[1280px] mx-auto px-4 md:px-12">
+  <!-- Hero Header -->
+  <section class="mb-12">
+    <span class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2 block tracking-[0.3em]">RAFI'S CASUAL LOOKS</span>
+    <div class="h-px w-24 bg-primary mb-8"></div>
+  </section>
+
+  <!-- Outfit Grid -->
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <!-- Look 01 -->
+    <article class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg overflow-hidden group">
+      <div class="relative h-96 overflow-hidden">
+        <img class="outfit-img w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBHw834NQmnRwV2Oq7d385qzuKpkZDmHV5VzbZeAwPdmdgD_ft__whgYSMf5TqdmmeOWGg-ZY_wmXrvr70jMVVaX7KiJRQC0DFht3zYFTAt4YXiuHaGHJGN392w5fs4g533wo_LoOqR6RDmRNpoB-Umso9VgsKVf05OzRmpL0p9N0B_PYzxNRnFqLUvwS-MehKcySLxZqPHkZJ6a6qLcVQv3ABRNCzchif2uALERAPcvtCTgA604SGBD95pDfTRZcTGYjH3FiazA" alt="Look 01 - Clean minimal everyday smart outfit" data-label="LOOK 01 — Clean minimal"/>
+        <div class="absolute top-4 left-4 bg-background/90 backdrop-blur px-3 py-1">
+          <span class="font-label-caps text-label-caps text-primary">LOOK 01</span>
+        </div>
+        <div class="absolute bottom-4 right-4 bg-black/40 backdrop-blur rounded-full p-1.5">
+          <span class="material-symbols-outlined text-white text-[18px]">zoom_in</span>
+        </div>
       </div>
-      <div class="piece">
-        <div class="sw" style="background:#2C2C2C;"></div>
-        <div><div class="pname">Slim straight black jeans</div><div class="phex">#2C2C2C — soft black</div></div>
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface">Clean minimal</h2>
+            <span class="inline-block mt-1 font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full">Everyday smart</span>
+          </div>
+        </div>
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#E8E0D0','Slim crew neck tee')">
+            <div class="w-12 h-12 rounded-lg border border-outline-variant/10 shadow-sm" style="background-color:#E8E0D0"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Slim crew neck tee - #E8E0D0</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#2C2C2C','Charcoal Trousers')">
+            <div class="w-12 h-12 rounded-lg border border-outline-variant/10 shadow-sm" style="background-color:#2C2C2C"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Charcoal Trousers - #2C2C2C</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#F2F2F0','White sneakers')">
+            <div class="w-12 h-12 rounded-lg border border-outline-variant/10 shadow-sm" style="background-color:#F2F2F0"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">White sneakers - #F2F2F0</span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-outline-variant/10">
+          <p class="font-label-caps text-label-caps text-secondary mb-2">WHY IT WORKS</p>
+          <p class="font-body-md text-body-md text-on-surface-variant italic">"High contrast between the neutral top and dark bottom creates a tall, sharp silhouette."</p>
+        </div>
       </div>
-      <div class="piece">
-        <div class="sw" style="background:#F2F2F0; border:1px solid #ccc;"></div>
-        <div><div class="pname">White low sneakers</div><div class="phex">#F2F2F0 — clean white</div></div>
+    </article>
+
+    <!-- Look 02 -->
+    <article class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg overflow-hidden group">
+      <div class="relative h-96 overflow-hidden">
+        <img class="outfit-img w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBANb4y9EqyB6dLRwVQHAbYcpgyJyGZgpwyimWbOT-6RyLmmMm9iONkIPaphKM7VpSptnVxPuIkbE2fUIfD4uzr1rl1rHsBEXLQhi5p5xCGHr2Xxu6Zg2SzozTOSgU7JmXrydekB4r3O2zzXEwWJ4MLut_uuVcZNIWAPmSxwfEzvLFIhHhtEHENcE81GLbeQNN5zvv3K882D8boy01nHbaLe7bCxaeYJ4xPm6nxn0C2QeNsnhQFS-HThzLT47RKcZlc-ykGUAPEQA" alt="Look 02 - Warm earth relaxed elegant" data-label="LOOK 02 — Warm earth"/>
+        <div class="absolute top-4 left-4 bg-background/90 backdrop-blur px-3 py-1">
+          <span class="font-label-caps text-label-caps text-primary">LOOK 02</span>
+        </div>
+        <div class="absolute bottom-4 right-4 bg-black/40 backdrop-blur rounded-full p-1.5">
+          <span class="material-symbols-outlined text-white text-[18px]">zoom_in</span>
+        </div>
+      </div>
+      <div class="p-6">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Warm earth</h2>
+        <span class="inline-block mt-1 mb-4 font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full">Relaxed elegant</span>
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#8C7B6B','Taupe Overshirt')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#8C7B6B"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Taupe Overshirt - #8C7B6B</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#2F2A24','Dark Brown Chino')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#2F2A24"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Dark Brown Trousers - #2F2A24</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#7B5035','Tan Loafers')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#7B5035"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Tan Loafers - #7B5035</span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-outline-variant/10">
+          <p class="font-label-caps text-label-caps text-secondary mb-2">WHY IT WORKS</p>
+          <p class="font-body-md text-body-md text-on-surface-variant italic">"Analogous earth tones evoke a sense of maturity and effortless approachability."</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- Look 03 -->
+    <article class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg overflow-hidden group">
+      <div class="relative h-96 overflow-hidden">
+        <img class="outfit-img w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLoPBbmCccFavbtz_1mjzFH-b-2iQvozKQZFU02ajcDll2R0Mz0Z-ic8fWehOYmdi1FmxkC3KZqWazziM2BAYUP1v5Y-To6NkVufn9Cz87MFEKYazT8LygNEJSaQweyiFEvHq_AZlKJ2ncm5c5u2zLgOdxbbjOhpIOkNH-bogVjGWtpHunJOXgyvG0Pcr-tu1qh7f28ytAmqpIAklvA2M1cIN5O_Rhhy-WkVWhILa7VypdPVplfmzNR-lFBhIRWwE__-6Gmg4AxA" alt="Look 03 - Street sharp cool casual" data-label="LOOK 03 — Street sharp"/>
+        <div class="absolute top-4 left-4 bg-background/90 backdrop-blur px-3 py-1">
+          <span class="font-label-caps text-label-caps text-primary">LOOK 03</span>
+        </div>
+        <div class="absolute bottom-4 right-4 bg-black/40 backdrop-blur rounded-full p-1.5">
+          <span class="material-symbols-outlined text-white text-[18px]">zoom_in</span>
+        </div>
+      </div>
+      <div class="p-6">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Street sharp</h2>
+        <span class="inline-block mt-1 mb-4 font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full">Cool casual</span>
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#4A7A8A','Slate Jacket')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#4A7A8A"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Slate Jacket - #4A7A8A</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#1B2A45','Navy Tee')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#1B2A45"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Navy Tee - #1B2A45</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#C8A97A','Camel Chino')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#C8A97A"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Camel Chino - #C8A97A</span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-outline-variant/10">
+          <p class="font-label-caps text-label-caps text-secondary mb-2">WHY IT WORKS</p>
+          <p class="font-body-md text-body-md text-on-surface-variant italic">"The blue-to-tan contrast is a classic menswear move that always feels fresh and curated."</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- Look 04 -->
+    <article class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg overflow-hidden group">
+      <div class="relative h-96 overflow-hidden">
+        <img class="outfit-img w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI9ifeCKR-XUyKDKF56A3QOmmJiBCrK06n_Jr-QiYD8DgmPevXtqTovETBhHQe1FKwuKHZtTLXllRvYi7Djd7yy_fJYoh_MSG9b_vYI3c6klhMMXyR0Bv_2-lTqcZRyDX_lnr7vdWcrZ1oY_9Bb3kFTNCTywXbm1ZXs6qgLnmg_wmA6Fq-NH6ahfbOScfNGJ4AtrbetV84wzQecI7lbJXBNcP-bv-dagn2rXHo7ZH9WaTEW8S3noAqCqXohvaZRW4hDNRZsD6HTg" alt="Look 04 - Monochrome chill effortless" data-label="LOOK 04 — Monochrome chill"/>
+        <div class="absolute top-4 left-4 bg-background/90 backdrop-blur px-3 py-1">
+          <span class="font-label-caps text-label-caps text-primary">LOOK 04</span>
+        </div>
+        <div class="absolute bottom-4 right-4 bg-black/40 backdrop-blur rounded-full p-1.5">
+          <span class="material-symbols-outlined text-white text-[18px]">zoom_in</span>
+        </div>
+      </div>
+      <div class="p-6">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Monochrome chill</h2>
+        <span class="inline-block mt-1 mb-4 font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full">Effortless style</span>
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#A8A8A0','Grey Knit')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#A8A8A0"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Grey Knit - #A8A8A0</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#484848','Slate Denim')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#484848"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Slate Denim - #484848</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#F2F2F0','Oatmeal Scarf')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#F2F2F0"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Oatmeal Scarf - #F2F2F0</span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-outline-variant/10">
+          <p class="font-label-caps text-label-caps text-secondary mb-2">WHY IT WORKS</p>
+          <p class="font-body-md text-body-md text-on-surface-variant italic">"Playing with different shades of the same color provides depth without complexity."</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- Look 05 -->
+    <article class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg overflow-hidden group">
+      <div class="relative h-96 overflow-hidden">
+        <img class="outfit-img w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJHJ7hMr03hHS-13CxyyjryFDN0-sLpVlE10A1x5ay4Zir206QaeA8DUjodFIlv02-yF0Te85vk_tzxGEci93wSwjTTTBi00YsYr01ByhgsCIivs08GILxrngtwHo32gMF1dZs8gIpxbAfh74v0KBet2BhsiKGaWeWGeEJa8bej_Fx1FTQhECOFb9yCeJVuh0cLudaaYoHXij68d_Ts7QdUBbO_CwYWA9Y12hLvOSZgSFRJSAWfxUcfe9Z7IJxknIZXGJuBIZaJQ" alt="Look 05 - Soft contrast smart weekend" data-label="LOOK 05 — Soft contrast"/>
+        <div class="absolute top-4 left-4 bg-background/90 backdrop-blur px-3 py-1">
+          <span class="font-label-caps text-label-caps text-primary">LOOK 05</span>
+        </div>
+        <div class="absolute bottom-4 right-4 bg-black/40 backdrop-blur rounded-full p-1.5">
+          <span class="material-symbols-outlined text-white text-[18px]">zoom_in</span>
+        </div>
+      </div>
+      <div class="p-6">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Soft contrast</h2>
+        <span class="inline-block mt-1 mb-4 font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full">Smart weekend</span>
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#C4B49A','Beige Button-up')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#C4B49A"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Beige Button-up - #C4B49A</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#1C1C1C','Black Polo')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#1C1C1C"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Black Polo - #1C1C1C</span>
+          </div>
+          <div class="flex items-center gap-4 swatch-reveal cursor-pointer" onclick="openColorModal('#1A1A1A','Raw Denim')">
+            <div class="w-12 h-12 rounded-lg" style="background-color:#1A1A1A"></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Raw Denim - #1A1A1A</span>
+          </div>
+        </div>
+        <div class="pt-4 border-t border-outline-variant/10">
+          <p class="font-label-caps text-label-caps text-secondary mb-2">WHY IT WORKS</p>
+          <p class="font-body-md text-body-md text-on-surface-variant italic">"A single light-colored anchor piece elevates a simple black-on-black base immediately."</p>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- Golden Rules Section -->
+  <section class="mt-24 bg-primary text-on-primary rounded-xl p-8 md:p-12">
+    <h2 class="font-headline-lg text-headline-lg mb-12 tracking-tight">GOLDEN RULES FOR YOUR FRAME</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+      <div class="space-y-4 group"><span class="font-display text-[48px] opacity-20 group-hover:opacity-100 transition-opacity">01</span><h3 class="font-label-caps text-label-caps border-b border-on-primary/20 pb-2">Fit first</h3><p class="font-body-md text-body-md opacity-70">Clothes should follow your body shape without being tight.</p></div>
+      <div class="space-y-4 group"><span class="font-display text-[48px] opacity-20 group-hover:opacity-100 transition-opacity">02</span><h3 class="font-label-caps text-label-caps border-b border-on-primary/20 pb-2">Half tuck</h3><p class="font-body-md text-body-md opacity-70">Tuck just the front of your shirt to define the waistline.</p></div>
+      <div class="space-y-4 group"><span class="font-display text-[48px] opacity-20 group-hover:opacity-100 transition-opacity">03</span><h3 class="font-label-caps text-label-caps border-b border-on-primary/20 pb-2">Roll sleeves</h3><p class="font-body-md text-body-md opacity-70">Show forearm skin to look more relaxed and capable.</p></div>
+      <div class="space-y-4 group"><span class="font-display text-[48px] opacity-20 group-hover:opacity-100 transition-opacity">04</span><h3 class="font-label-caps text-label-caps border-b border-on-primary/20 pb-2">One clean shoe</h3><p class="font-body-md text-body-md opacity-70">A clean shoe anchors even the most casual outfit.</p></div>
+      <div class="space-y-4 group"><span class="font-display text-[48px] opacity-20 group-hover:opacity-100 transition-opacity">05</span><h3 class="font-label-caps text-label-caps border-b border-on-primary/20 pb-2">Posture</h3><p class="font-body-md text-body-md opacity-70">The best garment looks poor on a slouched frame.</p></div>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Navigation -->
+<!-- <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe bg-background border-t border-outline-variant/10 z-50">
+  <button class="flex flex-col items-center justify-center text-primary border-t-2 border-primary pt-2 pb-2 scale-90 active:scale-100 transition-transform"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">auto_awesome</span><span class="font-label-caps text-label-caps">LOOKS</span></button>
+  <button class="flex flex-col items-center justify-center text-on-surface-variant pt-2 pb-2 scale-90 active:scale-100 transition-transform"><span class="material-symbols-outlined">checkroom</span><span class="font-label-caps text-label-caps">WARDROBE</span></button>
+  <button class="flex flex-col items-center justify-center text-on-surface-variant pt-2 pb-2 scale-90 active:scale-100 transition-transform"><span class="material-symbols-outlined">palette</span><span class="font-label-caps text-label-caps">COLOR</span></button>
+  <button class="flex flex-col items-center justify-center text-on-surface-variant pt-2 pb-2 scale-90 active:scale-100 transition-transform"><span class="material-symbols-outlined">menu_book</span><span class="font-label-caps text-label-caps">GUIDE</span></button>
+</nav> -->
+
+<!-- Color Inspector Modal -->
+<div class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4 pointer-events-none" id="color-modal">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="modal-overlay"></div>
+  <div class="relative bg-background w-full max-w-md rounded-xl shadow-2xl scale-90 opacity-0 transition-all duration-300 pointer-events-auto" id="modal-content">
+    <div class="h-64 w-full rounded-t-xl" id="swatch-large"></div>
+    <div class="p-8">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="font-headline-lg text-headline-lg text-on-surface" id="modal-item-name">Color Name</h3>
+          <p class="font-label-caps text-label-caps text-on-surface-variant mt-2" id="modal-hex-code">#000000</p>
+        </div>
+        <button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-variant/50 hover:bg-surface-variant transition-colors" onclick="closeColorModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <p class="font-body-md text-body-md text-on-surface-variant">This tone is chosen for its ability to harmonize with your natural skin undertones and the primary neutral anchors in your wardrobe.</p>
+        <button class="w-full py-4 bg-primary text-on-primary font-label-caps text-label-caps rounded hover:opacity-90 transition-all">SHOP SIMILAR ITEMS</button>
       </div>
     </div>
-    <div class="tip"><b>Why it works:</b> Light top + dark bottom elongates your slim frame. Most versatile combo you can own.</div>
-  </div>
-
-  <div class="card">
-    <div class="look-label">Look 02</div>
-    <div class="look-name">Warm earth</div>
-    <span class="vibe">Relaxed elegant</span>
-    <div class="pieces">
-      <div class="piece">
-        <div class="sw" style="background:#8C7B6B;"></div>
-        <div><div class="pname">Slim linen shirt or polo</div><div class="phex">#8C7B6B — warm taupe</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#2F2A24;"></div>
-        <div><div class="pname">Dark olive slim chinos</div><div class="phex">#2F2A24 — deep olive</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#7B5035;"></div>
-        <div><div class="pname">Brown leather loafer</div><div class="phex">#7B5035 — chocolate brown</div></div>
-      </div>
-    </div>
-    <div class="tip"><b>Why it works:</b> Earth tones are made for your warm skin tone. Looks expensive without trying.</div>
-  </div>
-
-  <div class="card">
-    <div class="look-label">Look 03</div>
-    <div class="look-name">Street sharp</div>
-    <span class="vibe">Cool casual</span>
-    <div class="pieces">
-      <div class="piece">
-        <div class="sw" style="background:#4A7A8A;"></div>
-        <div><div class="pname">Slim button-up shirt</div><div class="phex">#4A7A8A — muted teal</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#1B2A45;"></div>
-        <div><div class="pname">Slim dark navy jeans</div><div class="phex">#1B2A45 — deep navy</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#C8A97A;"></div>
-        <div><div class="pname">Camel sneaker or loafer</div><div class="phex">#C8A97A — camel tan</div></div>
-      </div>
-    </div>
-    <div class="tip"><b>Why it works:</b> Cool tones balance your warm skin. Navy + teal looks sharp and intentional.</div>
-  </div>
-
-  <div class="card">
-    <div class="look-label">Look 04</div>
-    <div class="look-name">Monochrome chill</div>
-    <span class="vibe">Effortless style</span>
-    <div class="pieces">
-      <div class="piece">
-        <div class="sw" style="background:#A8A8A0;"></div>
-        <div><div class="pname">Slim fit grey tee</div><div class="phex">#A8A8A0 — mid grey</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#484848;"></div>
-        <div><div class="pname">Slim dark grey jogger/chino</div><div class="phex">#484848 — dark grey</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#F2F2F0; border:1px solid #ccc;"></div>
-        <div><div class="pname">White clean sneakers</div><div class="phex">#F2F2F0 — clean white</div></div>
-      </div>
-    </div>
-    <div class="tip"><b>Why it works:</b> Full grey tonal look with white shoes pops. Simple but always looks intentional.</div>
-  </div>
-
-  <div class="card">
-    <div class="look-label">Look 05</div>
-    <div class="look-name">Soft contrast</div>
-    <span class="vibe">Smart weekend</span>
-    <div class="pieces">
-      <div class="piece">
-        <div class="sw" style="background:#C4B49A;"></div>
-        <div><div class="pname">Slim beige/camel tee or shirt</div><div class="phex">#C4B49A — warm beige</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#1C1C1C;"></div>
-        <div><div class="pname">Black slim jeans</div><div class="phex">#1C1C1C — jet black</div></div>
-      </div>
-      <div class="piece">
-        <div class="sw" style="background:#1A1A1A;"></div>
-        <div><div class="pname">Black derby or chelsea boot</div><div class="phex">#1A1A1A — matte black</div></div>
-      </div>
-    </div>
-    <div class="tip"><b>Why it works:</b> Beige top + all black bottom = quietly elegant. The boot elevates the whole look instantly.</div>
-  </div>
-
-  <div class="rule-card">
-    <div class="rule-title">Golden rules for your frame</div>
-    <div class="rule"><b>Fit first</b> — slim or straight fit only. Baggy kills every outfit.</div>
-    <div class="rule"><b>Half tuck</b> — tuck shirt halfway in. Looks intentional on slim guys.</div>
-    <div class="rule"><b>Roll sleeves</b> — mid-forearm. You already do this, keep it.</div>
-    <div class="rule"><b>One clean shoe</b> — dirty shoes ruin any outfit.</div>
-    <div class="rule"><b>Posture</b> — chin up, shoulders back. Free upgrade, biggest impact.</div>
   </div>
 </div>
+
+<!-- Image Zoom Overlay -->
+<div id="img-zoom-overlay">
+  <button class="close-btn" onclick="closeZoom()" aria-label="Close zoom">
+    <span class="material-symbols-outlined">close</span>
+  </button>
+  <img id="zoom-img" src="" alt="Full view"/>
+  <p class="zoom-label" id="zoom-label">TAP ANYWHERE TO CLOSE</p>
+</div>
+
+<script>
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+const html = document.documentElement;
+
+themeToggle.addEventListener('click', () => {
+  html.classList.toggle('dark');
+  themeIcon.textContent = html.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+});
+
+// Color modal
+const colorModal = document.getElementById('color-modal');
+const modalOverlay = document.getElementById('modal-overlay');
+const modalContent = document.getElementById('modal-content');
+
+function openColorModal(hex, name) {
+  document.getElementById('swatch-large').style.backgroundColor = hex;
+  document.getElementById('modal-item-name').textContent = name;
+  document.getElementById('modal-hex-code').textContent = hex;
+  colorModal.classList.remove('hidden');
+  setTimeout(() => {
+    modalOverlay.classList.replace('opacity-0','opacity-100');
+    modalContent.classList.replace('scale-90','scale-100');
+    modalContent.classList.replace('opacity-0','opacity-100');
+  }, 10);
+}
+
+function closeColorModal() {
+  modalOverlay.classList.replace('opacity-100','opacity-0');
+  modalContent.classList.replace('scale-100','scale-90');
+  modalContent.classList.replace('opacity-100','opacity-0');
+  setTimeout(() => colorModal.classList.add('hidden'), 300);
+}
+
+modalOverlay.addEventListener('click', closeColorModal);
+
+// Image zoom
+const zoomOverlay = document.getElementById('img-zoom-overlay');
+const zoomImg = document.getElementById('zoom-img');
+const zoomLabel = document.getElementById('zoom-label');
+
+document.querySelectorAll('.outfit-img').forEach(img => {
+  img.addEventListener('click', () => {
+    zoomImg.src = img.src;
+    zoomImg.alt = img.alt;
+    zoomLabel.textContent = img.dataset.label || 'TAP ANYWHERE TO CLOSE';
+    zoomOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+});
+
+function closeZoom() {
+  zoomOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+zoomOverlay.addEventListener('click', (e) => {
+  if (e.target === zoomOverlay || e.target === zoomImg || e.target === zoomLabel) closeZoom();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeColorModal(); closeZoom(); }
+});
+</script>
+</body>
+</html>
