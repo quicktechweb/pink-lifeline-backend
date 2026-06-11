@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -37,6 +37,9 @@ router.post("/get-doctor-monthly-schedule/:userId", isDoctor, getDoctorMonthlySc
 router.post("/add-exceptional-day/:userId", isDoctor, addExceptionalSchedule);
 router.delete("/remove-exceptional-day/:userId", isDoctor, removeExceptionalDay);
 
+
+
+router.get("/get-total-comment-patients/:userId",isDoctor,getTotalCommentsPatients);
 
 
 router.post("/get-daily-doctor-appointments/:userId", isDoctor, getDailyAppointments);

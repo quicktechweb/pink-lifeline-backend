@@ -1165,3 +1165,60 @@ export const getAllUserComments = async (req, res) => {
     somethingWentWrong(res, "Unable to fetch the user comments.", "Unable to fetch the user comments.");
   }
 };
+
+
+export const getAllPostsByAdmin = async (req, res) => {
+  try {
+  
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    const { sortBy } = req.query;
+
+    const allowedSortFields = [
+      "title",
+      "name",
+      "type",
+      "upvote",
+      "downvote",
+      "netVote",
+      "isVerified",
+    ];
+
+    let sortConfig = { createdAt: -1 };
+
+    if (allowedSortFields.includes(sortBy)) {
+      sortConfig = {
+        [sortBy]: 1,
+        createdAt: -1,
+      };
+    }
+
+    const allPosts = await Post.find(
+      {},
+      {
+        _id: 1,
+        title: 1,
+        name: 1,
+        userId: 1,
+        createdAt: 1,
+        downvote: 1,
+        upvote: 1,
+        netVote: 1,
+        type: 1,
+        isVerified: 1,
+      }
+    ).sort(sortConfig).skip(skip).limit(limit);
+
+    if (allPosts) {
+      successResponse(res, allPosts, "All saved posts are fetched", "All saved posts are fetched.");
+    } else {
+      notFoundResponse(res, "Not Found", "Not found data.");
+    }
+  } catch (error) {
+    console.error("GET_ALL_POSTS_ERROR:", error);
+
+    somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
+  }
+};

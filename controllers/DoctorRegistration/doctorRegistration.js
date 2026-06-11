@@ -2,11 +2,12 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, isOverlapping, isValid24h, normalizeDate, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, formatQuantityNumber, isOverlapping, isValid24h, normalizeDate, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { DayMap, MonthMap } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
+import { Comment } from "../../models/Community/CommentModel.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -998,6 +999,21 @@ export const getDailyAppointments = async (req, res) => {
     });
 
     return successResponse(res, appointments, "Appointments retrieved successfully.", "Get appointments successful.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const getTotalCommentsPatients = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    let totalComments = await Comment.countDocuments({ userId: userId });
+    totalComments = formatQuantityNumber(totalComments);
+    let totalAppointments = await Appointment.countDocuments({ doctorUserId: userId, status: "completed" });
+    totalAppointments = formatQuantityNumber(totalAppointments);
+
+    return successResponse(res, { totalComments, totalAppointments }, "Total comments fetched successfully.", "Total comments fetched successfully.");
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
