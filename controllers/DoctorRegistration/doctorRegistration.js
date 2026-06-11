@@ -1019,3 +1019,139 @@ export const getTotalCommentsPatients = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+export const addDoctorWeeklySchedule = async (req, res) => {
+
+
+  try {
+    const {  mon, tue, wed, thu, fri, sat, sun } = req.body;
+const { userId: doctorUserId } = req.params;
+
+
+    if (!doctorUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "doctorUserId is required in request body.",
+      });
+    }
+
+    const dayNames = {
+  mon: "Monday",
+  tue: "Tuesday",
+  wed: "Wednesday",
+  thu: "Thursday",
+  fri: "Friday",
+  sat: "Saturday",
+  sun: "Sunday",
+};
+
+
+    const DAYS = { mon, tue, wed, thu, fri, sat, sun };
+
+    // ── Helper: convert "HH:MM" to total minutes ──
+    const toMinutes = (timeStr) => {
+      const [h, m] = timeStr.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    // ── Validate all day slots ──
+    for (const [dayKey, dayVal] of Object.entries(DAYS)) {
+      if (!dayVal) continue; // day not provided — skip
+
+      const { time = [] } = dayVal;
+
+      for (let i = 0; i < time.length; i++) {
+        const slot = time[i];
+        const { startTime, endTime, maxAppointments } = slot;
+
+        // Required fields
+        if (!startTime || !endTime) {
+          return res.status(400).json({
+            success: false,
+            message: `On ${dayNames[dayKey]}, the end time must be later than the start time.`,
+          });
+        }
+
+        // 24h format check: HH:MM
+        const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+        if (!timeRegex.test(startTime)) {
+          return res.status(400).json({
+            success: false,
+            message: `${dayKey} slot[${i}]: startTime "${startTime}" is not valid 24h format (HH:MM).`,
+          });
+        }
+        if (!timeRegex.test(endTime)) {
+          return res.status(400).json({
+            success: false,
+            message: `${dayKey} slot[${i}]: endTime "${endTime}" is not valid 24h format (HH:MM).`,
+          });
+        }
+
+        // endTime must be AFTER startTime
+        if (toMinutes(endTime) <= toMinutes(startTime)) {
+          return res.status(400).json({
+            success: false,
+            message: `Invalid schedule for ${dayNames[dayKey]}. The end time (${endTime}) must be later than the start time (${startTime}).`,
+          });
+        }
+
+        // maxAppointments must be a positive number
+        if (
+          maxAppointments === undefined ||
+          maxAppointments === null ||
+          typeof maxAppointments !== "number" ||
+          maxAppointments < 1
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: `${dayKey} slot[${i}]: maxAppointments must be a positive number.`,
+          });
+        }
+      }
+    }
+
+    // ── Check if doc already exists ──
+    const existingDoc = await WeeklyDays.findOne({ doctorUserId });
+
+    // ── Build the update payload (only override days that were sent) ──
+    const updatePayload = {};
+    for (const [dayKey, dayVal] of Object.entries(DAYS)) {
+      if (dayVal !== undefined) {
+        updatePayload[dayKey] = dayVal;
+      }
+    }
+
+    let savedDoc;
+
+    if (existingDoc) {
+      // Update existing doc
+      Object.assign(existingDoc, updatePayload);
+      savedDoc = await existingDoc.save();
+    } else {
+      // Create new doc
+      savedDoc = await WeeklyDays.create({
+        doctorUserId,
+        ...updatePayload,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: existingDoc
+        ? "Weekly schedule updated successfully."
+        : "Weekly schedule created successfully.",
+      data: savedDoc,
+    });
+  } catch (error) {
+    console.error("addDoctorWeeklySchedule error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+      error: error.message,
+    });
+  }
+};
