@@ -1,9 +1,9 @@
 {
   "info": {
-    "_postman_id": "ceede128-5bc7-4be9-a270-4373f68eabe3",
+    "_postman_id": "e6d2c24d-c536-4f71-944d-798abb758997",
     "name": "Pink_Life_Line",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "46088714"
+    "_exporter_id": "40964410"
   },
   "item": [
     {
@@ -1209,7 +1209,42 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-QDIOZR"
+                      "value": "USR-MPOJT_"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "enable disable week day",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "\r\n\r\n{\r\n        \r\n\r\n  \"day\": 4\r\n\r\n}\r\n\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/enable-disable-week-day/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "enable-disable-week-day",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-EEI-EL"
                     }
                   ]
                 }
@@ -1322,41 +1357,6 @@
               "response": []
             },
             {
-              "name": "enable disable week day",
-              "request": {
-                "method": "PATCH",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "\r\n\r\n{\r\n        \r\n\r\n  \"day\": 4\r\n\r\n}\r\n\r\n",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseurl}}/api/registration/enable-disable-week-day/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "enable-disable-week-day",
-                    ":userId"
-                  ],
-                  "variable": [
-                    {
-                      "key": "userId",
-                      "value": "USR-UAL29I"
-                    }
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
               "name": "get-daily-schedule-by-doctor",
               "request": {
                 "method": "POST",
@@ -1459,6 +1459,107 @@
                       "key": "query",
                       "value": "Anm Rezwan"
                     }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-total-comment-patients",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-total-comment-patients/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-total-comment-patients",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-UAL29I"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add-doctor-weekly-schedule",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n\r\n  \"mon\": {\r\n    \"isActive\": true,\r\n    \"time\": [\r\n      {\r\n        \"startTime\": \"11:00\",\r\n        \"endTime\": \"11:30\",\r\n        \"maxAppointments\": 10\r\n      },\r\n      {\r\n        \"startTime\": \"14:00\",\r\n        \"endTime\": \"18:00\",\r\n        \"maxAppointments\": 15\r\n      }\r\n    ]\r\n  },\r\n\r\n\r\n  \"wed\": {\r\n    \"isActive\": true,\r\n    \"time\": [\r\n      {\r\n        \"startTime\": \"09:30\",\r\n        \"endTime\": \"15:00\",\r\n        \"maxAppointments\": 20\r\n      }\r\n    ]\r\n  },\r\n\r\n\r\n  \"fri\": {\r\n    \"isActive\": true,\r\n    \"time\": [\r\n      {\r\n        \"startTime\": \"08:00\",\r\n        \"endTime\": \"11:00\",\r\n        \"maxAppointments\": 12\r\n      }\r\n    ]\r\n  },\r\n\r\n\r\n\r\n  \"sun\": {\r\n    \"isActive\": false,\r\n    \"time\": []\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/add-doctor-weekly-schedule/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "add-doctor-weekly-schedule",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-EEI-EL"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-appointments-admin",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"limit\":1,\r\n    \"page\":2\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-all-appointments-by-admin",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-all-appointments-by-admin"
                   ]
                 }
               },
@@ -1690,7 +1791,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"month\": 6\r\n}",
+                  "raw": "{\r\n    \"month\": 7\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1711,7 +1812,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-UAL29I"
+                      "value": "USR-EEI-EL"
                     }
                   ]
                 }
@@ -1725,7 +1826,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"userId\":\"USR-QR1TYH\",\r\n    \"doctorUserId\":\"USR-UAL29I\",\r\n      \"appointmentDate\": \"2026-06-12T00:00:00.000Z\",\r\n  \"startTime\": \"7:00 PM\",\r\n  \"endTime\": \"8:00 PM\"\r\n}",
+                  "raw": "{\r\n    \"userId\":\"USR-QR1TYH\",\r\n    \"doctorUserId\":\"USR-MPOJT_\",\r\n      \"appointmentDate\": \"2026-06-12T10:00:00.000Z\",\r\n  \"startTime\": \"5:00 am\",\r\n  \"endTime\": \"6:00 am\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2638,13 +2739,13 @@
               "formdata": [
                 {
                   "key": "title",
-                  "value": "post 321-22",
+                  "value": "wow scrarry",
                   "type": "text",
                   "uuid": "b305de6f-7ac2-40f3-840e-3423550e1b33"
                 },
                 {
                   "key": "description",
-                  "value": "IT IS POST 321-22-22",
+                  "value": "wow scrarry",
                   "type": "text",
                   "uuid": "87fb988a-2d52-4544-991a-fada21e23511"
                 },
@@ -2672,7 +2773,7 @@
                   "key": "photo",
                   "type": "file",
                   "uuid": "e3bc015f-e05a-413d-92ce-7098db23a678",
-                  "src": "YhyFBkNLO/Screenshot 2026-05-21 at 10.07.30 AM.png"
+                  "src": "/E:/rafi/assests/A_Death_Note.webp"
                 }
               ]
             },
@@ -2691,7 +2792,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-CHJNB1"
+                  "value": "USR-QDIOZR"
                 }
               ]
             }
@@ -2925,7 +3026,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"postId\": \"6a279a534e6635ea9b8d31d1\",\r\n  \"text\": \"comments postman 2 abcd\"  \r\n  }",
+              "raw": "{\r\n  \"postId\": \"6a2a72e4e1141c8109336584\",\r\n  \"text\": \"hmm really ?\"  ,\r\n  \"parentId\":\"6a2a7340e1141c810933658e\"\r\n  }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2947,7 +3048,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-UAL29I"
+                  "value": "USR-QDIOZR"
                 }
               ]
             }
@@ -2956,6 +3057,42 @@
         },
         {
           "name": "get-single-post-comment-reply",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"postId\": \"6a20192ea85655d2d381ae97\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/community/v1/get-post-by-id/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-post-by-id",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-1HQSUU"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-single-post-comment-reply Copy",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -3373,6 +3510,48 @@
                 {
                   "key": "query",
                   "value": "jj"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-all-posts-admin",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/v1/get-all-posts-admin?page=3&limit=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "community",
+                "v1",
+                "get-all-posts-admin"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "3"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
                 }
               ]
             }
@@ -3836,6 +4015,33 @@
           "response": []
         },
         {
+          "name": "delete specific data from each collection",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-7S5PND\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/delete-specific-data-form-each-collection",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "delete-specific-data-form-each-collection"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "update property by _id",
           "request": {
             "method": "PUT",
@@ -3904,7 +4110,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "appointments"
+                  "value": "doctors"
                 }
               ]
             }
