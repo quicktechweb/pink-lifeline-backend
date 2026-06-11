@@ -35,7 +35,7 @@ export const somethingWentWrong = (res, data, message, logMessage) => {
   });
 };
 
-export const successResponse = (res, data, message, logMessage) => {
+export const successResponse = (res, data, message, logMessage, total) => {
   if (logMessage) {
     console.log(getTimestamp(), "SUCCESS:", logMessage);
   }
@@ -46,6 +46,7 @@ export const successResponse = (res, data, message, logMessage) => {
     success: true,
     length: isArray ? data.length : undefined,
     data,
+    total: total,
     message,
   });
 };
@@ -98,8 +99,6 @@ export const getSpottingTitle = async (id) => {
   return spotting ? spotting.title : null;
 };
 
-
-
 export const formatQuantityNumber = (num) => {
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -112,8 +111,6 @@ export const formatQuantityNumber = (num) => {
   return num.toString();
 };
 
-
-
 export const isOverlapping = (newStart, newEnd, existingSlots) => {
   const newS = toMinutes(newStart);
   const newE = toMinutes(newEnd);
@@ -125,12 +122,6 @@ export const isOverlapping = (newStart, newEnd, existingSlots) => {
   });
 };
 
-
-
-
-
-
-
 export const toMinutes = (timeStr) => {
   const str = timeStr.trim().toLowerCase();
   const isPM = str.endsWith("pm");
@@ -141,15 +132,14 @@ export const toMinutes = (timeStr) => {
   let h = parseInt(hStr, 10);
   const m = parseInt(mStr, 10);
 
-  if (isAM && h === 12) h = 0;          // 12:00am → 0
-  if (isPM && h !== 12) h += 12;        // 1:00pm → 13
+  if (isAM && h === 12) h = 0; // 12:00am → 0
+  if (isPM && h !== 12) h += 12; // 1:00pm → 13
 
   return h * 60 + m;
 };
 
 // Validates strict 24h format "HH:MM"
 export const isValid24h = (timeStr) => /^([01]\d|2[0-3]):[0-5]\d$/.test(timeStr);
-
 
 export function convertTo24Hour(timeStr) {
   const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -171,8 +161,7 @@ export function convertTo24Hour(timeStr) {
   }
 
   return `${String(hours).padStart(2, "0")}:${minutes}`;
-} 
-
+}
 
 export function normalizeDate(date) {
   if (!date) return null;

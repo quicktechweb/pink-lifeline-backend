@@ -66,6 +66,7 @@ export const createPost = async (req, res) => {
      */
     const updatedData = {
       name: isUserExist.fullName,
+      profilePhoto:isUserExist.profilePhoto,
       userId,
       title,
       type: isUserExist.type,
@@ -518,13 +519,16 @@ export const postComment = async (req, res) => {
       postId,
       type,
       text: text.trim(),
-
+      
       parentId: parentId || null,
     };
+
 
     const uploadedComment = await Comment.create(userComment);
     post.totalComments += 1;
     await post.save();
+
+
 
     if (parentComment) {
       await Comment.findByIdAndUpdate(parentId, {
@@ -1166,25 +1170,15 @@ export const getAllUserComments = async (req, res) => {
   }
 };
 
-
 export const getAllPostsByAdmin = async (req, res) => {
   try {
-  
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    
+
     const { sortBy } = req.query;
 
-    const allowedSortFields = [
-      "title",
-      "name",
-      "type",
-      "upvote",
-      "downvote",
-      "netVote",
-      "isVerified",
-    ];
+    const allowedSortFields = ["title", "name", "type", "upvote", "downvote", "netVote", "isVerified", "totalComments"];
 
     let sortConfig = { createdAt: -1 };
 
@@ -1206,13 +1200,20 @@ export const getAllPostsByAdmin = async (req, res) => {
         downvote: 1,
         upvote: 1,
         netVote: 1,
+        totalComments: 1,
         type: 1,
         isVerified: 1,
-      }
-    ).sort(sortConfig).skip(skip).limit(limit);
+        profilePhoto: 1,
+      },
+    )
+      .sort(sortConfig)
+      .skip(skip)
+      .limit(limit);
+
+    const totalPosts = await Post.countDocuments({});
 
     if (allPosts) {
-      successResponse(res, allPosts, "All saved posts are fetched", "All saved posts are fetched.");
+      successResponse(res, allPosts, "All saved posts are fetched", "All saved posts are fetched.", totalPosts);
     } else {
       notFoundResponse(res, "Not Found", "Not found data.");
     }

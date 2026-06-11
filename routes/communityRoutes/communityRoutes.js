@@ -14,6 +14,7 @@ router.put("/v1/comment-downvote/:userId", commentDownVote);
 
 router.get("/v1/get-all-posts/:userId", getAllPosts);
 router.get("/v1/get-post-by-id/:userId", getSinglePost);
+router.post("/v1/get-post-by-id/:userId", getSinglePost);
 router.get("/v1/get-upvoted-posts/:userId", getUpvotedPosts);
 router.get("/v1/get-downvoted-posts/:userId", getDownvotedPosts);
 router.get("/v1/get-upvoted-comments/:userId", getUpvotedComments);
