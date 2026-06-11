@@ -322,7 +322,9 @@ export async function bookAppointment(req, res) {
     }
 
     // Find the matching time slot
-    const matchedSlot = daySchedule.time.find((slot) => slot.startTime === startTime && slot.endTime === endTime);
+    const matchedSlot = daySchedule.time.find((slot) => {
+      return slot.startTime === startTime && slot.endTime === endTime;
+    });
 
     if (!matchedSlot) {
       return res.status(400).json({

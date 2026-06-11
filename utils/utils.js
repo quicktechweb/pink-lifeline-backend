@@ -51,6 +51,26 @@ export const successResponse = (res, data, message, logMessage, total) => {
   });
 };
 
+export const paginatedSuccessResponse = (res, data, page, limit, total, message, logMessage) => {
+  if (logMessage) {
+    console.log(getTimestamp(), "SUCCESS:", logMessage);
+  }
+
+  return res.status(200).json({
+    success: true,
+    data,
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+      hasPrevPage: page > 1,
+    },
+    message,
+  });
+};
+
 export const alreadyExistResponse = (res, data, message, logMessage) => {
   if (logMessage) {
     console.error(getTimestamp(), "CONFLICT:", logMessage);

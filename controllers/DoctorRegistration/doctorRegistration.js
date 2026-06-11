@@ -1020,17 +1020,10 @@ export const getTotalCommentsPatients = async (req, res) => {
   }
 };
 
-
-
-
-
 export const addDoctorWeeklySchedule = async (req, res) => {
-
-
   try {
-    const {  mon, tue, wed, thu, fri, sat, sun } = req.body;
-const { userId: doctorUserId } = req.params;
-
+    const { mon, tue, wed, thu, fri, sat, sun } = req.body;
+    const { userId: doctorUserId } = req.params;
 
     if (!doctorUserId) {
       return res.status(400).json({
@@ -1040,15 +1033,14 @@ const { userId: doctorUserId } = req.params;
     }
 
     const dayNames = {
-  mon: "Monday",
-  tue: "Tuesday",
-  wed: "Wednesday",
-  thu: "Thursday",
-  fri: "Friday",
-  sat: "Saturday",
-  sun: "Sunday",
-};
-
+      mon: "Monday",
+      tue: "Tuesday",
+      wed: "Wednesday",
+      thu: "Thursday",
+      fri: "Friday",
+      sat: "Saturday",
+      sun: "Sunday",
+    };
 
     const DAYS = { mon, tue, wed, thu, fri, sat, sun };
 
@@ -1100,12 +1092,7 @@ const { userId: doctorUserId } = req.params;
         }
 
         // maxAppointments must be a positive number
-        if (
-          maxAppointments === undefined ||
-          maxAppointments === null ||
-          typeof maxAppointments !== "number" ||
-          maxAppointments < 1
-        ) {
+        if (maxAppointments === undefined || maxAppointments === null || typeof maxAppointments !== "number" || maxAppointments < 1) {
           return res.status(400).json({
             success: false,
             message: `${dayKey} slot[${i}]: maxAppointments must be a positive number.`,
@@ -1141,9 +1128,7 @@ const { userId: doctorUserId } = req.params;
 
     return res.status(200).json({
       success: true,
-      message: existingDoc
-        ? "Weekly schedule updated successfully."
-        : "Weekly schedule created successfully.",
+      message: existingDoc ? "Weekly schedule updated successfully." : "Weekly schedule created successfully.",
       data: savedDoc,
     });
   } catch (error) {
@@ -1153,5 +1138,152 @@ const { userId: doctorUserId } = req.params;
       message: "Internal server error.",
       error: error.message,
     });
+  }
+};
+
+
+
+
+export const getAllAppointmentsByAdmin = async (req, res) => {
+  const { limit = 10, page = 1 } = req.body;
+
+  try {
+    const parsedLimit = Number(limit);
+    const parsedPage = Number(page);
+
+    const [doctors, totalDoctors] = await Promise.all([
+      User.aggregate([
+        {
+          $match: {
+            type: 1,
+            isVerified: true,
+          },
+        },
+
+        {
+          $lookup: {
+            from: "appointments",
+            localField: "userId",
+            foreignField: "doctorUserId",
+            as: "appointments",
+          },
+        },
+
+        {
+          $addFields: {
+            appointmentsCount: {
+              $size: "$appointments",
+            },
+          },
+        },
+
+        // Only doctors having appointments
+        {
+          $match: {
+            appointmentsCount: { $gt: 0 },
+          },
+        },
+
+        // Most appointments first
+        {
+          $sort: {
+            appointmentsCount: -1,
+          },
+        },
+
+        {
+          $project: {
+            userId: 1,
+            fullName: 1,
+            profilePhoto: 1,
+            doctorRegistrationNumber: 1,
+            currentWorkplace: 1,
+            appointmentsCount: 1,
+            specialties: 1,
+location:1,score:1,phoneNumber:1,
+email:1,isVerified:1,doctorIdCard:1,
+
+            appointments: 1,
+          },
+        },
+
+        {
+          $skip: (parsedPage - 1) * parsedLimit,
+        },
+
+        {
+          $limit: parsedLimit,
+        },
+      ]),
+
+      User.aggregate([
+        {
+          $match: {
+            type: 1,
+            isVerified: true,
+          },
+        },
+
+        {
+          $lookup: {
+            from: "appointments",
+            localField: "userId",
+            foreignField: "doctorUserId",
+            as: "appointments",
+          },
+        },
+
+        {
+          $addFields: {
+            appointmentsCount: {
+              $size: "$appointments",
+            },
+          },
+        },
+
+        {
+          $match: {
+            appointmentsCount: { $gt: 0 },
+          },
+        },
+
+        {
+          $count: "total",
+        },
+      ]),
+    ]);
+
+    const total = totalDoctors[0]?.total || 0;
+
+    if (!doctors.length) {
+      return notFoundResponse(
+        res,
+        "No doctors with appointments found.",
+        "Get appointments failed: empty result."
+      );
+    }
+
+
+
+
+
+
+    return successResponse(
+      res,
+      {
+        doctors,
+        pagination: {
+          page: parsedPage,
+          limit: parsedLimit,
+          total,
+          totalPages: Math.ceil(total / parsedLimit),
+        },
+      },
+      "Appointments retrieved successfully.",
+      "Get appointments successful."
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
   }
 };

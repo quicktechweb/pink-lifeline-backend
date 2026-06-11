@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 import { Post } from "../../models/Community/PostModel.js";
-import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { badRequestResponse, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import User from "./../../models/DoctorRegistration/DoctorRegistration.js";
 import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
@@ -66,7 +66,7 @@ export const createPost = async (req, res) => {
      */
     const updatedData = {
       name: isUserExist.fullName,
-      profilePhoto:isUserExist.profilePhoto,
+      profilePhoto: isUserExist.profilePhoto,
       userId,
       title,
       type: isUserExist.type,
@@ -519,16 +519,13 @@ export const postComment = async (req, res) => {
       postId,
       type,
       text: text.trim(),
-      
+
       parentId: parentId || null,
     };
-
 
     const uploadedComment = await Comment.create(userComment);
     post.totalComments += 1;
     await post.save();
-
-
 
     if (parentComment) {
       await Comment.findByIdAndUpdate(parentId, {
@@ -1189,37 +1186,40 @@ export const getAllPostsByAdmin = async (req, res) => {
       };
     }
 
-    const allPosts = await Post.find(
-      {},
-      {
-        _id: 1,
-        title: 1,
-        name: 1,
-        userId: 1,
-        createdAt: 1,
-        downvote: 1,
-        upvote: 1,
-        netVote: 1,
-        totalComments: 1,
-        type: 1,
-        isVerified: 1,
-        profilePhoto: 1,
-      },
-    )
-      .sort(sortConfig)
-      .skip(skip)
-      .limit(limit);
+    const [allPosts, totalPosts] = await Promise.all([
+      Post.find(
+        {},
+        {
+          _id: 1,
+          title: 1,
+          name: 1,
+          userId: 1,
+          createdAt: 1,
+          downvote: 1,
+          upvote: 1,
+          netVote: 1,
+          totalComments: 1,
+          type: 1,
+          isVerified: 1,
+          profilePhoto: 1,
+        },
+      )
+        .sort(sortConfig)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
 
-    const totalPosts = await Post.countDocuments({});
+      Post.countDocuments({}),
+    ]);
 
-    if (allPosts) {
-      successResponse(res, allPosts, "All saved posts are fetched", "All saved posts are fetched.", totalPosts);
-    } else {
-      notFoundResponse(res, "Not Found", "Not found data.");
+    if (!allPosts.length) {
+      return notFoundResponse(res, "Not Found", "No posts found.");
     }
+
+    return paginatedSuccessResponse(res, allPosts, page, limit, totalPosts, "All saved posts are fetched", "All saved posts are fetched.");
   } catch (error) {
     console.error("GET_ALL_POSTS_ERROR:", error);
 
-    somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
+    return somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
   }
 };
