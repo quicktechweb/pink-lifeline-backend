@@ -1144,146 +1144,283 @@ export const addDoctorWeeklySchedule = async (req, res) => {
 
 
 
-export const getAllAppointmentsByAdmin = async (req, res) => {
-  const { limit = 10, page = 1 } = req.body;
+  export const getAllAppointmentsByAdmin = async (req, res) => {
+    const { limit = 10, page = 1 } = req.body;
+
+    try {
+      const parsedLimit = Number(limit);
+      const parsedPage = Number(page);
+
+      const [doctors, totalDoctors] = await Promise.all([
+        User.aggregate([
+          {
+            $match: {
+              type: 1,
+              isVerified: true,
+            },
+          },
+
+{
+  $lookup: {
+    from: "appointments",
+    let: { doctorUserId: "$userId" },
+    pipeline: [
+      {
+        $match: {
+          $expr: {
+            $eq: ["$doctorUserId", "$$doctorUserId"],
+          },
+        },
+      },
+
+      {
+        $lookup: {
+          from: "doctors", // your User model collection name
+          localField: "userId",
+          foreignField: "userId",
+          as: "patient",
+        },
+      },
+
+      {
+        $unwind: {
+          path: "$patient",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $addFields: {
+          patientName: "$patient.fullName",
+          patientEmail: "$patient.email",
+          patientPhone: "$patient.phoneNumber",
+          patientProfilePhoto: "$patient.profilePhoto",
+        },
+      },
+
+      {
+        $project: {
+          patient: 0,
+        },
+      },
+    ],
+    as: "appointments",
+  },
+},
+
+          {
+            $addFields: {
+              appointmentsCount: {
+                $size: "$appointments",
+              },
+            },
+          },
+          // Only doctors having appointments
+          {
+            $match: {
+              appointmentsCount: { $gt: 0 },
+            },
+          },
+          // Most appointments first
+          {
+            $sort: {
+              appointmentsCount: -1,
+            },
+          },
+          {
+            $project: {
+              userId: 1,
+              fullName: 1,
+              profilePhoto: 1,
+              doctorRegistrationNumber: 1,
+              currentWorkplace: 1,
+              appointmentsCount: 1,
+              specialties: 1,
+              location:1,
+              score:1,
+              phoneNumber:1,
+              email:1,
+              isVerified:1,
+              doctorIdCard:1,
+              appointments: 1,
+            },
+          },
+
+          {
+            $skip: (parsedPage - 1) * parsedLimit,
+          },
+
+          {
+            $limit: parsedLimit,
+          },
+        ]),
+
+        User.aggregate([
+          {
+            $match: {
+              type: 1,
+              isVerified: true,
+            },
+          },
+
+          {
+            $lookup: {
+              from: "appointments",
+              localField: "userId",
+              foreignField: "doctorUserId",
+              as: "appointments",
+            },
+          },
+
+          {
+            $addFields: {
+              appointmentsCount: {
+                $size: "$appointments",
+              },
+            },
+          },
+
+          {
+            $match: {
+              appointmentsCount: { $gt: 0 },
+            },
+          },
+
+          {
+            $count: "total",
+          },
+        ]),
+      ]);
+
+      const total = totalDoctors[0]?.total || 0;
+
+      if (!doctors.length) {
+        return notFoundResponse(
+          res,
+          "No doctors with appointments found.",
+          "Get appointments failed: empty result."
+        );
+      }
+
+
+
+
+
+
+      return successResponse(
+        res,
+        {
+          doctors,
+          pagination: {
+            page: parsedPage,
+            limit: parsedLimit,
+            total,
+            totalPages: Math.ceil(total / parsedLimit),
+          },
+        },
+        "Appointments retrieved successfully.",
+        "Get appointments successful."
+      );
+    } catch (error) {
+      console.error(error);
+      return somethingWentWrong(res, error, "Something went wrong.");
+    }
+  };
+
+
+
+
+
+
+
+export const confirmAppointmentByAdmin = async (req, res) => {
+  const { id } = req.params;
 
   try {
-    const parsedLimit = Number(limit);
-    const parsedPage = Number(page);
-
-    const [doctors, totalDoctors] = await Promise.all([
-      User.aggregate([
-        {
-          $match: {
-            type: 1,
-            isVerified: true,
-          },
+    const appointment = await Appointment.findOneAndUpdate(
+      {
+        _id: id,
+        isDeleted: false,
+        status: "pending",
+      },
+      {
+        $set: {
+          status: "confirmed",
         },
+      },
+      {
+        new: true,
+      }
+    );
 
-        {
-          $lookup: {
-            from: "appointments",
-            localField: "userId",
-            foreignField: "doctorUserId",
-            as: "appointments",
-          },
-        },
-
-        {
-          $addFields: {
-            appointmentsCount: {
-              $size: "$appointments",
-            },
-          },
-        },
-
-        // Only doctors having appointments
-        {
-          $match: {
-            appointmentsCount: { $gt: 0 },
-          },
-        },
-
-        // Most appointments first
-        {
-          $sort: {
-            appointmentsCount: -1,
-          },
-        },
-
-        {
-          $project: {
-            userId: 1,
-            fullName: 1,
-            profilePhoto: 1,
-            doctorRegistrationNumber: 1,
-            currentWorkplace: 1,
-            appointmentsCount: 1,
-            specialties: 1,
-location:1,score:1,phoneNumber:1,
-email:1,isVerified:1,doctorIdCard:1,
-
-            appointments: 1,
-          },
-        },
-
-        {
-          $skip: (parsedPage - 1) * parsedLimit,
-        },
-
-        {
-          $limit: parsedLimit,
-        },
-      ]),
-
-      User.aggregate([
-        {
-          $match: {
-            type: 1,
-            isVerified: true,
-          },
-        },
-
-        {
-          $lookup: {
-            from: "appointments",
-            localField: "userId",
-            foreignField: "doctorUserId",
-            as: "appointments",
-          },
-        },
-
-        {
-          $addFields: {
-            appointmentsCount: {
-              $size: "$appointments",
-            },
-          },
-        },
-
-        {
-          $match: {
-            appointmentsCount: { $gt: 0 },
-          },
-        },
-
-        {
-          $count: "total",
-        },
-      ]),
-    ]);
-
-    const total = totalDoctors[0]?.total || 0;
-
-    if (!doctors.length) {
-      return notFoundResponse(
-        res,
-        "No doctors with appointments found.",
-        "Get appointments failed: empty result."
-      );
+    if (!appointment) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Only pending appointments can be confirmed.",
+      });
     }
-
-
-
-
-
 
     return successResponse(
       res,
-      {
-        doctors,
-        pagination: {
-          page: parsedPage,
-          limit: parsedLimit,
-          total,
-          totalPages: Math.ceil(total / parsedLimit),
-        },
-      },
-      "Appointments retrieved successfully.",
-      "Get appointments successful."
+      appointment,
+      "Appointment confirmed successfully.",
+      "Appointment confirmed successfully."
     );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(
+      res,
+      error,
+      "Something went wrong."
+    );
+  }
+};
+
+
+
+export const cancelAppointmentByAdmin = async (req, res) => {
+  const { id } = req.params;
+  const { note } = req.body;
+
+  try {
+    const appointment = await Appointment.findOneAndUpdate(
+      {
+        _id: id,
+        isDeleted: false
+      },
+      {
+        $set: {
+          status: "cancelled",
+          cancelledBy: "admin",
+          note: note,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!appointment) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Only pending appointments can be cancelled.",
+      });
+    }
+
+    return successResponse(
+      res,
+      appointment,
+      "Appointment cancelled successfully.",
+      "Appointment cancelled successfully."
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(
+      res,
+      error,
+      "Something went wrong."
+    )
   }
 };
