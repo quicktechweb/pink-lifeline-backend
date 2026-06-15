@@ -1544,7 +1544,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"limit\":1,\r\n    \"page\":2\r\n}",
+                  "raw": "{\r\n    \"limit\":10,\r\n    \"page\":1\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1560,6 +1560,41 @@
                     "api",
                     "registration",
                     "get-all-appointments-by-admin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-appointments-admin Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/confirm-appointment-by-admin/:id",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "confirm-appointment-by-admin",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "6a2a93743b5fedec9902f665"
+                    }
                   ]
                 }
               },
@@ -3980,7 +4015,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-7YCFSN"
+                  "value": "USR-DY1N3J"
                 }
               ]
             }
@@ -4021,7 +4056,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-7S5PND\"\r\n}",
+              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-7ORNAV\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4110,7 +4145,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "doctors"
+                  "value": "periodtrackers"
                 }
               ]
             }
