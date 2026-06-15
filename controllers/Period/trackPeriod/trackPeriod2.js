@@ -530,7 +530,7 @@ const resolvePersonalisedDuration = async (userId) => {
 const buildEntryFromPayload = async (payload, currentDate) => {
   const rawFlow = payload.period?.bleeding?.flowLevel;
   if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
-    return { error: "flowLevel must be 0, 1, 2, or 3." };
+    return { error: "FlowLevel must be 0, 1, 2, or 3." };
   }
 
   const bleedingTitle = payload.period?.bleeding?.title || (payload.period?.bleeding?._id ? await getBleedingTitle(payload.period.bleeding._id) : null);
@@ -591,33 +591,6 @@ const buildPrefillEntries = (firstEntry, fromDate, duration) => {
   }
   return entries;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ─── RECORD PERIOD START ──────────────────────────────────────────────────────
 // Creates a brand-new cycle document.
@@ -680,61 +653,50 @@ export const recordPeriodStart = async (req, res) => {
     const { newPeriodEntry } = built;
 
     // ── 6. Fetch all cycles for gap / overlap / conflict checks ───────────────
-    const allCycles = await PeriodTracker.find({ userId: payload.userId }).sort({ startDate: 1 }).lean();
-
+    const allCycles = await PeriodTracker.find({ userId: payload.userId }, { startDate: 1, endDate: 1 }).sort({ startDate: 1 }).lean();
 
     if (allCycles.length) {
-      // Find the cycle immediately BEFORE the new startDate (chronologically)
+      // Previous cycle (nearest cycle before requested startDate)
       const prevCycle = [...allCycles].reverse().find((c) => parseAsUTCDateOnly(c.startDate).getTime() < startDate.getTime());
 
-      // Find the cycle immediately AFTER the new startDate (chronologically)
+      // Next cycle (nearest cycle after requested startDate)
       const nextCycle = allCycles.find((c) => parseAsUTCDateOnly(c.startDate).getTime() > startDate.getTime());
 
-      // ── Gap check vs previous cycle's end ────────────────────────────────
-      // if (prevCycle) {
-      //   const prevEnd = parseAsUTCDateOnly(prevCycle.endDate) ?? parseAsUTCDateOnly(prevCycle.currentDate);
-
-      //   const gapDays = Math.floor((startDate.getTime() - prevEnd.getTime()) / (1000 * 60 * 60 * 24));
-      //   if (gapDays < POST_MENSTRUAL_INTERVAL) {
-      //     return badRequestResponse(res, "Frequent period entry detected.", `A new period cannot start within ${POST_MENSTRUAL_INTERVAL} days of the previous one ending. Current gap: ${gapDays} day(s).`);
-      //   }
-      // }
-
-      // ── Gap check vs next cycle's start ──────────────────────────────────
-      // if (nextCycle) {
-      //   const nextStart = parseAsUTCDateOnly(nextCycle.startDate);
-      //   const gapToNext = Math.floor((nextStart.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      //   if (gapToNext < POST_MENSTRUAL_INTERVAL) {
-      //     return badRequestResponse(res, "Frequent period entry detected.", `The next recorded period starts too soon after this date. Gap: ${gapToNext} day(s).`);
-      //   }
-      // }
-
-      // ── Block if startDate falls inside an open (unended) cycle window ────
-      const conflictingOpenCycle = allCycles.find((c) => {
-        if (c.isEndedByUser) return false;
-        const cs = parseAsUTCDateOnly(c.startDate);
-        const ce = parseAsUTCDateOnly(c.endDate);
-        return cs && ce && startDate.getTime() >= cs.getTime() && startDate.getTime() <= ce.getTime();
-      });
-      if (conflictingOpenCycle) {
-        return badRequestResponse(res, "Active period already exists.", "The start date falls within an ongoing period that hasn't ended yet. Please end it before starting a new one.");
+      // ── Previous cycle must be ended ──────────────────────────────
+      if (prevCycle && !prevCycle.endDate) {
+        return badRequestResponse(res, "Please End the previous period.", "The previous period cycle has not been ended yet.");
       }
 
-      // ── Overlap check vs all cycle windows (including closed ones) ────────
+      // ── Exact same start date check ───────────────────────────────
+      const duplicateStartDate = allCycles.find((c) => parseAsUTCDateOnly(c.startDate).getTime() === startDate.getTime());
+
+      if (duplicateStartDate) {
+        return badRequestResponse(res, "Period already exists.", "A period cycle already exists for this start date.");
+      }
+
+      // ── Overlap check against all existing cycle windows ──────────
       const overlapping = allCycles.find((c) => {
+        if (!c.endDate) return false;
+
         const cs = parseAsUTCDateOnly(c.startDate);
         const ce = parseAsUTCDateOnly(c.endDate);
-        return cs && ce && startDate.getTime() >= cs.getTime() && startDate.getTime() <= ce.getTime();
+
+        return startDate.getTime() >= cs.getTime() && startDate.getTime() <= ce.getTime();
       });
+
       if (overlapping) {
-        return badRequestResponse(res, "Please End the previous period.", "The start date overlaps with an existing recorded period cycle.");
+        return badRequestResponse(res, "Date conflict detected.", "The selected start date falls within an existing period cycle.");
+      }
+
+      // Optional:
+      // ensure new startDate is not after next cycle's startDate
+      if (nextCycle && startDate.getTime() >= parseAsUTCDateOnly(nextCycle.startDate).getTime()) {
+        return badRequestResponse(res, "Date conflict detected.", "The selected start date conflicts with a future period cycle.");
       }
     }
 
     // ── 7. Compute personalised duration & estimated endDate ──────────────────
     const periodDuration = await resolvePersonalisedDuration(payload.userId);
-    const estEndDate = new Date(startDate);
-    estEndDate.setUTCDate(estEndDate.getUTCDate() + (periodDuration - 1));
 
     // ── 8. Pre-fill: copy today's full entry to every cycle day ───────────────
     const prefillEntries = buildPrefillEntries(newPeriodEntry, startDate, periodDuration);
@@ -744,7 +706,6 @@ export const recordPeriodStart = async (req, res) => {
       userId: payload.userId,
       currentDate,
       startDate,
-      endDate: estEndDate,
       isEndedByUser: false,
       period: prefillEntries,
     });
@@ -755,32 +716,6 @@ export const recordPeriodStart = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ─── RECORD PERIOD CURRENT ────────────────────────────────────────────────────
 // Updates a single day's entry within the active cycle.
@@ -843,9 +778,11 @@ export const recordPeriodCurrent = async (req, res) => {
     if (currentDate.getTime() < cycleStart.getTime()) {
       return badRequestResponse(res, "Date not allowed.", `Cannot update a day before the period start date (${toDateOnly(cycleStart)}).`);
     }
-    if (currentDate.getTime() > maxAllowed.getTime()) {
-      return badRequestResponse(res, "Date not allowed.", `Cannot update a day more than ${MAX_EXTEND_DAYS} day(s) past the estimated period end (${toDateOnly(cycleEnd)}). Please end this period and start a new one.`);
-    }
+
+    // Block updates past MAX_EXTEND_DAYS
+    // if (currentDate.getTime() > maxAllowed.getTime()) {
+    //   return badRequestResponse(res, "Date not allowed.", `Cannot update a day more than ${MAX_EXTEND_DAYS} day(s) past the estimated period end (${toDateOnly(cycleEnd)}). Please end this period and start a new one.`);
+    // }
 
     // Block updates past confirmed end on an already-closed cycle
     if (matchedCycle.isEndedByUser) {
@@ -855,12 +792,9 @@ export const recordPeriodCurrent = async (req, res) => {
       }
     }
 
-    // ── 7. Upsert: update existing entry OR push new one ──────────────────────
     const currentDateStr = toDateOnly(currentDate);
-    const existingIndex = matchedCycle.period.findIndex((p) => toDateOnly(p.currentDate) === currentDateStr);
 
-    // Only extend endDate if currentDate goes beyond current estimated end
-    const extraSet = currentDate.getTime() > cycleEnd.getTime() ? { endDate: currentDate } : {};
+    const existingIndex = matchedCycle.period.findIndex((p) => toDateOnly(p.currentDate) === currentDateStr);
 
     let updatedCycle;
 
@@ -871,7 +805,6 @@ export const recordPeriodCurrent = async (req, res) => {
           $set: {
             [`period.${existingIndex}`]: newPeriodEntry,
             currentDate,
-            ...extraSet,
           },
         },
         { new: true },
@@ -881,7 +814,7 @@ export const recordPeriodCurrent = async (req, res) => {
         matchedCycle._id,
         {
           $push: { period: newPeriodEntry },
-          $set: { currentDate, ...extraSet },
+          $set: { currentDate },
         },
         { new: true },
       );
@@ -893,30 +826,6 @@ export const recordPeriodCurrent = async (req, res) => {
     return badRequestResponse(res, "Bad request occurred.", error.message);
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ─── RECORD PERIOD END ────────────────────────────────────────────────────────
 // Closes the active cycle by confirming its endDate.
@@ -974,6 +883,8 @@ export const recordPeriodEnd = async (req, res) => {
       return notFoundResponse(res, "No active period found.", "No active period found. Either no period has been started or all cycles are already closed.");
     }
 
+    const allCycles = await PeriodTracker.find({ userId: payload.userId }, { startDate: 1, endDate: 1 }).sort({ startDate: 1 }).lean();
+
     // ── 6. endDate >= startDate ───────────────────────────────────────────────
     const cycleStart = parseAsUTCDateOnly(latestPeriod.startDate);
     const endDateOnly = toDateOnly(parsedEndDate);
@@ -981,15 +892,9 @@ export const recordPeriodEnd = async (req, res) => {
     const startDateOnly = toDateOnly(cycleStart);
 
     if (endDateOnly < startDateOnly) {
-      return badRequestResponse(res, "Invalid end date.", `endDate (${endDateOnly}) cannot be earlier than the cycle start date (${startDateOnly}).`);
+      return badRequestResponse(res, `Please complete the cycle started on ${startDateOnly}.`, `The selected end date is before the cycle start date. This cycle started on ${startDateOnly}. Please choose ${startDateOnly} or a later date to mark the cycle as completed.`);
     }
 
-    // ── 7. Cycle length cap ───────────────────────────────────────────────────
-    const cycleLengthDays = Math.floor((parsedEndDate.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-    if (cycleLengthDays > MAX_PERIOD_DURATION) {
-      return badRequestResponse(res, "Invalid end date.", `A period cannot last more than ${MAX_PERIOD_DURATION} days. This cycle would be ${cycleLengthDays} day(s). If bleeding has continued this long, please consult a healthcare provider.`);
-    }
 
     // ── 8. Cannot end before the last logged entry ────────────────────────────
     const loggedDates = latestPeriod.period.map((p) => toDateOnly(p.currentDate));
