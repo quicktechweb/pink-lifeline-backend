@@ -652,7 +652,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": \"USR-D8TNXE\"\r\n}",
+              "raw": "{\r\n    \"userId\": \"USR-UAL29I\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -790,7 +790,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": \"USR-1HQSUU\",\r\n    \"currentDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"startDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"endDate\": null,\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"_id\": \"6a12ef550da755ffc1b3c8d8\",\r\n            \"flowLevel\": 1,\r\n            \"hadFlow\": true\r\n        },\r\n        \"symptoms\": [],\r\n        \"spotting\": []\r\n    }\r\n}\r\n\r\n",
+              "raw": "{\r\n    \"userId\": \"USR-UAL29I\",\r\n    \"currentDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"startDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"endDate\": null,\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"_id\": \"6a12ef550da755ffc1b3c8d8\",\r\n            \"flowLevel\": 1,\r\n            \"hadFlow\": true\r\n        },\r\n        \"symptoms\": [],\r\n        \"spotting\": []\r\n    }\r\n}\r\n\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -819,7 +819,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": \"USR-1HQSUU\",\r\n    \"currentDate\": \"2026-05-09T20:22:43.430\",\r\n    //   \"startDate\": \"2026-02-28T00:00:00.000Z\",\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"flowLevel\": 2,\r\n            \"hadFlow\": true,\r\n            \"_id\": \"6a11766eb9dec79489ffc050\"\r\n        },\r\n        \"symptoms\": [\r\n            {\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ed3a85f3e0ddcd0ad964\"\r\n            },\r\n            {\r\n                \"title\": \"1231\",\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ef120da755ffc1b3c8b7\"\r\n            }\r\n        ],\r\n        \"spotting\": []\r\n    }\r\n}",
+              "raw": "{\r\n    \"userId\": \"USR-UAL29I\",\r\n    \"currentDate\": \"2026-05-09T20:22:43.430\",\r\n    //   \"startDate\": \"2026-02-28T00:00:00.000Z\",\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"flowLevel\": 2,\r\n            \"hadFlow\": true,\r\n            \"_id\": \"6a11766eb9dec79489ffc050\"\r\n        },\r\n        \"symptoms\": [\r\n            {\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ed3a85f3e0ddcd0ad964\"\r\n            },\r\n            {\r\n                \"title\": \"1231\",\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ef120da755ffc1b3c8b7\"\r\n            }\r\n        ],\r\n        \"spotting\": []\r\n    }\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4108,7 +4108,7 @@
                 },
                 {
                   "key": "id",
-                  "value": "6a29a7b869af5a4f4210b0dc"
+                  "value": "6a29568533410d1deee8d7d2"
                 }
               ]
             }
@@ -4145,7 +4145,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "periodtrackers"
+                  "value": "doctors"
                 }
               ]
             }
@@ -4177,6 +4177,51 @@
               "path": [
                 "other",
                 "get-all-connections"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard Stats",
+      "item": [
+        {
+          "name": "get-doctor-patient-appointment-counts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard-stats/v1/get-doctor-patient-appointment-counts",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard-stats",
+                "v1",
+                "get-doctor-patient-appointment-counts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-all-types-appointment-counts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard-stats/v1/get-doctor-patient-appointment-counts",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard-stats",
+                "v1",
+                "get-doctor-patient-appointment-counts"
               ]
             }
           },
