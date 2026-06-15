@@ -2,7 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, formatQuantityNumber, isOverlapping, isValid24h, normalizeDate, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, formatQuantityNumber, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { DayMap, MonthMap } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
@@ -414,6 +414,85 @@ export const getAllDoctors = async (req, res) => {
     console.error(error);
 
     return somethingWentWrong(res, error, "Failed to get doctors.", "Get all doctors error");
+  }
+};
+
+
+export const getAllDoctorByAdmin = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = req.body;
+
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      isDoctor: 1,
+      $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+    };
+
+    const allowedSortFields = [
+      "fullName",
+      "email",
+      "createdAt",
+      "updatedAt",
+      "score",
+      "isVerified",
+      "doctorRegistrationNumber",
+      "currentWorkplace",
+      "currentDesignation",
+    ];
+
+    const sort = {};
+
+    if (allowedSortFields.includes(sortBy)) {
+      sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+    } else {
+      sort.createdAt = -1;
+    }
+
+    const [doctors, total] = await Promise.all([
+      User.find(filter)
+        .select(
+          "fullName score profilePhoto currentDesignation doctorRegistrationNumber email isVerified currentWorkplace userId createdAt updatedAt isRemoved type location"
+        )
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      User.countDocuments(filter),
+    ]);
+
+    if (!doctors.length) {
+      return notFoundResponse(
+        res,
+        "No doctors found.",
+        "Get all doctors failed: empty result."
+      );
+    }
+
+    return paginatedSuccessResponse(
+      res,
+      doctors,
+      page,
+      limit,
+      total,
+      "Doctors retrieved successfully",
+      "Get all doctors successfully."
+    );
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(
+      res,
+      error,
+      "Failed to get doctors.",
+      "Get all doctors error"
+    );
   }
 };
 
