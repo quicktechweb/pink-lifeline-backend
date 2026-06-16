@@ -657,15 +657,34 @@ export const recordPeriodStart = async (req, res) => {
 
     if (allCycles.length) {
       // Previous cycle (nearest cycle before requested startDate)
-      const prevCycle = [...allCycles].reverse().find((c) => parseAsUTCDateOnly(c.startDate).getTime() < startDate.getTime());
+      // const prevCycle = [...allCycles].reverse().find((c) => parseAsUTCDateOnly(c.startDate).getTime() < startDate.getTime());
 
       // Next cycle (nearest cycle after requested startDate)
       const nextCycle = allCycles.find((c) => parseAsUTCDateOnly(c.startDate).getTime() > startDate.getTime());
 
       // ── Previous cycle must be ended ──────────────────────────────
-      if (prevCycle && !prevCycle.endDate) {
-        return badRequestResponse(res, "Please End the previous period.", "The previous period cycle has not been ended yet.");
+      // if (prevCycle && !prevCycle.endDate) {
+      //   return badRequestResponse(res, "Please End the previous period.", "The previous period cycle has not been ended yet.");
+      // }
+
+      const dates = allCycles.filter((cycle) => !cycle.endDate).map((cycle) => cycle.startDate);
+      console.log("🚀 ~ trackPeriod2.js:671 ~ recordPeriodStart ~ dates:", dates)
+
+
+      if (dates.length !== 0) {
+        const dateString = dates[dates.length - 1];
+        const dateOnly = dateString.toISOString().slice(0, 10);
+
+        return notFoundResponse(
+          res,
+          `Please end the active period on ${dateOnly}.`,
+          "The previous period cycle has not been ended yet."
+        );
       }
+
+
+
+
 
       // ── Exact same start date check ───────────────────────────────
       const duplicateStartDate = allCycles.find((c) => parseAsUTCDateOnly(c.startDate).getTime() === startDate.getTime());

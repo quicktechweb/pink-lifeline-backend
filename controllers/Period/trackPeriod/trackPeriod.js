@@ -585,6 +585,9 @@ export const addDailyNote = async (req, res) => {
   }
 };
 
+const getTimestamp = () => `[${new Date().toLocaleString()}]`;
+
+
 export const previousPeriodsInfo = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -592,7 +595,21 @@ export const previousPeriodsInfo = async (req, res) => {
       createdAt: 1,
     });
 
-    return successResponse(res, periodDocs, "All period data is fetched.", "All period data is fetched successfully.");
+    const isEndedByUser = periodDocs.every(
+      (doc) => doc.isEndedByUser === true
+    );
+
+
+    
+    console.log(getTimestamp(), "SUCCESS:", "All period data is fetched.");
+    return res.status(200).json({
+      success: true,
+      isEndedByUser,
+      data: periodDocs || [],
+      length: periodDocs.length || 0,
+      message: "All period data is fetched successfully.",
+    });
+
   } catch (error) {
     return somethingWentWrong(res, error, "Something went wrong while fetching period data.");
   }
