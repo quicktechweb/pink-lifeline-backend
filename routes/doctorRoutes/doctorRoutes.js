@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -11,6 +11,10 @@ router.post("/register", uploadImage.single("photo"), registerUser);
 router.post("/login", loginUser);
 
 router.post("/loginadmin", loginadmin);
+
+
+router.post("/save-fcm-token/:userId",saveFCMToken)
+
 
 router.post("/update-profile/:userId",uploadImage.fields([{ name: "doctorIdCard", maxCount: 1 },{ name: "profilePhoto", maxCount: 1 },]),isUserExist,updateProfile);
 

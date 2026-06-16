@@ -12,7 +12,7 @@ import degreeRoutes from "./routes/degreeRoutes/degreeRoutes.js"
 import dropdownRoutes from "./routes/dropdowns/dropdownsRoutes.js"
 import userRoutes from "./routes/doctorRoutes/userRoutes.js"
 import dns from "dns";
-// import "./firebase-admin.js";
+import "./firebase-admin.js";
 import internalUtilRoutes from "./other/supportive.js";
 import { apiLogger } from "./middleware/logger.js";
 import { devOnly } from "./middleware/checkEnviornment.js";

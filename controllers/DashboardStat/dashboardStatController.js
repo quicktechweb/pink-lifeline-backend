@@ -16,7 +16,7 @@ export const getDoctorPatientAppointmentCounts = async (req, res) => {
       res,
       {
         doctors: doctors.length,
-        normalUsers: patients.length,
+        normalUsers: normalUsers.length,
         appointments: appointments.length,
         users: users.length,
       },
@@ -213,8 +213,6 @@ export const getTopDoctorServedPatients = async (req, res) => {
       },
     ]);
 
-    console.log("🚀 ~ dashboardStatController.js:180 ~ getTopDoctorServedPatients ~ topDoctors:", topDoctors);
-
     return successResponse(res, topDoctors, "Top doctors served patients retrieved successfully", "Get top doctors served patients successful.");
   } catch (error) {
     console.error(error);
@@ -279,49 +277,45 @@ export const allUserPeriodCycleLength = async (req, res) => {
   }
 };
 
+export const getAllDoctorPatientsRatio = async (req, res) => {
+  try {
+    const users = await User.find({ isRemoved: false }, { isVerified: 1, type: 1 }).lean();
+    const patients = await Appointment.aggregate([
+      {
+        $match: {
+          isDeleted: false,
+          status: {
+            $ne: "completed",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$userId",
+        },
+      },
+    ]);
 
+    if (!users) {
+      return notFoundResponse(res, "No Users found.", "Get all user failed: empty result.");
+    } else {
+      const doctors = users.filter((user) => user.type === 1 && user.isVerified === true);
+      const normalUsers = users.filter((user) => user.type === 0);
 
-export const getAllDoctorPatientsRatio = async ( req, res ) => {
+      return successResponse(
+        res,
+        {
+          doctors: doctors.length,
+          patients: patients.length,
+          users: users.length - patients.length,
+        },
+        "Users retrieved successfully",
+        "Get all users successful.",
+      );
+    }
+  } catch (error) {
+    console.error(error);
 
-    try {
-        const users = await User.find({ isRemoved: false }, { isVerified: 1, type: 1 }).lean();
-        const patients = await Appointment.aggregate([
-                                                        {
-                                                          $match: {
-                                                            isDeleted: false,
-                                                            status: {
-                                                              $ne: "completed",
-                                                            },
-                                                          },
-                                                        },
-                                                        {
-                                                          $group: {
-                                                            _id: "$userId",
-                                                          },
-                                                        },
-                                                      ]);
-                                                          
-        if (!users) {
-          return notFoundResponse(res, "No Users found.", "Get all user failed: empty result.");
-        } else {
-          const doctors = users.filter((user) => user.type === 1 && user.isVerified === true);
-          const normalUsers = users.filter((user) => user.type === 0);
-    
-          return successResponse(
-            res,
-            {
-              doctors: doctors.length,
-              patients: patients.length,
-              users: users.length,
-            },
-            "Users retrieved successfully",
-            "Get all users successful."
-          );
-        }
-      } catch (error) {
-        console.error(error);
-    
-        return somethingWentWrong(res, error, "Failed to get users.", "Get all users error");
-      }
-}
-
+    return somethingWentWrong(res, error, "Failed to get users.", "Get all users error");
+  }
+};

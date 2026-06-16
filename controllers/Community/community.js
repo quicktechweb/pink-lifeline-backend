@@ -6,6 +6,7 @@ import User from "./../../models/DoctorRegistration/DoctorRegistration.js";
 import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import SavedPostModel from "../../models/Community/SavedPostModel.js";
+import { sendNotificationToUser } from "../../services/notificationService.js";
 
 export const createPost = async (req, res) => {
   try {
@@ -284,6 +285,28 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const postUpVote = async (req, res) => {
   const userId = req.params.userId;
   const { postId } = req.body;
@@ -303,7 +326,10 @@ export const postUpVote = async (req, res) => {
       return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
     }
 
+    
     const post = await Post.findById(postId);
+    const postOwner = await User.findById(post.userId);
+
 
     if (!post) {
       return notFoundResponse(res, "Post not found.", "post not found.");
@@ -328,6 +354,13 @@ export const postUpVote = async (req, res) => {
       }
 
       post.upvote += 1;
+      const notificationStatus = await sendNotificationToUser({
+        userId: postOwner.userId,
+        type: "post",
+        data:postId ,
+        body: `${postOwner.firstName} upvoted your post.`,
+        title: "Yours post is upvoted.",
+      })
       await post.save();
 
       return successResponse(res, post, "Upvoted successfully", "post upvoted");
@@ -360,6 +393,13 @@ export const postUpVote = async (req, res) => {
 
       post.downvote -= 1;
       post.upvote += 1;
+      const notificationStatus = await sendNotificationToUser({
+        userId: postOwner.userId,
+        type: "post",
+        data:postId ,
+        body: `${postOwner.firstName} upvoted your post.`,
+        title: "Yours post is upvoted.",
+      })
       await post.save();
 
       return successResponse(res, post, "Switched to upvote", "switch vote to upvote");
@@ -372,6 +412,28 @@ export const postUpVote = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const postDownVote = async (req, res) => {
   const userId = req.params.userId;

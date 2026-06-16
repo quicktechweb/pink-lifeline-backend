@@ -12,13 +12,17 @@ router.post("/v1/post-comment/:userId", postComment);
 router.put("/v1/comment-upvote/:userId", commentUpVote);
 router.put("/v1/comment-downvote/:userId", commentDownVote);
 
+
 router.get("/v1/get-all-posts/:userId", getAllPosts);
 router.get("/v1/get-post-by-id/:userId", getSinglePost);
 router.post("/v1/get-post-by-id/:userId", getSinglePost);
+
 router.get("/v1/get-upvoted-posts/:userId", getUpvotedPosts);
 router.get("/v1/get-downvoted-posts/:userId", getDownvotedPosts);
 router.get("/v1/get-upvoted-comments/:userId", getUpvotedComments);
 router.get("/v1/get-downvoted-comments/:userId", getDownvotedComments);
+
+
 router.get("/v1/get-all-saved-posts/:userId", isUserExist, getAllSavedPosts);
 router.get("/v1/get-user-posts/:userId", isUserExist, getAllUserPosts);
 

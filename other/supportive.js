@@ -133,8 +133,8 @@ internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
       });
     }
 
-    const data = await mongoose.connection.db.collection(collectionName).find({}).toArray();
-
+    const data = await mongoose.connection.db.collection(collectionName).find({}).sort({ createdAt: -1 }).toArray();
+    
     return res.status(200).json({
       success: true,
       collection: collectionName,

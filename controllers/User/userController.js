@@ -5,6 +5,7 @@ import { Post } from "../../models/Community/PostModel.js";
 import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
+import { sendNotificationToUser } from "../../services/notificationService.js";
 import { convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 
 export const updateUserProfile = async (req, res) => {
@@ -570,6 +571,25 @@ export const deleteAppointment = async (req, res) => {
         message: "Appointment is already cancelled.",
       });
     }
+
+    if (cancelledBy=="user") {
+      const user = await User.findOne({ userId });
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found.",
+        });
+      }
+
+      const notification = await sendNotificationToUser({
+        userId: appointment.userId,
+        title: "Appointment Cancelled",
+        body: `Your appointment with ${user.fullName} has been cancelled.`,
+        type: "appointmentCancelled",
+      })
+    }
+
+
 
     const updated = await Appointment.findByIdAndUpdate(
       appointmentId,

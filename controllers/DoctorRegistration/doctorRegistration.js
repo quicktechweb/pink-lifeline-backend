@@ -168,12 +168,41 @@ export const registerUser = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const loginUser = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, fcmToken } = req.body;
+
+
 
     // 🔍 check user by email only
     const user = await User.findOne({ email });
+
+    if(fcmToken){
+      const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken, email, user: user.userId });
+    }
 
     // ❌ not found
     if (!user) {
@@ -199,6 +228,15 @@ export const loginUser = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
 
 export const loginadmin = async (req, res) => {
   try {
@@ -250,6 +288,40 @@ export const loginadmin = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+export const saveFCMToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    const { userId } = req.params;
+    const user = await User.findOne({ userId });
+
+    if (!user) {
+      return notFoundResponse(res, "User not found", "Requested user does not exist.");
+    }
+
+    const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken,email:user.email, userId });
+    return successResponse(res, fcmTokenSaving, "FCM Token saved successfully", "FCM Token saved successfully.");
+  } catch (error) {
+    console.error("SAVE_FCM_TOKEN_ERROR:", error);
+    somethingWentWrong(res, "Unable to save FCM Token", "Unable to save FCM Token");
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 export const updateProfile = async (req, res) => {
   let { phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard, location, specialties } = req.body;
