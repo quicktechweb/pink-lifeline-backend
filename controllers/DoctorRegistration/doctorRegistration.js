@@ -8,6 +8,7 @@ import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedul
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
 import { Comment } from "../../models/Community/CommentModel.js";
+import { createOrUpdateFCMToken } from "../../services/notificationService.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -53,6 +54,7 @@ export const registerUser = async (req, res) => {
       doctorIdCard,
       location,
       specialties,
+      fcmToken,
     } = req.body;
 
     if (type === undefined || (Number(type) !== 0 && Number(type) !== 1)) {
@@ -121,6 +123,9 @@ export const registerUser = async (req, res) => {
       isVerified: isVerified ? isVerified : false,
     });
 
+
+
+
     // 🔐 JWT token
     const token = generateToken(newUser);
 
@@ -143,6 +148,9 @@ export const registerUser = async (req, res) => {
       specialties: newUser.specialties || null,
       ...(Number(type) === 1 ? { isDoctor: 1 } : { isUser: 0 }),
     };
+
+    const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken, userId: newUser.userId, email:newUser.email });
+    console.log("🚀 ~ doctorRegistration.js:153 ~ registerUser ~ fcmTokenSaving:", fcmTokenSaving)
 
     return res.status(200).json({
       success: true,

@@ -599,11 +599,15 @@ export const previousPeriodsInfo = async (req, res) => {
       (doc) => doc.isEndedByUser === true
     );
 
+    const failedStartDates = periodDocs.filter(doc => !doc.isEndedByUser).map(doc => doc.startDate);
+    const formattedDates = failedStartDates.map(date => date.toISOString().split("T")[0]);
+    const activePeriodDate = formattedDates[formattedDates.length - 1];
 
-    
+
     console.log(getTimestamp(), "SUCCESS:", "All period data is fetched.");
     return res.status(200).json({
       success: true,
+      activePeriodDate,
       isEndedByUser,
       data: periodDocs || [],
       length: periodDocs.length || 0,

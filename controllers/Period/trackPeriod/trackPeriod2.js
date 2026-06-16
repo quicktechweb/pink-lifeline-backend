@@ -12,6 +12,7 @@ const MAX_PERIOD_DURATION = parseInt(process.env.MAX_PERIOD_DURATION) || 10;
 // log daily entries without explicitly starting a new period.
 // Flo allows ~2-3 days of "late flow" before treating it as a new cycle.
 const MAX_EXTEND_DAYS = parseInt(process.env.MAX_EXTEND_DAYS) || 3;
+const getTimestamp = () => `[${new Date().toLocaleString()}]`;
 
 // ─── RECORD PERIOD LOG ────────────────────────────────────────────────────────
 //
@@ -668,23 +669,21 @@ export const recordPeriodStart = async (req, res) => {
       // }
 
       const dates = allCycles.filter((cycle) => !cycle.endDate).map((cycle) => cycle.startDate);
-      console.log("🚀 ~ trackPeriod2.js:671 ~ recordPeriodStart ~ dates:", dates)
-
 
       if (dates.length !== 0) {
         const dateString = dates[dates.length - 1];
         const dateOnly = dateString.toISOString().slice(0, 10);
 
-        return notFoundResponse(
-          res,
-          `Please end the active period on ${dateOnly}.`,
-          "The previous period cycle has not been ended yet."
-        );
+        console.error(getTimestamp(), "ERROR:", "The previous period cycle has not been ended yet.");
+
+        return res.status(404).json({
+          success: false,
+          message: `Please end the active period on ${dateOnly}.`,
+          data: {
+            activeCycle: dateOnly,
+          },
+        });
       }
-
-
-
-
 
       // ── Exact same start date check ───────────────────────────────
       const duplicateStartDate = allCycles.find((c) => parseAsUTCDateOnly(c.startDate).getTime() === startDate.getTime());
@@ -913,7 +912,6 @@ export const recordPeriodEnd = async (req, res) => {
     if (endDateOnly < startDateOnly) {
       return badRequestResponse(res, `Please complete the cycle started on ${startDateOnly}.`, `The selected end date is before the cycle start date. This cycle started on ${startDateOnly}. Please choose ${startDateOnly} or a later date to mark the cycle as completed.`);
     }
-
 
     // ── 8. Cannot end before the last logged entry ────────────────────────────
     const loggedDates = latestPeriod.period.map((p) => toDateOnly(p.currentDate));
