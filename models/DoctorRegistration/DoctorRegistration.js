@@ -48,10 +48,11 @@ const userSchema = new mongoose.Schema(
      * type:
      * 0 = normal user
      * 1 = doctor
+     * 2 = admin
      */
     type: {
       type: Number,
-      enum: [0, 1],
+      enum: [0, 1,2],
       required: true,
     },
 

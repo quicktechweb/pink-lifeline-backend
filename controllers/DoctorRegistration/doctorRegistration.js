@@ -123,9 +123,6 @@ export const registerUser = async (req, res) => {
       isVerified: isVerified ? isVerified : false,
     });
 
-
-
-
     // 🔐 JWT token
     const token = generateToken(newUser);
 
@@ -149,8 +146,8 @@ export const registerUser = async (req, res) => {
       ...(Number(type) === 1 ? { isDoctor: 1 } : { isUser: 0 }),
     };
 
-    const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken, userId: newUser.userId, email:newUser.email });
-    console.log("🚀 ~ doctorRegistration.js:153 ~ registerUser ~ fcmTokenSaving:", fcmTokenSaving)
+    const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken, userId: newUser.userId, email: newUser.email });
+    console.log("🚀 ~ doctorRegistration.js:153 ~ registerUser ~ fcmTokenSaving:", fcmTokenSaving);
 
     return res.status(200).json({
       success: true,
@@ -168,39 +165,14 @@ export const registerUser = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const loginUser = async (req, res) => {
   try {
     const { email, fcmToken } = req.body;
 
-
-
     // 🔍 check user by email only
     const user = await User.findOne({ email });
 
-    if(fcmToken){
+    if (fcmToken) {
       const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken, email, user: user.userId });
     }
 
@@ -228,15 +200,6 @@ export const loginUser = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
 
 export const loginadmin = async (req, res) => {
   try {
@@ -289,11 +252,6 @@ export const loginadmin = async (req, res) => {
   }
 };
 
-
-
-
-
-
 export const saveFCMToken = async (req, res) => {
   try {
     const { fcmToken } = req.body;
@@ -304,24 +262,13 @@ export const saveFCMToken = async (req, res) => {
       return notFoundResponse(res, "User not found", "Requested user does not exist.");
     }
 
-    const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken,email:user.email, userId });
+    const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken, email: user.email, userId });
     return successResponse(res, fcmTokenSaving, "FCM Token saved successfully", "FCM Token saved successfully.");
   } catch (error) {
     console.error("SAVE_FCM_TOKEN_ERROR:", error);
     somethingWentWrong(res, "Unable to save FCM Token", "Unable to save FCM Token");
   }
-}
-
-
-
-
-
-
-
-
-
-
-
+};
 
 export const updateProfile = async (req, res) => {
   let { phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard, location, specialties } = req.body;
@@ -497,15 +444,9 @@ export const getAllDoctors = async (req, res) => {
   }
 };
 
-
 export const getAllDoctorByAdmin = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      sortBy = "createdAt",
-      sortOrder = "desc",
-    } = req.body;
+    const { page = 1, limit = 10, sortBy = "createdAt", sortOrder = "desc" } = req.body;
 
     const skip = (page - 1) * limit;
 
@@ -514,17 +455,7 @@ export const getAllDoctorByAdmin = async (req, res) => {
       $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
     };
 
-    const allowedSortFields = [
-      "fullName",
-      "email",
-      "createdAt",
-      "updatedAt",
-      "score",
-      "isVerified",
-      "doctorRegistrationNumber",
-      "currentWorkplace",
-      "currentDesignation",
-    ];
+    const allowedSortFields = ["fullName", "email", "createdAt", "updatedAt", "score", "isVerified", "doctorRegistrationNumber", "currentWorkplace", "currentDesignation"];
 
     const sort = {};
 
@@ -534,45 +465,17 @@ export const getAllDoctorByAdmin = async (req, res) => {
       sort.createdAt = -1;
     }
 
-    const [doctors, total] = await Promise.all([
-      User.find(filter)
-        .select(
-          "fullName score profilePhoto currentDesignation doctorRegistrationNumber email isVerified currentWorkplace userId createdAt updatedAt isRemoved type location"
-        )
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-
-      User.countDocuments(filter),
-    ]);
+    const [doctors, total] = await Promise.all([User.find(filter).select("fullName score profilePhoto currentDesignation doctorRegistrationNumber email isVerified currentWorkplace userId createdAt updatedAt isRemoved type location").sort(sort).skip(skip).limit(limit).lean(), User.countDocuments(filter)]);
 
     if (!doctors.length) {
-      return notFoundResponse(
-        res,
-        "No doctors found.",
-        "Get all doctors failed: empty result."
-      );
+      return notFoundResponse(res, "No doctors found.", "Get all doctors failed: empty result.");
     }
 
-    return paginatedSuccessResponse(
-      res,
-      doctors,
-      page,
-      limit,
-      total,
-      "Doctors retrieved successfully",
-      "Get all doctors successfully."
-    );
+    return paginatedSuccessResponse(res, doctors, page, limit, total, "Doctors retrieved successfully", "Get all doctors successfully.");
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(
-      res,
-      error,
-      "Failed to get doctors.",
-      "Get all doctors error"
-    );
+    return somethingWentWrong(res, error, "Failed to get doctors.", "Get all doctors error");
   }
 };
 
@@ -1300,197 +1203,179 @@ export const addDoctorWeeklySchedule = async (req, res) => {
   }
 };
 
+export const getAllAppointmentsByAdmin = async (req, res) => {
+  const { limit = 10, page = 1 } = req.body;
 
+  try {
+    const parsedLimit = Number(limit);
+    const parsedPage = Number(page);
 
-
-  export const getAllAppointmentsByAdmin = async (req, res) => {
-    const { limit = 10, page = 1 } = req.body;
-
-    try {
-      const parsedLimit = Number(limit);
-      const parsedPage = Number(page);
-
-      const [doctors, totalDoctors] = await Promise.all([
-        User.aggregate([
-          {
-            $match: {
-              type: 1,
-              isVerified: true,
-            },
-          },
-
-{
-  $lookup: {
-    from: "appointments",
-    let: { doctorUserId: "$userId" },
-    pipeline: [
-      {
-        $match: {
-          $expr: {
-            $eq: ["$doctorUserId", "$$doctorUserId"],
-          },
-        },
-      },
-
-      {
-        $lookup: {
-          from: "doctors", // your User model collection name
-          localField: "userId",
-          foreignField: "userId",
-          as: "patient",
-        },
-      },
-
-      {
-        $unwind: {
-          path: "$patient",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-
-      {
-        $addFields: {
-          patientName: "$patient.fullName",
-          patientEmail: "$patient.email",
-          patientPhone: "$patient.phoneNumber",
-          patientProfilePhoto: "$patient.profilePhoto",
-        },
-      },
-
-      {
-        $project: {
-          patient: 0,
-        },
-      },
-    ],
-    as: "appointments",
-  },
-},
-
-          {
-            $addFields: {
-              appointmentsCount: {
-                $size: "$appointments",
-              },
-            },
-          },
-          // Only doctors having appointments
-          {
-            $match: {
-              appointmentsCount: { $gt: 0 },
-            },
-          },
-          // Most appointments first
-          {
-            $sort: {
-              appointmentsCount: -1,
-            },
-          },
-          {
-            $project: {
-              userId: 1,
-              fullName: 1,
-              profilePhoto: 1,
-              doctorRegistrationNumber: 1,
-              currentWorkplace: 1,
-              appointmentsCount: 1,
-              specialties: 1,
-              location:1,
-              score:1,
-              phoneNumber:1,
-              email:1,
-              isVerified:1,
-              doctorIdCard:1,
-              appointments: 1,
-            },
-          },
-
-          {
-            $skip: (parsedPage - 1) * parsedLimit,
-          },
-
-          {
-            $limit: parsedLimit,
-          },
-        ]),
-
-        User.aggregate([
-          {
-            $match: {
-              type: 1,
-              isVerified: true,
-            },
-          },
-
-          {
-            $lookup: {
-              from: "appointments",
-              localField: "userId",
-              foreignField: "doctorUserId",
-              as: "appointments",
-            },
-          },
-
-          {
-            $addFields: {
-              appointmentsCount: {
-                $size: "$appointments",
-              },
-            },
-          },
-
-          {
-            $match: {
-              appointmentsCount: { $gt: 0 },
-            },
-          },
-
-          {
-            $count: "total",
-          },
-        ]),
-      ]);
-
-      const total = totalDoctors[0]?.total || 0;
-
-      if (!doctors.length) {
-        return notFoundResponse(
-          res,
-          "No doctors with appointments found.",
-          "Get appointments failed: empty result."
-        );
-      }
-
-
-
-
-
-
-      return successResponse(
-        res,
+    const [doctors, totalDoctors] = await Promise.all([
+      User.aggregate([
         {
-          doctors,
-          pagination: {
-            page: parsedPage,
-            limit: parsedLimit,
-            total,
-            totalPages: Math.ceil(total / parsedLimit),
+          $match: {
+            type: 1,
+            isVerified: true,
           },
         },
-        "Appointments retrieved successfully.",
-        "Get appointments successful."
-      );
-    } catch (error) {
-      console.error(error);
-      return somethingWentWrong(res, error, "Something went wrong.");
+
+        {
+          $lookup: {
+            from: "appointments",
+            let: { doctorUserId: "$userId" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$doctorUserId", "$$doctorUserId"],
+                  },
+                },
+              },
+
+              {
+                $lookup: {
+                  from: "doctors", // your User model collection name
+                  localField: "userId",
+                  foreignField: "userId",
+                  as: "patient",
+                },
+              },
+
+              {
+                $unwind: {
+                  path: "$patient",
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
+
+              {
+                $addFields: {
+                  patientName: "$patient.fullName",
+                  patientEmail: "$patient.email",
+                  patientPhone: "$patient.phoneNumber",
+                  patientProfilePhoto: "$patient.profilePhoto",
+                },
+              },
+
+              {
+                $project: {
+                  patient: 0,
+                },
+              },
+            ],
+            as: "appointments",
+          },
+        },
+
+        {
+          $addFields: {
+            appointmentsCount: {
+              $size: "$appointments",
+            },
+          },
+        },
+        // Only doctors having appointments
+        {
+          $match: {
+            appointmentsCount: { $gt: 0 },
+          },
+        },
+        // Most appointments first
+        {
+          $sort: {
+            appointmentsCount: -1,
+          },
+        },
+        {
+          $project: {
+            userId: 1,
+            fullName: 1,
+            profilePhoto: 1,
+            doctorRegistrationNumber: 1,
+            currentWorkplace: 1,
+            appointmentsCount: 1,
+            specialties: 1,
+            location: 1,
+            score: 1,
+            phoneNumber: 1,
+            email: 1,
+            isVerified: 1,
+            doctorIdCard: 1,
+            appointments: 1,
+          },
+        },
+
+        {
+          $skip: (parsedPage - 1) * parsedLimit,
+        },
+
+        {
+          $limit: parsedLimit,
+        },
+      ]),
+
+      User.aggregate([
+        {
+          $match: {
+            type: 1,
+            isVerified: true,
+          },
+        },
+
+        {
+          $lookup: {
+            from: "appointments",
+            localField: "userId",
+            foreignField: "doctorUserId",
+            as: "appointments",
+          },
+        },
+
+        {
+          $addFields: {
+            appointmentsCount: {
+              $size: "$appointments",
+            },
+          },
+        },
+
+        {
+          $match: {
+            appointmentsCount: { $gt: 0 },
+          },
+        },
+
+        {
+          $count: "total",
+        },
+      ]),
+    ]);
+
+    const total = totalDoctors[0]?.total || 0;
+
+    if (!doctors.length) {
+      return notFoundResponse(res, "No doctors with appointments found.", "Get appointments failed: empty result.");
     }
-  };
 
-
-
-
-
-
+    return successResponse(
+      res,
+      {
+        doctors,
+        pagination: {
+          page: parsedPage,
+          limit: parsedLimit,
+          total,
+          totalPages: Math.ceil(total / parsedLimit),
+        },
+      },
+      "Appointments retrieved successfully.",
+      "Get appointments successful.",
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
 
 export const confirmAppointmentByAdmin = async (req, res) => {
   const { id } = req.params;
@@ -1509,34 +1394,22 @@ export const confirmAppointmentByAdmin = async (req, res) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     if (!appointment) {
       return res.status(400).json({
         success: false,
-        message:
-          "Only pending appointments can be confirmed.",
+        message: "Only pending appointments can be confirmed.",
       });
     }
 
-    return successResponse(
-      res,
-      appointment,
-      "Appointment confirmed successfully.",
-      "Appointment confirmed successfully."
-    );
+    return successResponse(res, appointment, "Appointment confirmed successfully.", "Appointment confirmed successfully.");
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(
-      res,
-      error,
-      "Something went wrong."
-    );
+    return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
 
 export const cancelAppointmentByAdmin = async (req, res) => {
   const { id } = req.params;
@@ -1546,7 +1419,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
     const appointment = await Appointment.findOneAndUpdate(
       {
         _id: id,
-        isDeleted: false
+        isDeleted: false,
       },
       {
         $set: {
@@ -1557,29 +1430,142 @@ export const cancelAppointmentByAdmin = async (req, res) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     if (!appointment) {
       return res.status(400).json({
         success: false,
-        message:
-          "Only pending appointments can be cancelled.",
+        message: "Only pending appointments can be cancelled.",
       });
     }
 
-    return successResponse(
-      res,
-      appointment,
-      "Appointment cancelled successfully.",
-      "Appointment cancelled successfully."
-    );
+    return successResponse(res, appointment, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(
-      res,
-      error,
-      "Something went wrong."
-    )
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const loginByAdmin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (user.type !== 2) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not an admin.",
+      });
+    }
+
+    const isMatched = await bcrypt.compare(password, user.password);
+
+    if (!isMatched) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials.",
+      });
+    }
+
+    const token = generateToken(user);
+
+    return res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        type: user.type,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const signUpAsAdmin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (user) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      type: 2,
+    });
+
+    await newUser.save();
+
+    const token = generateToken(newUser);
+
+    return res.status(201).json({
+      success: true,
+      token,
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        type: newUser.type,
+      },
+      message: "Admin created successfully.",
+    });
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const updateAdminPassword = async (req, res) => {
+  const { password } = req.body;
+
+  try {
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (user.type !== 2) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin password updated successfully.",
+    });
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
