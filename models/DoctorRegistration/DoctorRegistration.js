@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    password: {
+      type: String,
+      trim: true,
+    },
+
     // Custom User ID
     score: {
       type: Number,
@@ -128,6 +133,13 @@ notificationPreferenceDate: {
       type: [String],
       default: [],
     },
+
+
+    adminStatus:{
+      type: String,
+      enum: ['pending', 'suspended', 'active'] // Allowed values
+    },
+
 
     //? Doctor-specific fields
 

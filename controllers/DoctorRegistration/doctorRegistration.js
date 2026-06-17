@@ -3,12 +3,13 @@ import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
 import { badRequestResponse, formatQuantityNumber, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
-import { DayMap, MonthMap } from "../../constant/constant.js";
+import { DayMap, ENV, MonthMap } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import { createOrUpdateFCMToken } from "../../services/notificationService.js";
+import bcrypt from "bcryptjs";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -67,7 +68,6 @@ export const registerUser = async (req, res) => {
 
     if (typeof specialties === "string") {
       specialties = JSON.parse(specialties);
-      console.log("🚀 ~ doctorRegistration.js:66 ~ registerUser ~ specialties:", specialties);
     }
 
     let conditions = [];
@@ -1454,30 +1454,54 @@ export const cancelAppointmentByAdmin = async (req, res) => {
   }
 };
 
-export const loginByAdmin = async (req, res) => {
-  const { email, password } = req.body;
 
+
+
+
+export const loginByAdmin = async (req, res) => {
+  console.log("cookies =>", req.cookies);
+  const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
+    
+    
+
 
     if (!user) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         message: "User not found.",
       });
     }
 
-    if (user.type !== 2) {
-      return res.status(400).json({
+      if (user.type != 2) {
+        return res.status(200).json({
+          success: false,
+          message: "Unauthorized user.",
+        }); 
+      }
+
+    if (user.adminStatus === "pending") {
+      return res.status(200).json({
         success: false,
-        message: "User is not an admin.",
+        message: "Your request is pending now.",
       });
     }
+
+
+    if (user.adminStatus === "suspended") {
+      return res.status(200).json({
+        success: false,
+        message: "Your request is suspended now. Contact with an  admin.",
+      });
+    }
+
+
 
     const isMatched = await bcrypt.compare(password, user.password);
 
     if (!isMatched) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         message: "Invalid credentials.",
       });
@@ -1485,33 +1509,74 @@ export const loginByAdmin = async (req, res) => {
 
     const token = generateToken(user);
 
-    return res.status(200).json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        type: user.type,
-      },
-    });
+    return res.cookie("accessToken", token, {
+        httpOnly: true,
+        secure: ENV === "prod",
+        sameSite: "strict", // or "lax"
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      })
+      .status(200)
+      .json({
+        success: true,
+        user: {
+          id: user._id,
+          email: user.email,
+          type: user.type,
+        },
+      });
+
+
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
 
+
+
+
+
+
+
+
 export const signUpAsAdmin = async (req, res) => {
-  const { email, password } = req.body;
+  const { fullName, email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
 
     if (user) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists.",
-      });
+
+      if (user.type != 2) {
+        return res.status(200).json({
+          success: false,
+          message: "Unauthorized user.",
+        }); 
+      }
+
+      if (user.adminStatus==="pending") {
+        return res.status(200).json({
+          success: false,
+          message: "Your request is pending now.",
+        }); 
+      }
+
+      
+      if (user.adminStatus==="suspended") {
+        return res.status(200).json({
+          success: false,
+          message: "Your are suspended from this panel. Please contact with other admin.",
+        }); 
+      }
+
+      if (user.adminStatus==="active") {
+        return res.status(200).json({
+          success: false,
+          message: "Your are suspended from this panel. Please contact with other admin.",
+        }); 
+      }
     }
+        const userId = generateUserId(2);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -1519,6 +1584,9 @@ export const signUpAsAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       type: 2,
+      fullName,
+      userId,
+      adminStatus: "pending",
     });
 
     await newUser.save();
@@ -1541,6 +1609,10 @@ export const signUpAsAdmin = async (req, res) => {
   }
 };
 
+
+ 
+
+
 export const updateAdminPassword = async (req, res) => {
   const { password } = req.body;
 
@@ -1553,6 +1625,7 @@ export const updateAdminPassword = async (req, res) => {
         message: "User not found.",
       });
     }
+
 
     if (user.type !== 2) {
       return res.status(403).json({

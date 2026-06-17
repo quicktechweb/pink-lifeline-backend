@@ -701,7 +701,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1HQSUU"
+                  "value": "USR-KGHZRN"
                 }
               ]
             }
@@ -740,7 +740,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1HQSUU"
+                  "value": "USR-KGHZRN"
                 }
               ]
             }
@@ -790,7 +790,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": \"USR-UAL29I\",\r\n    \"currentDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"startDate\": \"2026-06-08T14:06:31.902004\",\r\n    \"endDate\": null,\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"_id\": \"6a12ef550da755ffc1b3c8d8\",\r\n            \"flowLevel\": 1,\r\n            \"hadFlow\": true\r\n        },\r\n        \"symptoms\": [],\r\n        \"spotting\": []\r\n    }\r\n}\r\n\r\n",
+              "raw": "{\r\n    \"userId\": \"USR-1W-E1S\",\r\n    \"currentDate\": \"2025-06-08T14:06:31.902004\",\r\n    \"startDate\": \"2025-06-08T14:06:31.902004\",\r\n    \"endDate\": null,\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"_id\": \"6a12ef550da755ffc1b3c8d8\",\r\n            \"flowLevel\": 1,\r\n            \"hadFlow\": true\r\n        },\r\n        \"symptoms\": [],\r\n        \"spotting\": []\r\n    }\r\n}\r\n\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -848,7 +848,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": \"USR-1HQSUU\",\r\n    \"currentDate\": \"2026-05-11T00:12:43.430\",\r\n    \"endDate\": \"2026-05-11T00:12:43.430\",\r\n    \"period\": {\r\n        \"bleeding\": {\r\n            \"flowLevel\": 3,\r\n            \"hadFlow\": true,\r\n            \"_id\": \"6a11766eb9dec79489ffc050\"\r\n        },\r\n        \"symptoms\": [\r\n            {\r\n                \"title\": \"meh\",\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ed3a85f3e0ddcd0ad964\"\r\n            },\r\n            {\r\n                \"title\": \"1231\",\r\n                \"isRecent\": 1,\r\n                \"_id\": \"6a12ef120da755ffc1b3c8b7\"\r\n            }\r\n        ],\r\n        \"spotting\": []\r\n    }\r\n}",
+              "raw": "{\r\n  \"userId\": \"USR-Q5YNXL\",\r\n  \"currentDate\": \"2026-06-16T00:00:00.000\",\r\n  \"startDate\": null,\r\n  \"endDate\": \"2026-06-16T00:00:00.000\",\r\n  \"period\": {\r\n    \"bleeding\": {\r\n      \"_id\": \"6a11766eb9dec79489ffc050\",\r\n      \"flowLevel\": 2,\r\n      \"hadFlow\": true\r\n    },\r\n    \"symptoms\": [],\r\n    \"spotting\": []\r\n  }\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1648,6 +1648,12 @@
                       "type": "file",
                       "uuid": "c7315b70-a729-4e64-99a1-1ea342d96e0d",
                       "src": "/E:/rafi/assests/images.webp"
+                    },
+                    {
+                      "key": "notificationPreferenceDate",
+                      "value": "",
+                      "type": "text",
+                      "uuid": "322bedef-5498-46f4-846b-8490a7773f09"
                     }
                   ]
                 },
@@ -1812,7 +1818,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-1HQSUU"
+                      "value": "USR-KGHZRN"
                     }
                   ]
                 }
@@ -1995,6 +2001,41 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "save-fcm-token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n \r\n\r\n  \"fcmToken\": \"szkjdfk \",\r\n  \"email\": \"pink@example.com\"\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/registration/save-fcm-token/:userid",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "registration",
+                "save-fcm-token",
+                ":userid"
+              ],
+              "variable": [
+                {
+                  "key": "userid",
+                  "value": "USR-71M2DH"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -2989,7 +3030,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"postId\":\"6a1ff6a5ff327924f076f6c3\"\r\n}",
+              "raw": "{\r\n    \"postId\":\"6a2a72e4e1141c8109336584\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3011,7 +3052,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1HQSUU"
+                  "value": "USR-Q5YNXL"
                 }
               ]
             }
@@ -3172,7 +3213,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"commentId\":\"6a278f970b7c5bffb5d1dd36\"\r\n}",
+              "raw": "{\r\n    \"commentId\":\"6a323aad34f4b046d56f7395\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3194,7 +3235,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1HQSUU"
+                  "value": "USR-FPY3UB"
                 }
               ]
             }
@@ -3208,7 +3249,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"commentId\":\"6a278f970b7c5bffb5d1dd36\"\r\n}",
+              "raw": "{\r\n    \"commentId\":\"6a323aad34f4b046d56f7395\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3230,7 +3271,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1HQSUU"
+                  "value": "USR-FPY3UB"
                 }
               ]
             }
@@ -4015,7 +4056,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-DY1N3J"
+                  "value": "USR-XMH2HC"
                 }
               ]
             }
@@ -4056,7 +4097,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-7ORNAV\"\r\n}",
+              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-SFYWPP\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4133,7 +4174,7 @@
               }
             },
             "url": {
-              "raw": "{{baseurl}}/other/collection/:collectionName",
+              "raw": "{{baseurl}}/other/collection/:collectionName?",
               "host": [
                 "{{baseurl}}"
               ],
@@ -4142,10 +4183,17 @@
                 "collection",
                 ":collectionName"
               ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "description": "USR-UAL29I"
+                }
+              ],
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "doctors"
+                  "value": "userfcmtokens"
                 }
               ]
             }
@@ -4177,6 +4225,40 @@
               "path": [
                 "other",
                 "get-all-connections"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update-schedule-time",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/update-schedule-time/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "update-schedule-time",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-MUSZWJ"
+                }
               ]
             }
           },
@@ -4213,7 +4295,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseurl}}/api/dashboard-stats/v1/get-doctor-patient-appointment-counts",
+              "raw": "{{baseurl}}/api/dashboard-stats/v1/get-all-types-appointment-counts",
               "host": [
                 "{{baseurl}}"
               ],
@@ -4221,7 +4303,96 @@
                 "api",
                 "dashboard-stats",
                 "v1",
-                "get-doctor-patient-appointment-counts"
+                "get-all-types-appointment-counts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "top-doctors-served-patients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard-stats/v1/top-doctors-served-patients",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard-stats",
+                "v1",
+                "top-doctors-served-patients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-all-user-period-cycle-length",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard-stats/v1/get-all-user-period-cycle-length",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard-stats",
+                "v1",
+                "get-all-user-period-cycle-length"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "doctor-patient-ration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard-stats/v1/doctor-patient-ration",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard-stats",
+                "v1",
+                "doctor-patient-ration"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-appointment-trends-over-time",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"year\": 2026,\r\n  \"month\": 6\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard-stats/v1/get-appointment-trends-over-time",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard-stats",
+                "v1",
+                "get-appointment-trends-over-time"
               ]
             }
           },

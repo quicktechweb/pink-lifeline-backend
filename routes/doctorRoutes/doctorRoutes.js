@@ -70,9 +70,9 @@ router.post("/get-all-doctors-by-admin", getAllDoctorByAdmin);
 
 
 
-router.post("/login-by-admin",verifyToken,loginByAdmin)
-router.post("/signup-by-admin",verifyToken,signUpAsAdmin)
-router.post("/reset-password-by-admin/:userId",verifyToken,isUserExist,updateProfile)
+router.post("/signup-by-admin",signUpAsAdmin)
+router.post("/login-by-admin",loginByAdmin)
+router.post("/reset-password-by-admin/:userId",isUserExist,updateProfile)
 
 
 

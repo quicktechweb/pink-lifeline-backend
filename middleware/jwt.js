@@ -19,6 +19,7 @@ const verifyToken = (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
     }
 
+    
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -35,6 +36,7 @@ const verifyToken = (req, res, next) => {
 
     next();
   } catch (error) {
+      console.log("🚀 ~ jwt.js:6 ~ verifyToken ~ error:", error)
     return res.status(401).json({
       success: false,
       message: "Token expired or invalid",

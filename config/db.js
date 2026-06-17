@@ -22,9 +22,10 @@ const connectDB = async () => {
       useUnifiedTopology: true,
     });
     console.log(`💿 MongoDB Connection State: ${conn.connection.readyState}`);
+    return conn.connection.readyState
   } catch (error) {
     console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+    return 0;
   }
 };
 

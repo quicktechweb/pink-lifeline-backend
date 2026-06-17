@@ -18,6 +18,7 @@ import { apiLogger } from "./middleware/logger.js";
 import { devOnly } from "./middleware/checkEnviornment.js";
 import  dashboardStatsRoutes  from "./routes/dashboardStatsRoutes/dashboardStatsRoutes.js";
 import startNotificationScheduler from "./services/schedulerService.js";
+import verifyToken from "./middleware/jwt.js";
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
@@ -33,12 +34,24 @@ app.use(express.json());
 //     credentials: true,
 //   })
 // );
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(apiLogger);
 // MongoDB Connection
 app.use(express.urlencoded({ extended: true }));
-connectDB();
-startNotificationScheduler();
+
+if ( await connectDB()===1) {
+  await startNotificationScheduler();
+}else {
+  process.stdout.write('\u0007');
+  console.log("❌ MongoDB connection failed. Server is not running. 🔴");
+}
 
 
 // Routes parts
@@ -56,6 +69,19 @@ app.use("/api/dropdowns",dropdownRoutes)
 app.use("/api/user", userRoutes);
 app.use("/api/dashboard-stats",dashboardStatsRoutes)
 
+
+
+app.get(
+  "/api/user/me",
+  verifyToken,
+  (req, res) => {
+      console.log("🚀 ~ server.js:78 ~ req.user:", req.user)
+    res.status(200).json({
+      success: true,
+      user: req.user,
+    });
+  }
+);
 
 
 app.use("/other",devOnly,internalUtilRoutes)

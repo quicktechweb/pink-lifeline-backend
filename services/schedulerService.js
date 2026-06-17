@@ -20,7 +20,7 @@ const dispatchNotification = async (notification) => {
     type: notification.type,
     userId: notification.userId,
   });
-
+ 
   let updatedNotification = null;
 
   if (notificationStatus.success) {
@@ -42,7 +42,7 @@ const dispatchNotification = async (notification) => {
 
   // Schedule next reminder after 2 minutes
   if (updatedNotification.autoReminderLimit > 0) {
-    console.log(`⏳ Next reminder for ${notification.userId} in 2 minutes...`);
+    console.log(`⏳ Next reminder for ${notification.userId} in 20 seconds...`);
 
     setTimeout(
       async () => {
@@ -55,7 +55,7 @@ const dispatchNotification = async (notification) => {
 
         await dispatchNotification(latestNotification);
       },
-      2 * 60 * 1000,
+      1 * 60 * 1000,
     ); // 2 minutes
   } else {
     console.log(`🏁 [${new Date().toLocaleString()}] | User: ${notification.userId} | Reminder limit reached.`);
