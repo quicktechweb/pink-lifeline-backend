@@ -12,7 +12,8 @@ export const updateUserProfile = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const { fullName, email, phoneNumber, autoReminderLimit, notificationPreferenceTime, dateOfBirth } = req.body;
+    const { fullName,notificationPreferenceDate, email, phoneNumber, autoReminderLimit, notificationPreferenceTime, dateOfBirth } = req.body;
+
 
     const updateData = {};
 
@@ -34,12 +35,15 @@ export const updateUserProfile = async (req, res) => {
 
     if (notificationPreferenceTime !== undefined) {
       const date = new Date(notificationPreferenceTime);
-
       updateData.notificationPreferenceTime = date.toISOString().substring(11, 16);
     }
 
     if (dateOfBirth !== undefined) {
       updateData.dateOfBirth = dateOfBirth;
+    }
+
+    if (notificationPreferenceDate !== undefined) {
+      updateData.notificationPreferenceDate = notificationPreferenceDate;
     }
 
     /* =========================

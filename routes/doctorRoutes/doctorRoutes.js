@@ -49,16 +49,24 @@ router.get("/get-total-comment-patients/:userId",isDoctor,getTotalCommentsPatien
 
 router.post("/get-daily-doctor-appointments/:userId", isDoctor, getDailyAppointments);
 
+
+
+
+
+
+
+
+
+
+
 router.post("/get-all-appointments-by-admin",getAllAppointmentsByAdmin)
-
-
 router.post("/confirm-appointment-by-admin/:id",confirmAppointmentByAdmin);
-
-
 router.post("/cancel-appointment-by-admin/:id",cancelAppointmentByAdmin);
-
-
 router.post("/get-all-doctors-by-admin", getAllDoctorByAdmin);
+
+
+
+
 
 
 

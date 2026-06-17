@@ -8,10 +8,29 @@ const notificationSchema = new mongoose.Schema(
       index: true,
     },
 
+    fcmTokens: [
+      {
+        type: String,
+      },
+    ],
+
     notificationSendTime: {
-      type: Date,
+      type: String,
       required: true,
       index: true,
+    },
+
+
+    notificationSendDate:{
+      type: String,
+      required: true,
+      index: true,
+    },
+
+    body: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
     title: {
@@ -27,13 +46,14 @@ const notificationSchema = new mongoose.Schema(
       index: true,
     },
 
-    notificationPingCount: {
+    autoReminderLimit: {
       type: Number,
-      default: 1,
+      default: 3,
       min: 1,
       max: 5,
     },
   },
+
   {
     timestamps: true,
     versionKey: false,
@@ -43,6 +63,3 @@ const notificationSchema = new mongoose.Schema(
 const Notification = mongoose.model("Notification", notificationSchema);
 
 export default Notification;
-
-
-

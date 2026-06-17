@@ -1397,6 +1397,13 @@ export const confirmAppointmentByAdmin = async (req, res) => {
       },
     );
 
+
+
+    console.log("🚀 ~ doctorRegistration.js:1399 ~ confirmAppointmentByAdmin ~ appointment:", appointment)
+
+
+
+    
     if (!appointment) {
       return res.status(400).json({
         success: false,

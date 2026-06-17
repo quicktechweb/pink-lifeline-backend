@@ -108,6 +108,11 @@ const userSchema = new mongoose.Schema(
       match: /^([01]\d|2[0-3]):([0-5]\d)$/,
     },
 
+notificationPreferenceDate: {
+  type: Number,
+  default: 0,
+},
+
     dateOfBirth: {
       type: Date,
       default: null,

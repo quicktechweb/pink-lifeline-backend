@@ -4,6 +4,7 @@ import path from "path";
 import PeriodTracker from "./../models/Period/PeriodModel.js";
 import DoctorRegistration from "../models/DoctorRegistration/DoctorRegistration.js";
 import mongoose from "mongoose";
+import Notification from "../models/Notification/NotificationModel.js";
 
 const internalUtilRoutes = express.Router();
 
@@ -134,7 +135,7 @@ internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
     }
 
     const data = await mongoose.connection.db.collection(collectionName).find({}).sort({ createdAt: -1 }).toArray();
-    
+
     return res.status(200).json({
       success: true,
       collection: collectionName,
@@ -239,6 +240,63 @@ internalUtilRoutes.post("/delete-specific-data-form-each-collection", async (req
       success: true,
       message: "Matching documents deleted successfully",
       data: results,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+internalUtilRoutes.patch("/update-schedule-time/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const notifications = await Notification.find({ userId }).sort({
+      createdAt: 1,
+    });
+
+    if (notifications.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No notifications found.",
+      });
+    }
+
+    const now = new Date();
+
+    for (let i = 0; i < notifications.length; i++) {
+      const updatedTime = new Date(now);
+
+      // +1 minute, +2 minutes, +3 minutes...
+      updatedTime.setMinutes(updatedTime.getMinutes() + (i + 1));
+
+      // HH:mm
+      const hh = String(updatedTime.getHours()).padStart(2, "0");
+      const mm = String(updatedTime.getMinutes()).padStart(2, "0");
+
+      // YYYY-MM-DD
+      const yyyy = updatedTime.getFullYear();
+      const month = String(updatedTime.getMonth() + 1).padStart(2, "0");
+      const day = String(updatedTime.getDate()).padStart(2, "0");
+
+      notifications[i].notificationSendTime = `${hh}:${mm}`;
+      notifications[i].notificationSendDate = `${yyyy}-${month}-${day}`;
+      notifications[i].autoReminderLimit = 3;
+
+      await notifications[i].save();
+    }
+
+    const result = await Notification.find({ userId });
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+      message: "Notification schedule updated successfully.",
+      totalUpdated: notifications.length,
     });
   } catch (error) {
     console.error(error);

@@ -285,28 +285,6 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const postUpVote = async (req, res) => {
   const userId = req.params.userId;
   const { postId } = req.body;
@@ -326,10 +304,14 @@ export const postUpVote = async (req, res) => {
       return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
     }
 
-    
-    const post = await Post.findById(postId);
-    const postOwner = await User.findById(post.userId);
+    const objectId = new mongoose.Types.ObjectId(postId);
+    const post = await Post.findById(objectId);
 
+    if (!post) {
+      return notFoundResponse(res, "Post not found.", "post not found.");
+    }
+
+    const postOwner = await User.findOne({ userId: post.userId.toString() });
 
     if (!post) {
       return notFoundResponse(res, "Post not found.", "post not found.");
@@ -354,13 +336,16 @@ export const postUpVote = async (req, res) => {
       }
 
       post.upvote += 1;
-      const notificationStatus = await sendNotificationToUser({
-        userId: postOwner.userId,
-        type: "post",
-        data:postId ,
-        body: `${postOwner.firstName} upvoted your post.`,
-        title: "Yours post is upvoted.",
-      })
+      if (isUserExist.userId.toString() !== post.userId.toString()) {
+        const notificationStatus = await sendNotificationToUser({
+          userId: postOwner.userId,
+          type: "post",
+          data: postId,
+          body: `${isUserExist.fullName} upvoted your post.`,
+          title: "Yours post is upvoted.",
+        });
+      }
+
       await post.save();
 
       return successResponse(res, post, "Upvoted successfully", "post upvoted");
@@ -393,13 +378,17 @@ export const postUpVote = async (req, res) => {
 
       post.downvote -= 1;
       post.upvote += 1;
-      const notificationStatus = await sendNotificationToUser({
-        userId: postOwner.userId,
-        type: "post",
-        data:postId ,
-        body: `${postOwner.firstName} upvoted your post.`,
-        title: "Yours post is upvoted.",
-      })
+
+      if (isUserExist.userId.toString() !== post.userId.toString()) {
+        const notificationStatus = await sendNotificationToUser({
+          userId: postOwner.userId,
+          type: "post",
+          data: postId,
+          body: `${isUserExist.fullName} upvoted your post.`,
+          title: "Yours post is upvoted.",
+        });
+      }
+
       await post.save();
 
       return successResponse(res, post, "Switched to upvote", "switch vote to upvote");
@@ -412,28 +401,6 @@ export const postUpVote = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const postDownVote = async (req, res) => {
   const userId = req.params.userId;
@@ -460,6 +427,8 @@ export const postDownVote = async (req, res) => {
       return notFoundResponse(res, "Post not found.", "post not found.");
     }
 
+    const postOwner = await User.findOne({ userId: post.userId.toString() });
+
     // 🔥 check existing vote
     const existingVote = await Vote.findOne({ userId, postId });
 
@@ -478,6 +447,17 @@ export const postDownVote = async (req, res) => {
       }
 
       post.downvote += 1;
+
+      if (isUserExist.userId.toString() !== post.userId.toString()) {
+        const notificationStatus = await sendNotificationToUser({
+          userId: postOwner.userId,
+          type: "post",
+          data: postId,
+          body: `${isUserExist.fullName} downvoted your post.`,
+          title: "Yours post is downvoted.",
+        });
+      }
+
       await post.save();
 
       return successResponse(res, post, "Downvoted successfully", "post downvoted");
@@ -506,6 +486,17 @@ export const postDownVote = async (req, res) => {
       }
       post.upvote -= 1;
       post.downvote += 1;
+
+      if (isUserExist.userId.toString() !== post.userId.toString()) {
+        const notificationStatus = await sendNotificationToUser({
+          userId: postOwner.userId,
+          type: "post",
+          data: postId,
+          body: `${isUserExist.fullName} downvoted your post.`,
+          title: "Yours post is downvoted.",
+        });
+      }
+
       await post.save();
 
       return successResponse(res, post, "Switched to downvote", "switch vote to downvote");
@@ -524,6 +515,10 @@ export const postComment = async (req, res) => {
 
   const isUserExist = await User.findOne({ userId });
 
+  if (!isUserExist) {
+    return notFoundResponse(res, "User is not registered.", "User is not registered.");
+  }
+
   const isVerified = isUserExist.isVerified;
   const type = isUserExist.type;
 
@@ -540,12 +535,6 @@ export const postComment = async (req, res) => {
 
     if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
       return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
-    }
-
-    const isUserExist = await User.findOne({ userId });
-
-    if (!isUserExist) {
-      return notFoundResponse(res, "User is not registered.", "User is not registered.");
     }
 
     const post = await Post.findById(postId);
@@ -594,6 +583,16 @@ export const postComment = async (req, res) => {
         $inc: {
           totalReplies: 1,
         },
+      });
+    }
+
+    if (post.userId.toString() !== isUserExist.userId.toString()) {
+      const notificationStatus = await sendNotificationToUser({
+        userId: post.userId.toString(),
+        type: "post",
+        data: postId,
+        title: parentId ? `${isUserExist.fullName} replied to your post.` : `${isUserExist.fullName} commented on your post.`,
+        body: parentId ? `${isUserExist.fullName} replied to your post.` : "Yours post is commented.",
       });
     }
 
@@ -729,6 +728,12 @@ export const commentDownVote = async (req, res) => {
       return notFoundResponse(res, "Comment not found.", "comment not found.");
     }
 
+    const post = await Post.findById(comment.postId);
+
+    const postOwner = await User.findOne({ userId: post.userId.toString() });
+
+    const commentOwner = await User.findOne({ userId: comment.userId.toString() });
+
     // 🔥 check existing vote
     const existingVote = await Vote.findOne({
       userId,
@@ -747,6 +752,17 @@ export const commentDownVote = async (req, res) => {
       comment.downvote += 1;
       comment.isDownvotedByUser = true;
       comment.isUpvotedByUser = false;
+
+      if (isUserExist.userId.toString() !== commentOwner.userId.toString()) {
+        const notification = await sendNotificationToUser({
+          userId: commentOwner.userId.toString(),
+          type: "post",
+          data: post._id.toString(),
+          title: `${isUserExist.fullName} has downvoted your comment.`,
+          body: "Someone downvoted your comment",
+        });
+      }
+
       await comment.save();
 
       return successResponse(res, comment, "Comment downvoted successfully", "comment downvoted");
@@ -816,6 +832,12 @@ export const commentUpVote = async (req, res) => {
       return notFoundResponse(res, "Comment not found.", "comment not found.");
     }
 
+    const post = await Post.findById(comment.postId);
+
+    const postOwner = await User.findOne({ userId: post.userId.toString() });
+
+    const commentOwner = await User.findOne({ userId: comment.userId.toString() });
+
     // 🔥 check existing vote
     const existingVote = await Vote.findOne({
       userId,
@@ -834,6 +856,16 @@ export const commentUpVote = async (req, res) => {
       comment.upvote += 1;
       comment.isUpvotedByUser = true;
       comment.isDownvotedByUser = false;
+
+      if (commentOwner.userId !== userId) {
+        const notification = await sendNotificationToUser({
+          userId: commentOwner.userId.toString(),
+          type: "post",
+          data: post._id.toString(),
+          title: `${isUserExist.fullName} has upvoted your comment.`,
+          body: "Someone upvoted your comment",
+        });
+      }
 
       await comment.save();
 

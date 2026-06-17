@@ -2,6 +2,8 @@ import { badRequestResponse, isValidNewPeriodGap, isWithinSamePeriod, notFoundRe
 import User from "../../../models/DoctorRegistration/DoctorRegistration.js";
 import PeriodTracker from "./../../../models/Period/PeriodModel.js";
 import { AVERAGE_PERIOD_DURATION, POST_MENSTRUAL_INTERVAL } from "../../../constant/constant.js";
+import Notification from "../../../models/Notification/NotificationModel.js";
+import UserFCMToken from "../../../models/Notification/FCMModel.js";
 
 // ─── ENV / CONSTANT GUARDS ────────────────────────────────────────────────────
 // MAX_PERIOD_DURATION: a single cycle cannot exceed this many days.
@@ -914,76 +916,114 @@ export const recordPeriodEnd = async (req, res) => {
     }
 
     // ── 8. Cannot end before the last logged entry ────────────────────────────
+    //     const loggedDates = latestPeriod.period.map((p) => toDateOnly(p.currentDate));
+
+    //     const latestLogged = loggedDates.sort().at(-1);
+
+    // if (endDateOnly > latestLogged) {
+    //   const defaultPeriodValue = {
+    //     bleeding: {
+    //       flowLevel: 1,
+    //       hadFlow: true,
+    //     },
+    //     spotting: [],
+    //     symptoms: [],
+    //   };
+
+    //   const dateOnly = (date) => date.toISOString().slice(0, 10);
+
+    //   // Sort existing entries by date
+    //   latestPeriod.period.sort((a, b) => new Date(a.currentDate) - new Date(b.currentDate));
+
+    //   // Map existing entries by date-only string for O(1) lookup
+    //   const existingByDate = new Map();
+    //   for (const entry of latestPeriod.period) {
+    //     existingByDate.set(dateOnly(new Date(entry.currentDate)), entry);
+    //   }
+
+    //   const filledPeriod = [];
+    //   let current = new Date(latestPeriod.period[0].currentDate);
+
+    //   // Single loop: walk day by day from first logged date to endDate
+    //   while (dateOnly(current) <= endDateOnly) {
+    //     const key = dateOnly(current);
+    //     const existingEntry = existingByDate.get(key);
+
+    //     // if date already has a value, keep it; else insert default
+    //     filledPeriod.push(
+    //       existingEntry || {
+    //         ...defaultPeriodValue,
+    //         currentDate: new Date(current),
+    //       }
+    //     );
+
+    //     current.setUTCDate(current.getUTCDate() + 1);
+    //   }
+
+    //   latestPeriod.period = filledPeriod;
+
+    //   await latestPeriod.save();
+    // }
+
+    //     // console.log("🚀 ~ trackPeriod2.js:969 ~ recordPeriodEnd ~ endDate:", endDate,endDateOnly)
+    //     // endDate: 2026-02-09T00:00:00.000
+
+    //     if (latestLogged && endDateOnly >= latestLogged) {
+    //       latestPeriod.period = latestPeriod.period.filter((p) => toDateOnly(p.currentDate) <= endDateOnly);
+
+    //       await latestPeriod.save();
+    //     }
+
+    // ── 8. Cannot end before the last logged entry, and fill gaps up to endDate ─
     const loggedDates = latestPeriod.period.map((p) => toDateOnly(p.currentDate));
-    // console.log("🚀 ~ trackPeriod2.js:964 ~ recordPeriodEnd ~ latestPeriod.period:", latestPeriod.period)
-
     const latestLogged = loggedDates.sort().at(-1);
-    // console.log("🚀 ~ trackPeriod2.js:966 ~ recordPeriodEnd ~ latestLogged period logged date:", latestLogged)
-    // 🚀 ~ trackPeriod2.js:966 ~ recordPeriodEnd ~ latestLogged period logged date: 2025-11-03
-    // endDateOnly : 2026-02-09
+  
 
-    if (endDateOnly > latestLogged) {
+
+    // process.exit(0)
+    // if (latestLogged && endDateOnly < latestLogged) {
+    //   return badRequestResponse(res, `Cannot end before the last logged date (${latestLogged}).`, `End date must be on or after the last logged entry (${latestLogged}).`);
+    // }
+
+    if (latestPeriod.period.length > 0) {
       const defaultPeriodValue = {
         bleeding: {
           flowLevel: 1,
           hadFlow: true,
+          title: "No flow",
         },
         spotting: [],
         symptoms: [],
       };
 
-      // Make sure the array is sorted first
+      // Sort existing entries chronologically
       latestPeriod.period.sort((a, b) => new Date(a.currentDate) - new Date(b.currentDate));
 
-      let i = 0;
+      // Index existing entries by canonical date key
+      const existingByDate = new Map();
+      for (const entry of latestPeriod.period) {
+        existingByDate.set(toDateOnly(entry.currentDate), entry);
+      }
 
-      while (i < latestPeriod.period.length - 1) {
-        let current = new Date(latestPeriod.period[i].currentDate);
-        const next = new Date(latestPeriod.period[i + 1].currentDate);
+      const filledPeriod = [];
+      const cursor = parseAsUTCDateOnly(latestPeriod.period[0].currentDate);
 
-        current.setHours(0, 0, 0, 0);
-        next.setHours(0, 0, 0, 0);
+      // Walk day by day from first logged date to endDate, filling gaps with defaults
+      while (toDateOnly(cursor) <= endDateOnly) {
+        const key = toDateOnly(cursor);
+        const existingEntry = existingByDate.get(key);
 
-        // Fill the gap between current and next
-        while (true) {
-          const temp = new Date(current);
-          temp.setDate(temp.getDate() + 1);
-
-          if (temp >= next) break;
-
-          latestPeriod.period.splice(i + 1, 0, {
+        filledPeriod.push(
+          existingEntry || {
             ...defaultPeriodValue,
-            currentDate: new Date(temp),
-          });
+            currentDate: new Date(cursor),
+          },
+        );
 
-          current = temp;
-          i++;
-        }
-
-        i++;
+        cursor.setUTCDate(cursor.getUTCDate() + 1);
       }
 
-      // Fill from the last logged date until endDateOnly
-      let lastDate = new Date(latestPeriod.period[latestPeriod.period.length - 1].currentDate);
-
-      while (lastDate.toISOString().split("T")[0] < endDateOnly) {
-        lastDate.setDate(lastDate.getDate() + 1);
-
-        latestPeriod.period.push({
-          ...defaultPeriodValue,
-          currentDate: new Date(lastDate),
-        });
-      }
-
-      await latestPeriod.save();
-    }
-
-    // console.log("🚀 ~ trackPeriod2.js:969 ~ recordPeriodEnd ~ endDate:", endDate,endDateOnly)
-    // endDate: 2026-02-09T00:00:00.000
-
-    if (latestLogged && endDateOnly >= latestLogged) {
-      latestPeriod.period = latestPeriod.period.filter((p) => toDateOnly(p.currentDate) <= endDateOnly);
-
+      latestPeriod.period = filledPeriod;
       await latestPeriod.save();
     }
 
@@ -1015,6 +1055,54 @@ export const recordPeriodEnd = async (req, res) => {
     });
 
     const finalRecord = await PeriodTracker.findById(latestPeriod._id);
+
+          const allPeriodDocs = await PeriodTracker.find(
+            {
+              userId,
+              startDate: { $exists: true, $ne: null },
+              endDate: { $exists: true, $ne: null },
+            },
+            { period: 0 },
+          ).sort({ startDate: -1 });
+
+        
+        
+        
+          const averageCycleLength = getAverageCycleLength(allPeriodDocs);
+
+          const estimatedNextPeriodDate = new Date(allPeriodDocs[0].startDate);
+          estimatedNextPeriodDate.setDate( estimatedNextPeriodDate.getDate() + averageCycleLength );
+
+          const reminderDays = isUserExist.notificationPreferenceDate || 0;
+
+          const notificationSendDate = new Date(estimatedNextPeriodDate);
+
+          notificationSendDate.setDate( notificationSendDate.getDate() - reminderDays );
+
+          const estimatedNextPeriodDateOnly = estimatedNextPeriodDate.toISOString().split("T")[0];
+
+          const notificationSendDateOnly = notificationSendDate.toISOString().split("T")[0];
+
+
+
+        const allFCMToken = await UserFCMToken.findOne(
+          { userId },
+          { fcmTokens: 1 }
+        );
+
+        const noti = await Notification.create({
+          userId,
+          fcmTokens: allFCMToken?.fcmTokens || [],
+          notificationSendDate: notificationSendDateOnly,
+          notificationSendTime: isUserExist.notificationPreferenceTime,
+          body: `Your next period is estimated to start on ${estimatedNextPeriodDateOnly}.`,
+          title: "Estimated Next Period Reminder",
+          type: "periodDate",
+          autoReminderLimit: isUserExist.autoReminderLimit,
+        });
+        console.log("🚀 ~ trackPeriod2.js:1102 ~ recordPeriodEnd ~ noti:", noti)
+
+
 
     return successResponse(res, finalRecord, "Period end date updated successfully.", "Successfully updated period.");
   } catch (error) {

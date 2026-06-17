@@ -17,6 +17,7 @@ import internalUtilRoutes from "./other/supportive.js";
 import { apiLogger } from "./middleware/logger.js";
 import { devOnly } from "./middleware/checkEnviornment.js";
 import  dashboardStatsRoutes  from "./routes/dashboardStatsRoutes/dashboardStatsRoutes.js";
+import startNotificationScheduler from "./services/schedulerService.js";
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
@@ -37,6 +38,8 @@ app.use(apiLogger);
 // MongoDB Connection
 app.use(express.urlencoded({ extended: true }));
 connectDB();
+startNotificationScheduler();
+
 
 // Routes parts
 

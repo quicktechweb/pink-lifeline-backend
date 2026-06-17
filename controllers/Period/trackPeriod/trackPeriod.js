@@ -331,7 +331,7 @@ const getAveragePeriodDuration = (periodDocs) => {
 // // ─── Helper: Average cycle length (in days) ──────────────────────────────────
 // // Takes the array of period docs (any order) and returns the rounded average
 // // gap between consecutive cycle start dates
-const getAverageCycleLength = (periodDocs) => {
+export const getAverageCycleLength = (periodDocs) => {
   const sorted = [...periodDocs].sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
   if (sorted.length < 2) return 0;
@@ -395,6 +395,332 @@ export const getPeriodData = async (req, res) => {
 // // gap between consecutive cycle start dates
 
 // // ─── Controller ──────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const getPeriodBasicInsights = async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+
+//     // ─── Branch A: user has period docs with startDate/endDate ───────────────
+//     try {
+//       const allPeriodDocs = await PeriodTracker.find(
+//         {
+//           userId,
+//           startDate: { $exists: true, $ne: null },
+//           endDate: { $exists: true, $ne: null },
+//         },
+//         { period: 0 },
+//       ).sort({ startDate: -1 });
+
+//       if (allPeriodDocs.length > 0) {
+//         const result = {
+//           estimatedNextPeriodDate: null,
+//           averageDaysOfPeriods: null,
+//           averageCycleLength: null,
+//           sixMonthCycleHistory: [],
+//         };
+
+//         // ── Averages ─────────────────────────────────────────────────────────
+//         const averageCycleLength = getAverageCycleLength(allPeriodDocs);
+//         const averageDaysOfPeriods = getAveragePeriodDuration(allPeriodDocs);
+
+//         result.averageCycleLength = averageCycleLength;
+//         result.averageDaysOfPeriods = averageDaysOfPeriods;
+
+//         // ── Estimated next period date ───────────────────────────────────────
+//         const estimatedNextPeriodDate = new Date(allPeriodDocs[0].startDate);
+//         estimatedNextPeriodDate.setDate(estimatedNextPeriodDate.getDate() + averageCycleLength);
+//         result.estimatedNextPeriodDate = estimatedNextPeriodDate;
+
+//         // ── Last 6 months of self-test records ───────────────────────────────
+//         const sixMonthsAgo = new Date();
+//         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+//         sixMonthsAgo.setDate(1);
+//         sixMonthsAgo.setHours(0, 0, 0, 0);
+
+//         const selfTests = await UserSelfTest.find({ userId, currentDate: { $gte: sixMonthsAgo } }, { selfTest: 0 })
+//           .sort({ currentDate: 1 })
+//           .lean();
+
+//         // ── Expand latest 6 periods across month boundaries ──────────────────
+//         const toMonthName = (d) => d.toLocaleString("en-US", { month: "short" }).toUpperCase();
+
+//         const latestSixPeriods = allPeriodDocs.slice(0, 6);
+
+//         const expandedPeriods = latestSixPeriods.flatMap((period) => {
+//           const startDate = new Date(period.startDate);
+//           const endDate = new Date(period.endDate);
+
+//           // Period fits inside a single calendar month
+//           if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
+//             return [
+//               {
+//                 monthName: toMonthName(startDate),
+//                 startDate: period.startDate,
+//                 endDate: period.endDate,
+//               },
+//             ];
+//           }
+
+//           // Period spans multiple months — split into per-month segments
+//           const segments = [];
+//           let cursor = new Date(startDate);
+
+//           while (cursor.getMonth() !== endDate.getMonth() || cursor.getFullYear() !== endDate.getFullYear()) {
+//             const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+//             segments.push({
+//               monthName: toMonthName(cursor),
+//               startDate: new Date(cursor),
+//               endDate: new Date(monthEnd),
+//             });
+//             cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+//           }
+
+//           // Final segment (the month that contains endDate)
+//           segments.push({
+//             monthName: toMonthName(endDate),
+//             startDate: new Date(cursor),
+//             endDate: new Date(endDate),
+//           });
+
+//           return segments;
+//         });
+
+//         // ── Attach self-test dates to their matching months ──────────────────
+//         const periodSelfTests = expandedPeriods.flatMap((period) => {
+//           const matchingSelfTests = selfTests.filter((selfTest) => {
+//             const monthName = new Date(selfTest.currentDate).toLocaleString("en-US", { month: "short" }).toUpperCase();
+//             return monthName === period.monthName;
+//           });
+
+//           if (matchingSelfTests.length === 0) {
+//             return [{ ...period, selfTestDate: null }];
+//           }
+
+//           return matchingSelfTests.map((selfTest) => ({
+//             ...period,
+//             selfTestDate: selfTest.currentDate,
+//           }));
+//         });
+
+//         result.sixMonthCycleHistory = periodSelfTests.slice(0, 6);
+
+//         return successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
+//       }
+//     } catch (error) {
+//       return somethingWentWrong(res, error, "Something went wrong while fetching period data.");
+//     }
+
+//     // ─── Branch B: fallback — user has legacy period[] array docs ────────────
+//     const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
+
+//     const periodDocs = await PeriodTracker.find({ userId }).sort({ createdAt: 1 });
+
+//     const allPeriods = periodDocs
+//       .flatMap((doc) => doc.period || [])
+//       .map((p) => ({ ...p, date: new Date(p.date) }))
+//       .sort((a, b) => a.date - b.date);
+
+//     if (!allPeriods.length) {
+//       return successResponse(res, { cycles: [] }, "No period data found.", "Empty dataset.");
+//     }
+
+//     // Group individual period days into cycles separated by POST_MENSTRUAL_INTERVAL
+//     const cycles = [];
+//     let currentCycle = [];
+//     let lastDate = null;
+
+//     for (const item of allPeriods) {
+//       if (!lastDate) {
+//         currentCycle.push(item);
+//       } else {
+//         const diffDays = (item.date - lastDate) / (1000 * 60 * 60 * 24);
+//         if (diffDays > POST_MENSTRUAL_INTERVAL) {
+//           cycles.push(currentCycle);
+//           currentCycle = [item];
+//         } else {
+//           currentCycle.push(item);
+//         }
+//       }
+//       lastDate = item.date;
+//     }
+
+//     if (currentCycle.length) cycles.push(currentCycle);
+
+//     const cycleInsights = cycles.map((cycle, index) => {
+//       const startDate = cycle[0].date;
+//       const endDate = cycle[cycle.length - 1].date;
+
+//       const cycleDuration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+//       const bleedingDuration = cycle.filter((d) => d?.bleeding?.flowLevel >= 1).length;
+//       const symptomFrequency = cycle.reduce((acc, day) => acc + (day.symptoms?.length || 0), 0);
+
+//       return {
+//         cycleNumber: index + 1,
+//         startDate,
+//         endDate,
+//         cycleDuration: Math.round(cycleDuration),
+//         bleedingDuration,
+//         symptomFrequency,
+//       };
+//     });
+
+//     return successResponse(res, { totalCycles: cycles.length, cycleInsights }, "Cycle insights generated successfully.", "Insights computed successfully.");
+//   } catch (error) {
+//     console.error(error);
+//     return somethingWentWrong(res, error, "Something went wrong while generating insights.");
+//   }
+// };
+
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+
+const toMonthName = (d) => new Date(d).toLocaleString("en-US", { month: "short" }).toUpperCase();
+
+/**
+ * Splits a single period (with startDate/endDate) into one or more
+ * per-calendar-month segments. If the period fits inside a single month,
+ * returns a single segment.
+ */
+const expandPeriodAcrossMonths = (period) => {
+  const startDate = new Date(period.startDate);
+  const endDate = new Date(period.endDate);
+
+  if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
+    return [
+      {
+        monthName: toMonthName(startDate),
+        startDate: period.startDate,
+        endDate: period.endDate,
+      },
+    ];
+  }
+
+  const segments = [];
+  let cursor = new Date(startDate);
+
+  while (cursor.getMonth() !== endDate.getMonth() || cursor.getFullYear() !== endDate.getFullYear()) {
+    const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+    segments.push({
+      monthName: toMonthName(cursor),
+      startDate: new Date(cursor),
+      endDate: new Date(monthEnd),
+    });
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+  }
+
+  segments.push({
+    monthName: toMonthName(endDate),
+    startDate: new Date(cursor),
+    endDate: new Date(endDate),
+  });
+
+  return segments;
+};
+
+/**
+ * Attaches matching self-test dates to each expanded period segment,
+ * based on month-name match. Periods with no matching self-test get
+ * a single entry with selfTestDate: null.
+ */
+const attachSelfTestsToPeriods = (expandedPeriods, selfTests) => {
+  return expandedPeriods.flatMap((period) => {
+    const matchingSelfTests = selfTests.filter((selfTest) => toMonthName(selfTest.currentDate) === period.monthName);
+
+    if (matchingSelfTests.length === 0) {
+      return [{ ...period, selfTestDate: null }];
+    }
+
+    return matchingSelfTests.map((selfTest) => ({
+      ...period,
+      selfTestDate: selfTest.currentDate,
+    }));
+  });
+};
+
+/**
+ * Returns the first day of the month, N months before today, at midnight.
+ */
+const getMonthsAgoStart = (monthsAgo) => {
+  const date = new Date();
+  date.setMonth(date.getMonth() - monthsAgo);
+  date.setDate(1);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+/**
+ * Groups a flat, date-sorted list of period-day entries into cycles,
+ * splitting whenever the gap between consecutive days exceeds intervalDays.
+ */
+const groupPeriodsIntoCycles = (allPeriods, intervalDays) => {
+  const cycles = [];
+  let currentCycle = [];
+  let lastDate = null;
+
+  for (const item of allPeriods) {
+    if (!lastDate) {
+      currentCycle.push(item);
+    } else {
+      const diffDays = (item.date - lastDate) / (1000 * 60 * 60 * 24);
+      if (diffDays > intervalDays) {
+        cycles.push(currentCycle);
+        currentCycle = [item];
+      } else {
+        currentCycle.push(item);
+      }
+    }
+    lastDate = item.date;
+  }
+
+  if (currentCycle.length) cycles.push(currentCycle);
+
+  return cycles;
+};
+
+/**
+ * Computes summary stats (duration, bleeding days, symptom frequency) for
+ * each cycle produced by groupPeriodsIntoCycles.
+ */
+const computeCycleInsights = (cycles) => {
+  return cycles.map((cycle, index) => {
+    const startDate = cycle[0].date;
+    const endDate = cycle[cycle.length - 1].date;
+
+    const cycleDuration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+    const bleedingDuration = cycle.filter((d) => d?.bleeding?.flowLevel >= 1).length;
+    const symptomFrequency = cycle.reduce((acc, day) => acc + (day.symptoms?.length || 0), 0);
+
+    return {
+      cycleNumber: index + 1,
+      startDate,
+      endDate,
+      cycleDuration: Math.round(cycleDuration),
+      bleedingDuration,
+      symptomFrequency,
+    };
+  });
+};
+
+// ── Controller ───────────────────────────────────────────────────────────
+
 export const getPeriodBasicInsights = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -418,88 +744,26 @@ export const getPeriodBasicInsights = async (req, res) => {
           sixMonthCycleHistory: [],
         };
 
-        // ── Averages ─────────────────────────────────────────────────────────
         const averageCycleLength = getAverageCycleLength(allPeriodDocs);
         const averageDaysOfPeriods = getAveragePeriodDuration(allPeriodDocs);
 
         result.averageCycleLength = averageCycleLength;
         result.averageDaysOfPeriods = averageDaysOfPeriods;
 
-        // ── Estimated next period date ───────────────────────────────────────
         const estimatedNextPeriodDate = new Date(allPeriodDocs[0].startDate);
         estimatedNextPeriodDate.setDate(estimatedNextPeriodDate.getDate() + averageCycleLength);
         result.estimatedNextPeriodDate = estimatedNextPeriodDate;
 
-        // ── Last 6 months of self-test records ───────────────────────────────
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-        sixMonthsAgo.setDate(1);
-        sixMonthsAgo.setHours(0, 0, 0, 0);
+        const sixMonthsAgo = getMonthsAgoStart(5);
 
         const selfTests = await UserSelfTest.find({ userId, currentDate: { $gte: sixMonthsAgo } }, { selfTest: 0 })
           .sort({ currentDate: 1 })
           .lean();
 
-        // ── Expand latest 6 periods across month boundaries ──────────────────
-        const toMonthName = (d) => d.toLocaleString("en-US", { month: "short" }).toUpperCase();
-
         const latestSixPeriods = allPeriodDocs.slice(0, 6);
+        const expandedPeriods = latestSixPeriods.flatMap(expandPeriodAcrossMonths);
 
-        const expandedPeriods = latestSixPeriods.flatMap((period) => {
-          const startDate = new Date(period.startDate);
-          const endDate = new Date(period.endDate);
-
-          // Period fits inside a single calendar month
-          if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
-            return [
-              {
-                monthName: toMonthName(startDate),
-                startDate: period.startDate,
-                endDate: period.endDate,
-              },
-            ];
-          }
-
-          // Period spans multiple months — split into per-month segments
-          const segments = [];
-          let cursor = new Date(startDate);
-
-          while (cursor.getMonth() !== endDate.getMonth() || cursor.getFullYear() !== endDate.getFullYear()) {
-            const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
-            segments.push({
-              monthName: toMonthName(cursor),
-              startDate: new Date(cursor),
-              endDate: new Date(monthEnd),
-            });
-            cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-          }
-
-          // Final segment (the month that contains endDate)
-          segments.push({
-            monthName: toMonthName(endDate),
-            startDate: new Date(cursor),
-            endDate: new Date(endDate),
-          });
-
-          return segments;
-        });
-
-        // ── Attach self-test dates to their matching months ──────────────────
-        const periodSelfTests = expandedPeriods.flatMap((period) => {
-          const matchingSelfTests = selfTests.filter((selfTest) => {
-            const monthName = new Date(selfTest.currentDate).toLocaleString("en-US", { month: "short" }).toUpperCase();
-            return monthName === period.monthName;
-          });
-
-          if (matchingSelfTests.length === 0) {
-            return [{ ...period, selfTestDate: null }];
-          }
-
-          return matchingSelfTests.map((selfTest) => ({
-            ...period,
-            selfTestDate: selfTest.currentDate,
-          }));
-        });
+        const periodSelfTests = attachSelfTestsToPeriods(expandedPeriods, selfTests);
 
         result.sixMonthCycleHistory = periodSelfTests.slice(0, 6);
 
@@ -523,45 +787,8 @@ export const getPeriodBasicInsights = async (req, res) => {
       return successResponse(res, { cycles: [] }, "No period data found.", "Empty dataset.");
     }
 
-    // Group individual period days into cycles separated by POST_MENSTRUAL_INTERVAL
-    const cycles = [];
-    let currentCycle = [];
-    let lastDate = null;
-
-    for (const item of allPeriods) {
-      if (!lastDate) {
-        currentCycle.push(item);
-      } else {
-        const diffDays = (item.date - lastDate) / (1000 * 60 * 60 * 24);
-        if (diffDays > POST_MENSTRUAL_INTERVAL) {
-          cycles.push(currentCycle);
-          currentCycle = [item];
-        } else {
-          currentCycle.push(item);
-        }
-      }
-      lastDate = item.date;
-    }
-
-    if (currentCycle.length) cycles.push(currentCycle);
-
-    const cycleInsights = cycles.map((cycle, index) => {
-      const startDate = cycle[0].date;
-      const endDate = cycle[cycle.length - 1].date;
-
-      const cycleDuration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-      const bleedingDuration = cycle.filter((d) => d?.bleeding?.flowLevel >= 1).length;
-      const symptomFrequency = cycle.reduce((acc, day) => acc + (day.symptoms?.length || 0), 0);
-
-      return {
-        cycleNumber: index + 1,
-        startDate,
-        endDate,
-        cycleDuration: Math.round(cycleDuration),
-        bleedingDuration,
-        symptomFrequency,
-      };
-    });
+    const cycles = groupPeriodsIntoCycles(allPeriods, POST_MENSTRUAL_INTERVAL);
+    const cycleInsights = computeCycleInsights(cycles);
 
     return successResponse(res, { totalCycles: cycles.length, cycleInsights }, "Cycle insights generated successfully.", "Insights computed successfully.");
   } catch (error) {
@@ -569,6 +796,26 @@ export const getPeriodBasicInsights = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong while generating insights.");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const addDailyNote = async (req, res) => {
   const payload = req.body;
@@ -587,7 +834,6 @@ export const addDailyNote = async (req, res) => {
 
 const getTimestamp = () => `[${new Date().toLocaleString()}]`;
 
-
 export const previousPeriodsInfo = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -595,14 +841,11 @@ export const previousPeriodsInfo = async (req, res) => {
       createdAt: 1,
     });
 
-    const isEndedByUser = periodDocs.every(
-      (doc) => doc.isEndedByUser === true
-    );
+    const isEndedByUser = periodDocs.every((doc) => doc.isEndedByUser === true);
 
-    const failedStartDates = periodDocs.filter(doc => !doc.isEndedByUser).map(doc => doc.startDate);
-    const formattedDates = failedStartDates.map(date => date.toISOString().split("T")[0]);
+    const failedStartDates = periodDocs.filter((doc) => !doc.isEndedByUser).map((doc) => doc.startDate);
+    const formattedDates = failedStartDates.map((date) => date.toISOString().split("T")[0]);
     const activePeriodDate = formattedDates[formattedDates.length - 1];
-
 
     console.log(getTimestamp(), "SUCCESS:", "All period data is fetched.");
     return res.status(200).json({
@@ -613,7 +856,6 @@ export const previousPeriodsInfo = async (req, res) => {
       length: periodDocs.length || 0,
       message: "All period data is fetched successfully.",
     });
-
   } catch (error) {
     return somethingWentWrong(res, error, "Something went wrong while fetching period data.");
   }
