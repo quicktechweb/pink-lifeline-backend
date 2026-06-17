@@ -915,11 +915,75 @@ export const recordPeriodEnd = async (req, res) => {
 
     // ── 8. Cannot end before the last logged entry ────────────────────────────
     const loggedDates = latestPeriod.period.map((p) => toDateOnly(p.currentDate));
-    const latestLogged = loggedDates.sort().at(-1);
+    // console.log("🚀 ~ trackPeriod2.js:964 ~ recordPeriodEnd ~ latestPeriod.period:", latestPeriod.period)
 
-    if (latestLogged && endDateOnly < latestLogged) {
+    const latestLogged = loggedDates.sort().at(-1);
+    // console.log("🚀 ~ trackPeriod2.js:966 ~ recordPeriodEnd ~ latestLogged period logged date:", latestLogged)
+    // 🚀 ~ trackPeriod2.js:966 ~ recordPeriodEnd ~ latestLogged period logged date: 2025-11-03
+    // endDateOnly : 2026-02-09
+
+    if (endDateOnly > latestLogged) {
+      const defaultPeriodValue = {
+        bleeding: {
+          flowLevel: 1,
+          hadFlow: true,
+        },
+        spotting: [],
+        symptoms: [],
+      };
+
+      // Make sure the array is sorted first
+      latestPeriod.period.sort((a, b) => new Date(a.currentDate) - new Date(b.currentDate));
+
+      let i = 0;
+
+      while (i < latestPeriod.period.length - 1) {
+        let current = new Date(latestPeriod.period[i].currentDate);
+        const next = new Date(latestPeriod.period[i + 1].currentDate);
+
+        current.setHours(0, 0, 0, 0);
+        next.setHours(0, 0, 0, 0);
+
+        // Fill the gap between current and next
+        while (true) {
+          const temp = new Date(current);
+          temp.setDate(temp.getDate() + 1);
+
+          if (temp >= next) break;
+
+          latestPeriod.period.splice(i + 1, 0, {
+            ...defaultPeriodValue,
+            currentDate: new Date(temp),
+          });
+
+          current = temp;
+          i++;
+        }
+
+        i++;
+      }
+
+      // Fill from the last logged date until endDateOnly
+      let lastDate = new Date(latestPeriod.period[latestPeriod.period.length - 1].currentDate);
+
+      while (lastDate.toISOString().split("T")[0] < endDateOnly) {
+        lastDate.setDate(lastDate.getDate() + 1);
+
+        latestPeriod.period.push({
+          ...defaultPeriodValue,
+          currentDate: new Date(lastDate),
+        });
+      }
+
+      await latestPeriod.save();
+    }
+
+    // console.log("🚀 ~ trackPeriod2.js:969 ~ recordPeriodEnd ~ endDate:", endDate,endDateOnly)
+    // endDate: 2026-02-09T00:00:00.000
+
+    if (latestLogged && endDateOnly >= latestLogged) {
       latestPeriod.period = latestPeriod.period.filter((p) => toDateOnly(p.currentDate) <= endDateOnly);
-      console.log(latestPeriod.period);
+
       await latestPeriod.save();
     }
 
