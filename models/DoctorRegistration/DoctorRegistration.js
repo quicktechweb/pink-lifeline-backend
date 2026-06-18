@@ -61,6 +61,18 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    role: {
+      type: String,
+      trim: true,
+      enum: [
+        "admin", 
+        "superadmin",
+        "communitymodarator",
+        "appointmentmanager",
+        "doctormanager",
+      ],
+    },
+
     isDoctor: {
       type: Number,
       default: 0,

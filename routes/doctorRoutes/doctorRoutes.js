@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, adminManagement, logoutAdmin } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -11,7 +11,6 @@ router.post("/register", uploadImage.single("photo"), registerUser);
 
 router.post("/login", loginUser);
 
-router.post("/loginadmin", loginadmin);
 
 
 router.post("/save-fcm-token/:userId",saveFCMToken)
@@ -55,8 +54,10 @@ router.post("/get-daily-doctor-appointments/:userId", isDoctor, getDailyAppointm
 
 
 
+// admin sections
 
 
+// router.post("/loginadmin", loginadmin);
 
 
 router.post("/get-all-appointments-by-admin",getAllAppointmentsByAdmin)
@@ -65,14 +66,16 @@ router.post("/cancel-appointment-by-admin/:id",cancelAppointmentByAdmin);
 router.post("/get-all-doctors-by-admin", getAllDoctorByAdmin);
 
 
-
-
-
-
-
 router.post("/signup-by-admin",signUpAsAdmin)
+
+
 router.post("/login-by-admin",loginByAdmin)
+
+
 router.post("/reset-password-by-admin/:userId",isUserExist,updateProfile)
+router.post("/logout-by-admin", logoutAdmin);
+
+router.get("/get-admin-management/:userId",isUserExist,adminManagement)
 
 
 

@@ -5,6 +5,7 @@ import PeriodTracker from "./../models/Period/PeriodModel.js";
 import DoctorRegistration from "../models/DoctorRegistration/DoctorRegistration.js";
 import mongoose from "mongoose";
 import Notification from "../models/Notification/NotificationModel.js";
+import Role from "../models/RolePermission/RolePermission.js";
 
 const internalUtilRoutes = express.Router();
 
@@ -32,6 +33,53 @@ internalUtilRoutes.delete("/clear-user-data/:userId", async (req, res) => {
     });
   }
 });
+
+
+
+internalUtilRoutes.post("/create-role-route", async (req, res) => {
+  try {
+    const { role, routeJSON } = req.body;
+    const newRole = new Role({ role, routeJSON });
+    await newRole.save();
+    return res.status(200).json({
+      success: true,
+      message: "Role created successfully",
+      data: newRole,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create role",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+internalUtilRoutes.post("/update-role-route", async (req, res) => {
+  const { role, route } = req.body;
+
+  try {
+    const updatedRole = await Role.findOneAndUpdate({ role }, { route }, { new: true });
+    return res.status(200).json({
+      success: true,
+      message: "Role updated successfully",
+      data: updatedRole,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update role",
+      error: error.message,
+    });
+  }
+});
+
+
 
 /**
  * Run insertPeriodData.js script
@@ -78,6 +126,7 @@ internalUtilRoutes.post("/run-script", async (req, res) => {
   }
 });
 
+
 internalUtilRoutes.get("/all-types-of-user", async (req, res) => {
   try {
     const users = await DoctorRegistration.find({});
@@ -95,6 +144,7 @@ internalUtilRoutes.get("/all-types-of-user", async (req, res) => {
     });
   }
 });
+
 
 internalUtilRoutes.get("/get-all-connections", async (req, res) => {
   try {
@@ -117,6 +167,7 @@ internalUtilRoutes.get("/get-all-connections", async (req, res) => {
     });
   }
 });
+
 
 internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
   try {
@@ -151,6 +202,7 @@ internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
     });
   }
 });
+
 
 internalUtilRoutes.put("/update-property-by-id/:collectionName/:id", async (req, res) => {
   try {
@@ -206,6 +258,7 @@ internalUtilRoutes.put("/update-property-by-id/:collectionName/:id", async (req,
   }
 });
 
+
 internalUtilRoutes.post("/delete-specific-data-form-each-collection", async (req, res) => {
   try {
     const { field, value } = req.body;
@@ -250,6 +303,7 @@ internalUtilRoutes.post("/delete-specific-data-form-each-collection", async (req
     });
   }
 });
+
 
 internalUtilRoutes.patch("/update-schedule-time/:userId", async (req, res) => {
   try {

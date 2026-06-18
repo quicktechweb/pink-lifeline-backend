@@ -6,24 +6,22 @@ dotenv.config();
 const verifyToken = (req, res, next) => {
   try {
     let token;
-
+    
     // Cookie
     if (req.cookies?.accessToken) {
       token = req.cookies.accessToken;
     }
 
     // Authorization header
-    else if (
-      req.headers.authorization?.startsWith("Bearer ")
-    ) {
+    else if (req.headers.authorization?.startsWith("Bearer ")) {
       token = req.headers.authorization.split(" ")[1];
     }
-
+    
     
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized",
+        message: "Unauthorized. No token provided.",
       });
     }
 

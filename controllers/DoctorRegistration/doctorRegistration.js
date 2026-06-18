@@ -10,6 +10,7 @@ import { Appointment } from "../../models/Schedule/userBooking.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import { createOrUpdateFCMToken } from "../../services/notificationService.js";
 import bcrypt from "bcryptjs";
+import Role from "../../models/RolePermission/RolePermission.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -218,9 +219,6 @@ export const loginadmin = async (req, res) => {
       });
     }
 
-    console.log("USER:", user);
-    console.log("DB PASS:", user.password);
-    console.log("ENTER PASS:", password);
 
     // compare
     const dbPassword = user.password?.trim();
@@ -1458,8 +1456,19 @@ export const cancelAppointmentByAdmin = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 export const loginByAdmin = async (req, res) => {
-  console.log("cookies =>", req.cookies);
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -1509,10 +1518,14 @@ export const loginByAdmin = async (req, res) => {
 
     const token = generateToken(user);
 
+    const routerJSON = await Role.findOne({ role: user.role });
+
+    const routes = routerJSON?.routeJSON || "[]";
+
     return res.cookie("accessToken", token, {
         httpOnly: true,
         secure: ENV === "prod",
-        sameSite: "strict", // or "lax"
+        sameSite: ENV === "prod" ? "strict" : "none", // or "lax"
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .status(200)
@@ -1522,6 +1535,8 @@ export const loginByAdmin = async (req, res) => {
           id: user._id,
           email: user.email,
           type: user.type,
+          // token:token,
+          routes: JSON.parse(routes),
         },
       });
 
@@ -1531,6 +1546,23 @@ export const loginByAdmin = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+export const logoutAdmin = async (req, res) => {
+  return res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: ENV === "prod",
+      sameSite: "strict",
+    }).status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+};
+
+
+
+
 
 
 
@@ -1545,64 +1577,75 @@ export const signUpAsAdmin = async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
+
     if (user) {
 
-      if (user.type != 2) {
-        return res.status(200).json({
-          success: false,
-          message: "Unauthorized user.",
-        }); 
-      }
-
-      if (user.adminStatus==="pending") {
+      if (user.adminStatus==="pending" && user.type === 2) {
         return res.status(200).json({
           success: false,
           message: "Your request is pending now.",
         }); 
       }
 
-      
-      if (user.adminStatus==="suspended") {
+
+      if (user.adminStatus==="suspended" && user.type === 2) {
         return res.status(200).json({
           success: false,
           message: "Your are suspended from this panel. Please contact with other admin.",
         }); 
       }
 
-      if (user.adminStatus==="active") {
+      if (user.adminStatus==="active" && user.type === 2) {
         return res.status(200).json({
           success: false,
           message: "Your are suspended from this panel. Please contact with other admin.",
         }); 
       }
-    }
+
+      if (user.email === email && user.type != 2) {
+        return res.status(200).json({
+          success: false,
+          message: "Unauthorized user.",
+        }); 
+      }
+
+  //     if (condition) {
+  //         canAddSymptom  
+  // canEditSymptom  
+  // canDeleteSymptom  
+  //     }
+
+
+    }else{
         const userId = generateUserId(2);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      type: 2,
-      fullName,
-      userId,
-      adminStatus: "pending",
-    });
+        const newUser = new User({
+          email,
+          password: hashedPassword,
+          type: 2,
+          fullName,
+          userId,
+          adminStatus: "pending",
+        });
 
-    await newUser.save();
+        await newUser.save();
 
-    const token = generateToken(newUser);
+        const token = generateToken(newUser);
 
-    return res.status(201).json({
-      success: true,
-      token,
-      user: {
-        id: newUser._id,
-        email: newUser.email,
-        type: newUser.type,
-      },
-      message: "Admin created successfully.",
-    });
+        return res.status(201).json({
+          success: true,
+          token,
+          user: {
+            id: newUser._id,
+            email: newUser.email,
+            type: newUser.type,
+          },
+          message: "Admin request created successfully.",
+        });
+
+    }
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
@@ -1649,3 +1692,16 @@ export const updateAdminPassword = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+export const adminManagement = async (req,res) => {
+  try {
+    const users = await User.find({ type: 2, isRemoved:false });
+    return successResponse(res, users, "Admins fetched successfully.", "Admins fetched successfully."); 
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+}
+

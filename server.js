@@ -34,10 +34,14 @@ app.use(express.json());
 //     credentials: true,
 //   })
 // );
-
+// http://192.168.0.130:5173
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "http://192.168.0.112:5173",
+      "http://192.168.0.130:5173",
+    ],
     credentials: true,
   })
 );
@@ -71,12 +75,9 @@ app.use("/api/dashboard-stats",dashboardStatsRoutes)
 
 
 
-app.get(
-  "/api/user/me",
-  verifyToken,
-  (req, res) => {
-      console.log("🚀 ~ server.js:78 ~ req.user:", req.user)
-    res.status(200).json({
+app.get("/api/user/me",verifyToken,(req, res) => {
+      console.log("🚀 ~ server.js:78 ~ req.user:", req)
+      res.status(200).json({
       success: true,
       user: req.user,
     });
