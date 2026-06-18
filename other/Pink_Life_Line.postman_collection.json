@@ -2003,6 +2003,41 @@
           ]
         },
         {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "get-all-admin-users",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-all-admin-users/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-all-admin-users",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-W4EN3B"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "save-fcm-token",
           "request": {
             "method": "POST",
@@ -4032,241 +4067,6 @@
       ]
     },
     {
-      "name": "supportive apis",
-      "item": [
-        {
-          "name": "delete period data by id",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseurl}}/other/clear-user-data/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "clear-user-data",
-                ":userId"
-              ],
-              "variable": [
-                {
-                  "key": "userId",
-                  "value": "USR-XMH2HC"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "run specific scripts",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"script\": \"testPeriodInsertScript.js\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseurl}}/other/run-script",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "run-script"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "delete specific data from each collection",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-SFYWPP\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseurl}}/other/delete-specific-data-form-each-collection",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "delete-specific-data-form-each-collection"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "update property by _id",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"status\": \"pending\",\r\n    \"cancelledBy\": null,\r\n    \"isDeleted\": false\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseurl}}/other/update-property-by-id/:collectionName/:id",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "update-property-by-id",
-                ":collectionName",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "collectionName",
-                  "value": "appointments"
-                },
-                {
-                  "key": "id",
-                  "value": "6a29568533410d1deee8d7d2"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "get all from indivisual database",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseurl}}/other/collection/:collectionName?",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "collection",
-                ":collectionName"
-              ],
-              "query": [
-                {
-                  "key": "",
-                  "value": null,
-                  "description": "USR-UAL29I"
-                }
-              ],
-              "variable": [
-                {
-                  "key": "collectionName",
-                  "value": "userfcmtokens"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "get-all-connections",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseurl}}/other/get-all-connections",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "get-all-connections"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "update-schedule-time",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseurl}}/other/update-schedule-time/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "update-schedule-time",
-                ":userId"
-              ],
-              "variable": [
-                {
-                  "key": "userId",
-                  "value": "USR-MUSZWJ"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
       "name": "Dashboard Stats",
       "item": [
         {
@@ -4393,6 +4193,268 @@
                 "dashboard-stats",
                 "v1",
                 "get-appointment-trends-over-time"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "supportive apis",
+      "item": [
+        {
+          "name": "delete period data by id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/clear-user-data/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "clear-user-data",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-MUSZWJ"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "run specific scripts",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"script\": \"testPeriodInsertScript.js\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/run-script",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "run-script"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete specific data from each collection",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-SFYWPP\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/delete-specific-data-form-each-collection",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "delete-specific-data-form-each-collection"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update property by _id",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n        \"adminStatus\": \"active\",\r\n    \"cancelledBy\": null,\r\n    \"isDeleted\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/update-property-by-id/:collectionName/:id",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "update-property-by-id",
+                ":collectionName",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "collectionName",
+                  "value": "doctors"
+                },
+                {
+                  "key": "id",
+                  "value": "6a336ca558150f78e12c29d1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all from indivisual database",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/collection/:collectionName?",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "collection",
+                ":collectionName"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null,
+                  "description": "USR-UAL29I"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "collectionName",
+                  "value": "doctors"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-all-connections",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/get-all-connections",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "get-all-connections"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update-schedule-time",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/update-schedule-time/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "update-schedule-time",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-MUSZWJ"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create-role-route",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"role\": \"admin\",\r\n  \"routeJSON\": \"[{\\\"key\\\":\\\"Dashboard\\\",\\\"title\\\":\\\"Dashboard\\\",\\\"icon\\\":\\\"FaHome\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard\\\"},{\\\"key\\\":\\\"Step-Management\\\",\\\"title\\\":\\\"Step Management\\\",\\\"icon\\\":\\\"Route\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/manage-self-test\\\"},{\\\"key\\\":\\\"Dropdown-Management\\\",\\\"title\\\":\\\"Dropdown Management\\\",\\\"icon\\\":\\\"ListCollapse\\\",\\\"links\\\":[{\\\"title\\\":\\\"Bleeding Dropdown Management\\\",\\\"icon\\\":\\\"Droplets\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/bleeding-dropdown\\\"},{\\\"title\\\":\\\"Spotting Dropdown Management\\\",\\\"icon\\\":\\\"HeartPlus\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/spotting-dropdown\\\"},{\\\"title\\\":\\\"Symptoms Dropdown Management\\\",\\\"icon\\\":\\\"Syringe\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/symptoms-dropdown\\\"}]}]\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/create-role-route",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "create-role-route"
               ]
             }
           },
