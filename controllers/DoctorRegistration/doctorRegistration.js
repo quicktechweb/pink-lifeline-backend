@@ -1524,8 +1524,8 @@ export const loginByAdmin = async (req, res) => {
 
     return res.cookie("accessToken", token, {
         httpOnly: true,
-        secure: ENV === "prod",
-        sameSite: ENV === "prod" ? "strict" : "none", // or "lax"
+        secure: false,
+        sameSite: "lax", // or "lax"
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .status(200)
@@ -1535,7 +1535,6 @@ export const loginByAdmin = async (req, res) => {
           id: user._id,
           email: user.email,
           type: user.type,
-          // token:token,
           routes: JSON.parse(routes),
         },
       });
@@ -1695,13 +1694,33 @@ export const updateAdminPassword = async (req, res) => {
 
 
 
-export const adminManagement = async (req,res) => {
+
+
+
+export const getAllAdminUsers = async (req,res) => {
   try {
-    const users = await User.find({ type: 2, isRemoved:false });
-    return successResponse(res, users, "Admins fetched successfully.", "Admins fetched successfully."); 
+    const {role, limit, page, sortBy, sortOrder} = req.body;
+
+    const skip = (page - 1) * limit;
+
+    const filter = {type: 2, isRemoved: false};
+
+    if(role){
+      filter.role = role;
+    }
+
+    const count = await User.countDocuments(filter);
+
+    const users = await User.find(filter)
+      .select("userId profilePhoto fullName email phoneNumber adminStatus createdAt role")
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(limit);
+
+    return paginatedSuccessResponse(res, users, page, limit, count, "Admin users retrieved successfully", "Get all admin users successfully.");
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
-}
+};
 

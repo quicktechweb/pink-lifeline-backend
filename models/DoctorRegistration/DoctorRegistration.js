@@ -78,6 +78,11 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
+    doctorApprovedBy: {
+      type: String,
+      default: null,
+    },
+
     isUser: {
       type: Number,
       default: 0,

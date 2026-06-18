@@ -8,8 +8,8 @@ const roleSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       enum: [
-        "admin", 
         "superadmin",
+        "admin", 
         "communitymodarator",
         "appointmentmanager",
         "doctormanager",
