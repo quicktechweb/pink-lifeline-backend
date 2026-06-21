@@ -148,7 +148,7 @@ export const registerUser = async (req, res) => {
     };
 
     const fcmTokenSaving = await createOrUpdateFCMToken({ fcmToken, userId: newUser.userId, email: newUser.email });
-    console.log("🚀 ~ doctorRegistration.js:153 ~ registerUser ~ fcmTokenSaving:", fcmTokenSaving);
+    // console.log("🚀 ~ doctorRegistration.js:153 ~ registerUser ~ fcmTokenSaving:", fcmTokenSaving);
 
     return res.status(200).json({
       success: true,
@@ -218,7 +218,6 @@ export const loginadmin = async (req, res) => {
         message: "Admin account not found",
       });
     }
-
 
     // compare
     const dbPassword = user.password?.trim();
@@ -427,7 +426,8 @@ export const getAllDoctors = async (req, res) => {
       isDoctor: 1,
       $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
     })
-      .select("fullName doctorRegistrationNumber email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
+
+      .select("location currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved ")
       .lean();
 
     if (!doctors.length) {
@@ -1202,88 +1202,126 @@ export const addDoctorWeeklySchedule = async (req, res) => {
 };
 
 export const getAllAppointmentsByAdmin = async (req, res) => {
-  const { limit = 10, page = 1 } = req.body;
+  const {
+    limit = 10,
+    page = 1,
+    filterBy, // "fullName" | "location" | "appointmentsCount"
+    sortOrder = "asc",
+    status = "all",
+    search = "",
+  } = req.body;
 
   try {
     const parsedLimit = Number(limit);
     const parsedPage = Number(page);
+    const dir = sortOrder === "desc" ? -1 : 1;
+
+    let sortStage = { appointmentsCount: -1 };
+
+    switch (filterBy) {
+      case "fullName":
+        sortStage = { fullName: dir };
+        break;
+
+      case "location":
+        sortStage = { currentWorkplace: dir };
+        break;
+
+      case "appointmentsCount":
+        sortStage = { appointmentsCount: dir };
+        break;
+
+      default:
+        sortStage = { appointmentsCount: -1 };
+    }
+
+    const appointmentLookupPipeline = [
+      {
+        $match: {
+          $expr: { $eq: ["$doctorUserId", "$$doctorUserId"] },
+        },
+      },
+    ];
+
+    if (status !== "all") {
+      appointmentLookupPipeline.push({ $match: { status } });
+    }
+
+    appointmentLookupPipeline.push(
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: "doctors",
+          localField: "userId",
+          foreignField: "userId",
+          as: "patient",
+        },
+      },
+      {
+        $unwind: { path: "$patient", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $addFields: {
+          patientName: "$patient.fullName",
+          patientEmail: "$patient.email",
+          patientPhone: "$patient.phoneNumber",
+          patientProfilePhoto: "$patient.profilePhoto",
+        },
+      },
+      { $project: { patient: 0 } },
+    );
+
+    // shared $match for the base User query (verified doctors + search)
+    const baseMatch = {
+      type: 1,
+      isVerified: true,
+    };
+
+    if (search) {
+      const re = new RegExp(search, "i");
+      baseMatch.$or = [{ fullName: re }, { phoneNumber: re }, { currentWorkplace: re }];
+    }
 
     const [doctors, totalDoctors] = await Promise.all([
       User.aggregate([
-        {
-          $match: {
-            type: 1,
-            isVerified: true,
-          },
-        },
+        { $match: baseMatch },
 
         {
           $lookup: {
             from: "appointments",
             let: { doctorUserId: "$userId" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $eq: ["$doctorUserId", "$$doctorUserId"],
-                  },
-                },
-              },
-
-              {
-                $lookup: {
-                  from: "doctors", // your User model collection name
-                  localField: "userId",
-                  foreignField: "userId",
-                  as: "patient",
-                },
-              },
-
-              {
-                $unwind: {
-                  path: "$patient",
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-
-              {
-                $addFields: {
-                  patientName: "$patient.fullName",
-                  patientEmail: "$patient.email",
-                  patientPhone: "$patient.phoneNumber",
-                  patientProfilePhoto: "$patient.profilePhoto",
-                },
-              },
-
-              {
-                $project: {
-                  patient: 0,
-                },
-              },
-            ],
+            pipeline: appointmentLookupPipeline,
             as: "appointments",
           },
         },
 
         {
           $addFields: {
-            appointmentsCount: {
-              $size: "$appointments",
+            appointmentsCount: { $size: "$appointments" },
+            latestAppointment: { $arrayElemAt: ["$appointments", 0] },
+          },
+        },
+
+        {
+          $addFields: {
+            statusOrder: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ["$latestAppointment.status", "pending"] }, then: 1 },
+                  { case: { $eq: ["$latestAppointment.status", "confirmed"] }, then: 2 },
+                  { case: { $eq: ["$latestAppointment.status", "completed"] }, then: 3 },
+                  { case: { $eq: ["$latestAppointment.status", "cancelled"] }, then: 4 },
+                ],
+                default: 5,
+              },
             },
           },
         },
-        // Only doctors having appointments
-        {
-          $match: {
-            appointmentsCount: { $gt: 0 },
-          },
-        },
-        // Most appointments first
-        {
-          $sort: {
-            appointmentsCount: -1,
-          },
-        },
+
+        { $match: { appointmentsCount: { $gt: 0 } } },
+
+        { $sort: sortStage },
+
         {
           $project: {
             userId: 1,
@@ -1294,7 +1332,6 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
             appointmentsCount: 1,
             specialties: 1,
             location: 1,
-            score: 1,
             phoneNumber: 1,
             email: 1,
             isVerified: 1,
@@ -1303,49 +1340,34 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
           },
         },
 
-        {
-          $skip: (parsedPage - 1) * parsedLimit,
-        },
-
-        {
-          $limit: parsedLimit,
-        },
+        { $skip: (parsedPage - 1) * parsedLimit },
+        { $limit: parsedLimit },
       ]),
 
       User.aggregate([
-        {
-          $match: {
-            type: 1,
-            isVerified: true,
-          },
-        },
+        { $match: baseMatch },
 
         {
           $lookup: {
             from: "appointments",
-            localField: "userId",
-            foreignField: "doctorUserId",
+            let: { doctorUserId: "$userId" },
+            pipeline: [
+              {
+                $match: { $expr: { $eq: ["$doctorUserId", "$$doctorUserId"] } },
+              },
+              ...(status !== "all" ? [{ $match: { status } }] : []),
+            ],
             as: "appointments",
           },
         },
 
         {
-          $addFields: {
-            appointmentsCount: {
-              $size: "$appointments",
-            },
-          },
+          $addFields: { appointmentsCount: { $size: "$appointments" } },
         },
 
-        {
-          $match: {
-            appointmentsCount: { $gt: 0 },
-          },
-        },
+        { $match: { appointmentsCount: { $gt: 0 } } },
 
-        {
-          $count: "total",
-        },
+        { $count: "total" },
       ]),
     ]);
 
@@ -1395,13 +1417,8 @@ export const confirmAppointmentByAdmin = async (req, res) => {
       },
     );
 
+    console.log("🚀 ~ doctorRegistration.js:1399 ~ confirmAppointmentByAdmin ~ appointment:", appointment);
 
-
-    console.log("🚀 ~ doctorRegistration.js:1399 ~ confirmAppointmentByAdmin ~ appointment:", appointment)
-
-
-
-    
     if (!appointment) {
       return res.status(400).json({
         success: false,
@@ -1452,29 +1469,10 @@ export const cancelAppointmentByAdmin = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const loginByAdmin = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    
-    
-
 
     if (!user) {
       return res.status(200).json({
@@ -1483,12 +1481,12 @@ export const loginByAdmin = async (req, res) => {
       });
     }
 
-      if (user.type != 2) {
-        return res.status(200).json({
-          success: false,
-          message: "Unauthorized user.",
-        }); 
-      }
+    if (user.type != 2) {
+      return res.status(200).json({
+        success: false,
+        message: "Unauthorized user.",
+      });
+    }
 
     if (user.adminStatus === "pending") {
       return res.status(200).json({
@@ -1497,15 +1495,12 @@ export const loginByAdmin = async (req, res) => {
       });
     }
 
-
     if (user.adminStatus === "suspended") {
       return res.status(200).json({
         success: false,
         message: "Your request is suspended now. Contact with an  admin.",
       });
     }
-
-
 
     const isMatched = await bcrypt.compare(password, user.password);
 
@@ -1522,7 +1517,8 @@ export const loginByAdmin = async (req, res) => {
 
     const routes = routerJSON?.routeJSON || "[]";
 
-    return res.cookie("accessToken", token, {
+    return res
+      .cookie("accessToken", token, {
         httpOnly: true,
         secure: false,
         sameSite: "lax", // or "lax"
@@ -1538,37 +1534,25 @@ export const loginByAdmin = async (req, res) => {
           routes: JSON.parse(routes),
         },
       });
-
-
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
 
-
-
 export const logoutAdmin = async (req, res) => {
-  return res.clearCookie("accessToken", {
+  return res
+    .clearCookie("accessToken", {
       httpOnly: true,
       secure: ENV === "prod",
       sameSite: "strict",
-    }).status(200).json({
+    })
+    .status(200)
+    .json({
       success: true,
       message: "Logged out successfully",
     });
 };
-
-
-
-
-
-
-
-
-
-
-
 
 export const signUpAsAdmin = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -1576,74 +1560,68 @@ export const signUpAsAdmin = async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-
     if (user) {
-
-      if (user.adminStatus==="pending" && user.type === 2) {
+      if (user.adminStatus === "pending" && user.type === 2) {
         return res.status(200).json({
           success: false,
           message: "Your request is pending now.",
-        }); 
+        });
       }
 
-
-      if (user.adminStatus==="suspended" && user.type === 2) {
+      if (user.adminStatus === "suspended" && user.type === 2) {
         return res.status(200).json({
           success: false,
           message: "Your are suspended from this panel. Please contact with other admin.",
-        }); 
+        });
       }
 
-      if (user.adminStatus==="active" && user.type === 2) {
+      if (user.adminStatus === "active" && user.type === 2) {
         return res.status(200).json({
           success: false,
           message: "Your are suspended from this panel. Please contact with other admin.",
-        }); 
+        });
       }
 
       if (user.email === email && user.type != 2) {
         return res.status(200).json({
           success: false,
           message: "Unauthorized user.",
-        }); 
+        });
       }
 
-  //     if (condition) {
-  //         canAddSymptom  
-  // canEditSymptom  
-  // canDeleteSymptom  
-  //     }
+      //     if (condition) {
+      //         canAddSymptom
+      // canEditSymptom
+      // canDeleteSymptom
+      //     }
+    } else {
+      const userId = generateUserId(2);
 
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    }else{
-        const userId = generateUserId(2);
+      const newUser = new User({
+        email,
+        password: hashedPassword,
+        type: 2,
+        fullName,
+        userId,
+        adminStatus: "pending",
+      });
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+      await newUser.save();
 
-        const newUser = new User({
-          email,
-          password: hashedPassword,
-          type: 2,
-          fullName,
-          userId,
-          adminStatus: "pending",
-        });
+      const token = generateToken(newUser);
 
-        await newUser.save();
-
-        const token = generateToken(newUser);
-
-        return res.status(201).json({
-          success: true,
-          token,
-          user: {
-            id: newUser._id,
-            email: newUser.email,
-            type: newUser.type,
-          },
-          message: "Admin request created successfully.",
-        });
-
+      return res.status(201).json({
+        success: true,
+        token,
+        user: {
+          id: newUser._id,
+          email: newUser.email,
+          type: newUser.type,
+        },
+        message: "Admin request created successfully.",
+      });
     }
   } catch (error) {
     console.error(error);
@@ -1651,23 +1629,11 @@ export const signUpAsAdmin = async (req, res) => {
   }
 };
 
-
- 
-
-
 export const updateAdminPassword = async (req, res) => {
   const { password } = req.body;
 
   try {
-    const user = await User.findById(req.user.userId);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
-      });
-    }
-
+    const user = await User.findOne({ userId: req.params.userId });
 
     if (user.type !== 2) {
       return res.status(403).json({
@@ -1697,25 +1663,56 @@ export const updateAdminPassword = async (req, res) => {
 
 
 
-export const getAllAdminUsers = async (req,res) => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const getAllAdminUsers = async (req, res) => {
   try {
-    const {role, limit, page, sortBy, sortOrder} = req.body;
+    const { role, limit, page, sortBy, sortOrder } = req.body;
 
     const skip = (page - 1) * limit;
 
-    const filter = {type: 2, isRemoved: false};
+    const filter = { type: 2, isRemoved: false };
 
-    if(role){
+    if (role) {
       filter.role = role;
     }
 
     const count = await User.countDocuments(filter);
 
-    const users = await User.find(filter)
-      .select("userId profilePhoto fullName email phoneNumber adminStatus createdAt role")
-      .sort({ [sortBy]: sortOrder })
-      .skip(skip)
-      .limit(limit);
+    const users = await User.find(filter).select("userId profilePhoto fullName email phoneNumber adminStatus createdAt role").sort({ [sortBy]: sortOrder }).skip(skip).limit(limit);
 
     return paginatedSuccessResponse(res, users, page, limit, count, "Admin users retrieved successfully", "Get all admin users successfully.");
   } catch (error) {
@@ -1723,4 +1720,3 @@ export const getAllAdminUsers = async (req,res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-

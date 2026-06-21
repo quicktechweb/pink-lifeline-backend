@@ -1,12 +1,12 @@
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
-import { ENV } from "../../constant/constant.js";
+import { DayMap, ENV } from "../../constant/constant.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import { Post } from "../../models/Community/PostModel.js";
 import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
 import { sendNotificationToUser } from "../../services/notificationService.js";
-import { convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -113,43 +113,107 @@ export const addToWishList = async (req, res) => {
   }
 };
 
+
+
+export const removeFromWishList = async (req, res) => {
+  // try {
+  //   const { userId } = req.params;
+  //   const { doctorUserId } = req.body;
+
+  //   const isDoctorExist = await User.findOne({
+  //     userId: doctorUserId,
+  //     type: 1,
+  //     $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+  //   });
+
+  //   if (!isDoctorExist) {
+  //     return res.status(404).json({ success: false, message: "Doctor not found" });
+  //   }
+
+  //   const user = await User.findOne({
+  //     userId,
+  //     type: 0,
+  //     $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+  //   });
+
+
+
+  //   const exists = user.doctorWishList.includes(doctorUserId);
+
+
+  //     if (!exists) {
+  //       return badRequestResponse(
+  //         res,
+  //         "Doctor is not in the wish list.",
+  //         "Doctor is not in the wish list."
+  //       );
+  //     }
+
+  //     user.doctorWishList = user.doctorWishList.filter(
+  //       (id) => id !== doctorUserId
+  //     );
+
+  //     await user.save();
+
+  //     return successResponse(
+  //       res,
+  //       null,
+  //       "Doctor removed from wish list successfully.",
+  //       "Doctor removed from wish list successfully."
+  //     );
+
+
+
+  // } catch (error) {
+  //   somethingWentWrong(res, error, "Something went wrong.");
+  // }
+};
+
+
+
 export const getUserDoctorWishList = async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findOne({ userId, type: 0 }, { doctorWishList: 1 });
+
+    const user = await User.findOne(
+      { userId, type: 0 },
+      { doctorWishList: 1 }
+    );
+
     if (!user) {
-      notFoundResponse(res, "User not found.", "User not found.");
+      return notFoundResponse(res, "User not found.", "User not found.");
     }
 
-    const { doctorWishList } = user;
+    // If wishlist is empty
+    if (!user.doctorWishList || user.doctorWishList.length === 0) {
+      return successResponse(
+        res,
+        [],
+        "Wish list fetched successfully.",
+        "Wish list fetched successfully."
+      );
+    }
 
     const doctors = await User.find({
       userId: { $in: user.doctorWishList },
       type: 1,
-      isRemoved: { $ne: true },
+      isRemoved: false,
     })
-      .select("userId fullName email phoneNumber doctorRegistrationNumber currentWorkplace profileImage")
+      .select(
+        "userId fullName email phoneNumber doctorRegistrationNumber currentWorkplace profileImage"
+      )
       .lean();
 
-    const weeklySchedule = await WeeklyDays.create({
-      userId,
-      days: {
-        Monday: [],
-        Tuesday: [],
-        Wednesday: [],
-        Thursday: [],
-        Friday: [],
-        Saturday: [],
-        Sunday: [],
-      },
-    });
-
-    successResponse(res, doctors, "Wish list fetched successfully.", "Wish list fetched successfully.");
+    return successResponse(
+      res,
+      doctors,
+      "Wish list fetched successfully.",
+      "Wish list fetched successfully."
+    );
   } catch (error) {
     somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
 export const getAllDoctors = async (req, res) => {
   try {
     const doctors = await User.find({
@@ -157,8 +221,10 @@ export const getAllDoctors = async (req, res) => {
       isVerified: true,
       $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
     })
-      .select("fullName doctorRegistrationNumber email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
+      .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
       .lean();
+    
+
 
     if (!doctors.length) {
       return notFoundResponse(res, "No doctors found.", "Get all doctors failed: empty result.");
@@ -668,5 +734,71 @@ export const getUserAppointments = async (req, res) => {
       error,
       "Something went wrong."
     );
+  }
+};
+
+
+
+
+export const getDailyScheduleByUser = async (req, res) => {
+  const { doctorUserid: userId } = req.params;
+  const { date } = req.body;
+  const day = new Date(date).getDay();
+
+  const dateStringWithoutTime = date.split("T")[0];
+
+  try {
+    const dayNumber = Number(day);
+    const dayKey = DayMap[dayNumber];
+
+    if (!dayKey) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid day",
+      });
+    }
+
+    const isDoctorExist = await User.findOne({ userId, type:1 });
+
+    if (!isDoctorExist) {
+      return res.status(404).json({
+        success: false,
+        message: "Doctor not found.",
+      });
+    }
+
+    const dailySchedule = await ExceptionalDays.findOne({
+      doctorUserId: userId,
+      date: dateStringWithoutTime, // Matches the target date record specifically
+    });
+
+    if (dailySchedule) {
+      return successResponse(res, dailySchedule, "Schedule fetched successfully.", "Schedule fetched successfully.");
+    }
+
+    const weeklySchedule = await WeeklyDays.findOne(
+      { doctorUserId: userId },
+      { [dayKey]: 1, doctorUserId: 1 }, // Projection: 1 means include, exclude everything else
+    );
+
+    if (!weeklySchedule) {
+      return res.status(404).json({
+        success: false,
+        message: "Schedule not found for this doctor on this day.",
+      });
+    }
+    const daySchedule = weeklySchedule[dayKey];
+
+    if (daySchedule) {
+      return successResponse(res, daySchedule, "Schedule fetched successfully.", "Schedule fetched successfully.");
+    }
+
+    return res.status(404).json({
+      success: false,
+      message: "Schedule not found",
+    });
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to fetch schedule");
   }
 };

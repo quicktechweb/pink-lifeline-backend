@@ -19,6 +19,8 @@ import { devOnly } from "./middleware/checkEnviornment.js";
 import  dashboardStatsRoutes  from "./routes/dashboardStatsRoutes/dashboardStatsRoutes.js";
 import startNotificationScheduler from "./services/schedulerService.js";
 import verifyToken from "./middleware/jwt.js";
+import User from "./models/DoctorRegistration/DoctorRegistration.js";
+
 
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
@@ -75,14 +77,28 @@ app.use("/api/dashboard-stats",dashboardStatsRoutes)
 
 
 
-app.get("/api/user/me",verifyToken,(req, res) => {
-      console.log("🚀 ~ server.js:78 ~ req.user:", req)
-      res.status(200).json({
+app.get("/api/user/me", verifyToken, async (req, res) => {
+  try {
+    const userDoc = await User.findOne({ userId: req.user.userId }).select("_id userId email type role").lean(); 
+
+    if (!userDoc) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+    const fullUserPayload = {
+      ...req.user,       
+      role: userDoc.role 
+    };
+
+    return res.status(200).json({
       success: true,
-      user: req.user,
+      user: fullUserPayload,
     });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
   }
-);
+});
 
 
 app.use("/other",devOnly,internalUtilRoutes)
