@@ -1663,6 +1663,89 @@ export const updateAdminPassword = async (req, res) => {
 
 
 
+export const suspendUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findOne({ userId });
+    if (user.type !== 2) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized.",
+      });
+    }
+    if (user.adminStatus !== "active") {
+      return badRequestResponse(res, "Unable to suspend user.", "User is already suspended.");
+    }
+    else{
+      user.adminStatus = "suspended";
+      await user.save();
+      return successResponse(res, user, "User suspended successfully.","User suspended successfully.");
+    }
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.","Something went wrong.");
+  }
+}
+
+export const activateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findOne({ userId });
+    if (user.type !== 2) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized user.",
+      });
+    }
+    if (user.adminStatus !== "suspended" && user.adminStatus !== "pending") {
+      return badRequestResponse(res, "Unable to active user.", "User is already active.");
+    }
+    else{
+      user.adminStatus = "active";
+      await user.save();
+      return successResponse(res, user, "User activated successfully.","User active successfully.");
+    }
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.","Something went wrong.");
+  }
+}
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findOneAndDelete({
+      userId,
+      type: 2,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    return successResponse(
+      res,
+      user,
+      "User deleted successfully.",
+      "User deleted successfully."
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(
+      res,
+      error,
+      "Something went wrong.",
+      "Something went wrong."
+    );
+  }
+};
+
+
+
 
 
 

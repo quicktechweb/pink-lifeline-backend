@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -79,6 +79,9 @@ router.post("/logout-by-admin", logoutAdmin);
 
 router.post("/get-all-admin-users/:userId",isUserExist,getAllAdminUsers)
 
+router.post("/suspend-user-by-admin/:userId",isUserExist,suspendUser)
+router.post("/active-a-user-by-admin/:userId",isUserExist,activateUser)
+router.delete("/delete-user-by-admin/:userId",isUserExist,deleteUser)
 
 
 export default router;
