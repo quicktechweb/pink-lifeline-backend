@@ -17,7 +17,7 @@ router.get("/v1/get-user-profile-insights/:userId", isUserExist, getUserProfileI
 
 
 router.post("/v1/book-appointment",bookAppointment)
-router.patch("/v1/cancel-appointment/:appointmentId",deleteAppointment)
+router.patch("/v1/cancel-appointment-by-user/:appointmentId",deleteAppointment)
 router.patch("/v1/reschedule-appointment/:appointmentId", editAppointment)
 router.get("/v1/get-user-appointments/:userId", isUserExist, getUserAppointments);
 router.post("/v1/get-daily-schedule-by-user/:doctorUserid", getDailyScheduleByUser);

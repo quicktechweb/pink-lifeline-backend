@@ -20,6 +20,18 @@ const userFCMTokenSchema = new mongoose.Schema(
       {
         type: String,
       },
+
+
+      //all types are here 
+
+    // "periodDate", 
+    // "missedSelfTest", 
+    // "post", 
+    // "doctorAppointment", 
+    // "patientAppointment",
+
+
+
     ],
   },
   {

@@ -43,6 +43,7 @@ app.use(
       "http://localhost:5173",
       "http://192.168.0.112:5173",
       "http://192.168.0.130:5173",
+      "https://pinklifelinebackend.shiftingglobal.com"
     ],
     credentials: true,
   })

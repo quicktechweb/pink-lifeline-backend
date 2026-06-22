@@ -629,9 +629,9 @@ export const recordPeriodStart = async (req, res) => {
     }
 
     // currentDate must match startDate — you log the day you open the cycle
-    if (currentDate.getTime() !== startDate.getTime()) {
-      return badRequestResponse(res, "Invalid request.", "currentDate and startDate must be the same — you can only start a period on today's date.");
-    }
+    // if (currentDate.getTime() !== startDate.getTime()) {
+    //   return badRequestResponse(res, "Invalid request.", "currentDate and startDate must be the same — you can only start a period on today's date.");
+    // }
 
     // startDate cannot be in the future
     if (startDate.getTime() > todayUTC().getTime()) {
@@ -886,9 +886,12 @@ export const recordPeriodEnd = async (req, res) => {
     if (currentDate.getTime() > todayUTC().getTime()) {
       return badRequestResponse(res, "Current date cannot be in the future.", "currentDate cannot be a future date.");
     }
-    if (currentDate.getTime() !== parsedEndDate.getTime()) {
-      return badRequestResponse(res, "Current date and end date must be the same.", "currentDate and endDate must match — you can only end a period on today's date.");
-    }
+
+
+    //? based on 22 june 2026 feedback this condition is not valid
+    // if (currentDate.getTime() !== parsedEndDate.getTime()) {
+    //   return badRequestResponse(res, "Current date and end date must be the same.", "currentDate and endDate must match — you can only end a period on today's date.");
+    // }
 
     // ── 4. Period data (optional on end — user may just be closing) ───────────
     const hasPeriodData = payload.period?.bleeding || payload.period?.spotting?.length || payload.period?.symptoms?.length;

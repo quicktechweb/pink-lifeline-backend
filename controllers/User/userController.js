@@ -12,8 +12,7 @@ export const updateUserProfile = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const { fullName,notificationPreferenceDate, email, phoneNumber, autoReminderLimit, notificationPreferenceTime, dateOfBirth } = req.body;
-
+    const { fullName, notificationPreferenceDate, email, phoneNumber, autoReminderLimit, notificationPreferenceTime, dateOfBirth } = req.body;
 
     const updateData = {};
 
@@ -101,72 +100,73 @@ export const addToWishList = async (req, res) => {
     const exists = user.doctorWishList.includes(doctorUserId);
 
     if (exists) {
-      user.doctorWishList = user.doctorWishList.filter((id) => id !== doctorUserId);
+    return successResponse(res, user, `Dr. ${isDoctorExist.fullName} is already in the wish list.`, `Dr. ${isDoctorExist.fullName} is already in the wish list.`);
+
     } else {
       user.doctorWishList.push(doctorUserId);
     }
 
     const updatedUser = await user.save();
-    successResponse(res, updatedUser, "Wish list updated successfully.", "Wish list updated successfully.");
+    return successResponse(res, updatedUser, "Wish list updated successfully.", "Wish list updated successfully.");
   } catch (error) {
-    somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
 
 
 
 export const removeFromWishList = async (req, res) => {
-  // try {
-  //   const { userId } = req.params;
-  //   const { doctorUserId } = req.body;
+  try {
+    const { userId } = req.params;
+    const { doctorUserId } = req.body;
 
-  //   const isDoctorExist = await User.findOne({
-  //     userId: doctorUserId,
-  //     type: 1,
-  //     $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
-  //   });
+    // 1. Verify doctor exists (using cleaner $ne query)
+    const isDoctorExist = await User.findOne({
+      userId: doctorUserId,
+      type: 1,
+      isRemoved: { $ne: true }, 
+    });
 
-  //   if (!isDoctorExist) {
-  //     return res.status(404).json({ success: false, message: "Doctor not found" });
-  //   }
+    if (!isDoctorExist) {
+      return res.status(404).json({ success: false, message: "Doctor not found" });
+    }
 
-  //   const user = await User.findOne({
-  //     userId,
-  //     type: 0,
-  //     $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
-  //   });
+    // 2. Find user
+    const user = await User.findOne({
+      userId,
+      type: 0,
+      isRemoved: { $ne: true },
+    });
 
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
+    // 3. Check if doctor is in list
+    const exists = user.doctorWishList.includes(doctorUserId);
+    if (!exists) {
+      return badRequestResponse(
+        res,
+        `Dr. ${isDoctorExist.fullName} is not in your wish list.`,
+        `Dr. ${isDoctorExist.fullName} is not in your wish list.`
+      );
+    }
 
-  //   const exists = user.doctorWishList.includes(doctorUserId);
-
-
-  //     if (!exists) {
-  //       return badRequestResponse(
-  //         res,
-  //         "Doctor is not in the wish list.",
-  //         "Doctor is not in the wish list."
-  //       );
-  //     }
-
-  //     user.doctorWishList = user.doctorWishList.filter(
-  //       (id) => id !== doctorUserId
-  //     );
-
-  //     await user.save();
-
-  //     return successResponse(
-  //       res,
-  //       null,
-  //       "Doctor removed from wish list successfully.",
-  //       "Doctor removed from wish list successfully."
-  //     );
-
-
-
-  // } catch (error) {
-  //   somethingWentWrong(res, error, "Something went wrong.");
-  // }
+    // 4. Remove from list
+    user.doctorWishList = user.doctorWishList.filter((id) => id !== doctorUserId);
+    
+    // 5. Save and return updated user
+    const updatedUser = await user.save();
+    
+    return successResponse(
+      res,
+      updatedUser,
+      "Doctor removed from wish list successfully.",
+      "Doctor removed from wish list successfully."
+    );
+  } catch (error) {
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
 };
 
 
@@ -175,10 +175,7 @@ export const getUserDoctorWishList = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const user = await User.findOne(
-      { userId, type: 0 },
-      { doctorWishList: 1 }
-    );
+    const user = await User.findOne({ userId, type: 0 }, { doctorWishList: 1 });
 
     if (!user) {
       return notFoundResponse(res, "User not found.", "User not found.");
@@ -186,12 +183,7 @@ export const getUserDoctorWishList = async (req, res) => {
 
     // If wishlist is empty
     if (!user.doctorWishList || user.doctorWishList.length === 0) {
-      return successResponse(
-        res,
-        [],
-        "Wish list fetched successfully.",
-        "Wish list fetched successfully."
-      );
+      return successResponse(res, [], "Wish list fetched successfully.", "Wish list fetched successfully.");
     }
 
     const doctors = await User.find({
@@ -199,17 +191,11 @@ export const getUserDoctorWishList = async (req, res) => {
       type: 1,
       isRemoved: false,
     })
-      .select(
-        "userId fullName email phoneNumber doctorRegistrationNumber currentWorkplace profileImage"
-      )
+      // .select("userId fullName email phoneNumber doctorRegistrationNumber currentWorkplace profilePhoto")
+      .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
       .lean();
 
-    return successResponse(
-      res,
-      doctors,
-      "Wish list fetched successfully.",
-      "Wish list fetched successfully."
-    );
+    return successResponse(res, doctors, "Wish list fetched successfully.", "Wish list fetched successfully.");
   } catch (error) {
     somethingWentWrong(res, error, "Something went wrong.");
   }
@@ -223,8 +209,6 @@ export const getAllDoctors = async (req, res) => {
     })
       .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
       .lean();
-    
-
 
     if (!doctors.length) {
       return notFoundResponse(res, "No doctors found.", "Get all doctors failed: empty result.");
@@ -301,38 +285,6 @@ function getDayKey(dateStr) {
   return DAY_KEYS[d.getUTCDay()];
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ─── POST /appointments/book ──────────────────────────────────────────────────
 // Body: { userId, doctorUserId, appointmentDate, startTime, endTime, note? }
 export async function bookAppointment(req, res) {
@@ -345,7 +297,7 @@ export async function bookAppointment(req, res) {
     if (!userId || !doctorUserId || !appointmentDate || !startTime || !endTime) {
       return res.status(400).json({
         success: false,
-        message: ENV=="dev"? "userId, doctorUserId, appointmentDate, startTime, endTime are required.":"Necessary fields are missing.",
+        message: ENV == "dev" ? "userId, doctorUserId, appointmentDate, startTime, endTime are required." : "Necessary fields are missing.",
       });
     }
 
@@ -408,8 +360,6 @@ export async function bookAppointment(req, res) {
       });
     }
 
-
-
     // ── 5. Check slot capacity ────────────────────────────────────────────────
     // const bookedCount = await Appointment.countDocuments({
     //   doctorUserId,
@@ -419,8 +369,6 @@ export async function bookAppointment(req, res) {
     //   status: { $in: ["pending", "confirmed"] },
     //   isDeleted: false,
     // });
-
-
 
     // if (bookedCount >= matchedSlot.maxAppointments) {
     //   return res.status(400).json({
@@ -472,41 +420,6 @@ export async function bookAppointment(req, res) {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const editAppointment = async (req, res) => {
   const { appointmentId } = req.params;
   const { note, appointmentDate, startTime, endTime } = req.body;
@@ -516,6 +429,23 @@ export const editAppointment = async (req, res) => {
       _id: appointmentId,
       isDeleted: false,
     });
+
+    const doctor = await User.findOne({ userId: appointment.doctorUserId, type:1, isRemoved: { $ne: true }  });
+
+    if (!doctor) {
+      return somethingWentWrong(res, null, "Unable to reschedule as doctor is no longer available now.", "Doctor not found in reschedule the user.");
+    }
+
+    const user = await User.findOne({ 
+      userId: appointment.userId, 
+      type: 0, 
+      isRemoved: { $ne: true } 
+    });
+
+
+    if (!user) {
+      return badRequestResponse(res, "You are not authorized to reschedule the appointment.", "User not found in reschedule.");
+    }
 
     if (!appointment) {
       return res.status(404).json({
@@ -540,10 +470,8 @@ export const editAppointment = async (req, res) => {
     //   return res.status(400).json({ success: false, message: "Invalid endTime format." });
     // }
 
- 
-
-    const resolvedStart = isValid24h(startTime) ? startTime : isValid24h(endTime) ? startTime :  convertTo24Hour(startTime) || convertTo24Hour(appointment.startTime);
-    const resolvedEnd =isValid24h(endTime) ? endTime :  convertTo24Hour(endTime) || convertTo24Hour(appointment.endTime);
+    const resolvedStart = isValid24h(startTime) ? startTime : isValid24h(endTime) ? startTime : convertTo24Hour(startTime) || convertTo24Hour(appointment.startTime);
+    const resolvedEnd = isValid24h(endTime) ? endTime : convertTo24Hour(endTime) || convertTo24Hour(appointment.endTime);
 
     if (toMinutes(resolvedStart) >= toMinutes(resolvedEnd)) {
       return res.status(400).json({
@@ -561,59 +489,35 @@ export const editAppointment = async (req, res) => {
 
     const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: updates }, { new: true, runValidators: true });
 
+
+// For the User
+const notificationToUser = await sendNotificationToUser({
+  userId: updated.userId,
+  title: "Appointment Rescheduled",
+  body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
+  type: "appointment",
+})
+
+// For the Doctor
+const notificationToDoctor = await sendNotificationToUser({
+  userId: doctor.userId,
+  title: "Appointment Rescheduled",
+  body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
+  type: "appointment",
+})
+
+
     return successResponse(res, updated, "Appointment updated successfully.", "Appointment updated successfully.");
+
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong.");
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const deleteAppointment = async (req, res) => {
   const { appointmentId } = req.params;
-  const { cancelledBy, userId } = req.body; // "user" | "doctor" | "admin"
-
-  if (!["user", "doctor", "admin"].includes(cancelledBy)) {
-    return res.status(400).json({
-      success: false,
-      message: "cancelledBy must be 'user', 'doctor', or 'admin'.",
-    });
-  }
+  const { userId } = req.body;
 
   try {
     const appointment = await Appointment.findOne({
@@ -638,50 +542,206 @@ export const deleteAppointment = async (req, res) => {
     if (appointment.status === "cancelled") {
       return res.status(400).json({
         success: false,
-        message: "Appointment is already cancelled.",
+        message: "Cannot cancel a cancelled appointment.",
       });
     }
 
-    if (cancelledBy=="user") {
-      const user = await User.findOne({ userId });
-      if (!user) {
-        return res.status(404).json({
+    //     const notificationToUser = await sendNotificationToUser({
+    //   userId: appointment.userId,
+    //   title: "Appointment Cancelled",
+    //   body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
+    //   type: "appointment",
+    // })
+
+    if (appointment.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to cancel this appointment.",
+      });
+    } else {
+      const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: { isDeleted: true } }, { new: true, runValidators: true });
+
+      if (!updated) {
+        return res.status(500).json({
           success: false,
-          message: "User not found.",
+          message: "Something went wrong.",
         });
+      } else {
+        updated.status = "cancelled";
+        await updated.save();
+
+        if (updated.status === "cancelled") {
+          const doctor = await User.findOne({ userId: updated.doctorUserId, type: 1, $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }] });
+
+          if (doctor) {
+            const user = await User.findOne({ userId: userId, type: 0, $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }] });
+            const notificationToUser = await sendNotificationToUser({
+              userId: doctor.userId,
+              title: "Appointment Cancelled",
+              body: `Your appointment with ${userId.fullName} on ${updated.appointmentDate} at ${updated.startTime} has been cancelled.`,
+              type: "appointment",
+            });
+            return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
+          } else {
+            updated.isDeleted = true;
+            await updated.save();
+            return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
+          }
+        }
       }
-
-      const notification = await sendNotificationToUser({
-        userId: appointment.userId,
-        title: "Appointment Cancelled",
-        body: `Your appointment with ${user.fullName} has been cancelled.`,
-        type: "appointmentCancelled",
-      })
     }
-
-
-
-    const updated = await Appointment.findByIdAndUpdate(
-      appointmentId,
-      {
-        $set: {
-          status: "cancelled",
-          cancelledBy,
-          isDeleted: true,
-        },
-      },
-      { new: true },
-    );
-
-    return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong in deleting appointment by user.");
   }
 };
 
 
 
+// export const deleteAppointment2 = async (req, res) => {
+//   const { appointmentId } = req.params;
+//   const { cancelledBy, userId } = req.body; // "user" | "doctor" | "admin"
+
+//   if (!["user", "doctor", "admin"].includes(cancelledBy)) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "cancelledBy must be 'user', 'doctor', or 'admin'.",
+//     });
+//   }
+
+//   try {
+//     const appointment = await Appointment.findOne({
+//       _id: appointmentId,
+//       isDeleted: false,
+//     });
+
+//     if (!appointment) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Appointment not found.",
+//       });
+//     }
+
+//     if (appointment.status === "completed") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Cannot cancel a completed appointment.",
+//       });
+//     }
+
+//     if (appointment.status === "cancelled") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Appointment is already cancelled.",
+//       });
+//     }
+
+//     const userWhoCancelAppointment = await User.findOne({ userId });
+//     const doctor = await User.findOne({ userId: appointment.doctorUserId, type: 1, isRemoved: false });
+//     const user = await User.findOne({ userId: appointment.userId, type: 0, isRemoved: false });
+
+//     if (!userWhoCancelAppointment) {
+//       return notFoundResponse(res, "User not found.", `User not found with id ${userWhoCancelAppointment.userId}`);
+//     }
+
+//     //!deleted by user
+
+//     if (cancelledBy == "user") {
+//       if (!user) {
+//         appointment.status = "cancelled";
+//         await appointment.save();
+//         return res.status(404).json({
+//           success: false,
+//           message: "User not found.",
+//         });
+//       }
+
+//       if (!doctor) {
+//         appointment.status = "cancelled";
+//         await appointment.save();
+//         doctor.isRemoved = true;
+//         await doctor.save();
+//         return badRequestResponse(res, "This doctor is not available.", "Doctor is missing to cancel this appointment");
+//       }
+
+//       const notificationToUser = await sendNotificationToUser({
+//         userId: appointment.userId,
+//         title: "Appointment Cancelled",
+//         body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
+//         type: "appointment",
+//       });
+
+//       const notificationToDoctor = await sendNotificationToUser({
+//         userId: appointment.doctorUserId,
+//         title: "Appointment Cancelled",
+//         body: `Your appointment with ${userWhoCancelAppointment.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
+//         type: "appointment",
+//       });
+//     }
+
+//     //!deleted by admin
+//     if (cancelledBy == "admin") {
+//       if (!doctor) {
+//         const notificationToUser = await sendNotificationToUser({
+//           userId: appointment.userId,
+//           title: "Appointment Cancelled",
+//           body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled.`,
+//           type: "appointment",
+//         });
+
+//         return res.status(404).json({
+//           success: false,
+//           message: "Doctor not found.",
+//         });
+//       }
+
+//       if (!user) {
+//         const notificationToUser = await sendNotificationToUser({
+//           userId: appointment.doctorUserId,
+//           title: "Appointment Cancelled",
+//           body: `Your appointment on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled.`,
+//           type: "appointment",
+//         });
+
+//         return res.status(404).json({
+//           success: false,
+//           message: "User not found.",
+//         });
+//       }
+
+//       const notificationToUser = await sendNotificationToUser({
+//         userId: appointment.userId,
+//         title: "Appointment Cancelled",
+//         body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled.`,
+//         type: "appointment",
+//       });
+
+//       const notificationToDoctor = await sendNotificationToUser({
+//         userId: appointment.doctorUserId,
+//         title: "Appointment Cancelled",
+//         body: `Your appointment with Dr. ${user.fullName} on ${appointment.appointmentDate} has been cancelled by admin.`,
+//         type: "appointment",
+//       });
+//     }
+
+//     const updated = await Appointment.findByIdAndUpdate(
+//       appointmentId,
+//       {
+//         $set: {
+//           status: "cancelled",
+//           cancelledBy,
+//           isDeleted: true,
+//         },
+//       },
+//       { new: true },
+//     );
+
+//     return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
+//   } catch (error) {
+//     console.error(error);
+//     return somethingWentWrong(res, error, "Something went wrong.");
+//   }
+// };
 
 export const getUserAppointments = async (req, res) => {
   const { userId } = req.params;
@@ -692,17 +752,13 @@ export const getUserAppointments = async (req, res) => {
       isDeleted: false,
     }).lean();
 
-    const doctorIds = [
-      ...new Set(appointments.map((a) => a.doctorUserId)),
-    ];
+    const doctorIds = [...new Set(appointments.map((a) => a.doctorUserId))];
 
     const doctors = await User.find({
       userId: { $in: doctorIds },
     }).lean();
 
-    const doctorMap = new Map(
-      doctors.map((doctor) => [doctor.userId, doctor])
-    );
+    const doctorMap = new Map(doctors.map((doctor) => [doctor.userId, doctor]));
 
     const enrichedAppointments = appointments.map((appointment) => {
       const doctor = doctorMap.get(appointment.doctorUserId);
@@ -721,24 +777,12 @@ export const getUserAppointments = async (req, res) => {
       };
     });
 
-    return successResponse(
-      res,
-      enrichedAppointments,
-      "Appointments retrieved successfully.",
-      "Get appointments successful."
-    );
+    return successResponse(res, enrichedAppointments, "Appointments retrieved successfully.", "Get appointments successful.");
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(
-      res,
-      error,
-      "Something went wrong."
-    );
+    return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
 
 export const getDailyScheduleByUser = async (req, res) => {
   const { doctorUserid: userId } = req.params;
@@ -758,7 +802,7 @@ export const getDailyScheduleByUser = async (req, res) => {
       });
     }
 
-    const isDoctorExist = await User.findOne({ userId, type:1 });
+    const isDoctorExist = await User.findOne({ userId, type: 1 });
 
     if (!isDoctorExist) {
       return res.status(404).json({
