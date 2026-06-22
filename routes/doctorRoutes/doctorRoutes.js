@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser, updateRoleByAdmin } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -68,7 +68,6 @@ router.post("/cancel-appointment-by-admin/:id",cancelAppointmentByAdmin);
 router.post("/get-all-doctors-by-admin", getAllDoctorByAdmin);
 
 
-router.post("/signup-by-admin",signUpAsAdmin)
 
 
 router.post("/login-by-admin",loginByAdmin)
@@ -82,6 +81,9 @@ router.post("/get-all-admin-users/:userId",isUserExist,getAllAdminUsers)
 router.post("/suspend-user-by-admin/:userId",isUserExist,suspendUser)
 router.post("/active-a-user-by-admin/:userId",isUserExist,activateUser)
 router.delete("/delete-user-by-admin/:userId",isUserExist,deleteUser)
+router.patch("/update-role-by-admin/:userId",isUserExist,updateRoleByAdmin)
+router.post("/create-admin-by-admin",uploadImage.single("profilePhoto"),signUpAsAdmin)
+
 
 
 export default router;

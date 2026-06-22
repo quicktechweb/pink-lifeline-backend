@@ -966,6 +966,29 @@ export const addExceptionalSchedule = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const removeExceptionalDay = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -986,6 +1009,50 @@ export const removeExceptionalDay = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const setDoctorScore = async (req, res) => {
   const { userId } = req.params;
@@ -1038,6 +1105,22 @@ export const getDoctorMonthlySchedule = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getDailyAppointments = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -1064,6 +1147,29 @@ export const getDailyAppointments = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const getTotalCommentsPatients = async (req, res) => {
   const { userId } = req.params;
@@ -1488,19 +1594,21 @@ export const loginByAdmin = async (req, res) => {
       });
     }
 
-    if (user.adminStatus === "pending") {
+    if ( user.adminStatus && user.adminStatus === "pending") {
       return res.status(200).json({
         success: false,
         message: "Your request is pending now.",
       });
     }
 
-    if (user.adminStatus === "suspended") {
+    if ( user.adminStatus && user.adminStatus === "suspended") {
       return res.status(200).json({
         success: false,
-        message: "Your request is suspended now. Contact with an  admin.",
+        message: "Your account is suspended now. Contact with an admin.",
       });
     }
+
+
 
     const isMatched = await bcrypt.compare(password, user.password);
 
@@ -1554,8 +1662,18 @@ export const logoutAdmin = async (req, res) => {
     });
 };
 
+
+
+
+
+
+
+
+
+
+
 export const signUpAsAdmin = async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, email, password, role, phoneNumber } = req.body;
 
   try {
     const user = await User.findOne({ email });
@@ -1589,15 +1707,22 @@ export const signUpAsAdmin = async (req, res) => {
         });
       }
 
-      //     if (condition) {
-      //         canAddSymptom
-      // canEditSymptom
-      // canDeleteSymptom
-      //     }
     } else {
       const userId = generateUserId(2);
 
       const hashedPassword = await bcrypt.hash(password, 10);
+
+        let profilePhoto = "";
+
+
+      if (req.file) {
+        const uploaded = await uploadToImageBB(req.file);
+  
+
+        if (uploaded) {
+          profilePhoto = uploaded;
+        }
+      }
 
       const newUser = new User({
         email,
@@ -1605,22 +1730,25 @@ export const signUpAsAdmin = async (req, res) => {
         type: 2,
         fullName,
         userId,
+        type:2,
+        profilePhoto:profilePhoto,
+        role,
+        phoneNumber,
         adminStatus: "pending",
       });
 
-      await newUser.save();
+      const result = await newUser.save();
 
       const token = generateToken(newUser);
 
       return res.status(201).json({
         success: true,
-        token,
         user: {
-          id: newUser._id,
-          email: newUser.email,
-          type: newUser.type,
+          id: result._id,
+          email: result.email,
+          type: result.type,
         },
-        message: "Admin request created successfully.",
+        message: "New admin user created successfully.",
       });
     }
   } catch (error) {
@@ -1628,6 +1756,18 @@ export const signUpAsAdmin = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const updateAdminPassword = async (req, res) => {
   const { password } = req.body;
@@ -1803,3 +1943,56 @@ export const getAllAdminUsers = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+
+export const updateRoleByAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    const allowedRoles = [
+      "admin",
+      "superadmin",
+      "communitymodarator",
+      "appointmentmanager",
+      "doctormanager",
+    ];
+
+    const user = await User.findOne({ userId });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (user.type !== 2) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized.",
+      });
+    }
+
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role.",
+      });
+    }
+
+
+    user.role = role;
+    await user.save();
+
+    return successResponse(res, user, "Role updated successfully.", "Role updated successfully.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+}
