@@ -966,29 +966,6 @@ export const addExceptionalSchedule = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const removeExceptionalDay = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -1009,50 +986,6 @@ export const removeExceptionalDay = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const setDoctorScore = async (req, res) => {
   const { userId } = req.params;
@@ -1105,28 +1038,11 @@ export const getDoctorMonthlySchedule = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getDailyAppointments = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
 
   const formattedDate = normalizeDate(date);
-  console.log("🚀 ~ doctorRegistration.js:990 ~ getDailyAppointments ~ formattedDate:", formattedDate);
 
   if (!formattedDate) {
     return res.status(400).json({
@@ -1147,29 +1063,6 @@ export const getDailyAppointments = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getTotalCommentsPatients = async (req, res) => {
   const { userId } = req.params;
@@ -1594,21 +1487,19 @@ export const loginByAdmin = async (req, res) => {
       });
     }
 
-    if ( user.adminStatus && user.adminStatus === "pending") {
+    if (user.adminStatus && user.adminStatus === "pending") {
       return res.status(200).json({
         success: false,
         message: "Your request is pending now.",
       });
     }
 
-    if ( user.adminStatus && user.adminStatus === "suspended") {
+    if (user.adminStatus && user.adminStatus === "suspended") {
       return res.status(200).json({
         success: false,
         message: "Your account is suspended now. Contact with an admin.",
       });
     }
-
-
 
     const isMatched = await bcrypt.compare(password, user.password);
 
@@ -1662,16 +1553,6 @@ export const logoutAdmin = async (req, res) => {
     });
 };
 
-
-
-
-
-
-
-
-
-
-
 export const signUpAsAdmin = async (req, res) => {
   const { fullName, email, password, role, phoneNumber } = req.body;
 
@@ -1706,18 +1587,15 @@ export const signUpAsAdmin = async (req, res) => {
           message: "Unauthorized user.",
         });
       }
-
     } else {
       const userId = generateUserId(2);
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-        let profilePhoto = "";
-
+      let profilePhoto = "";
 
       if (req.file) {
         const uploaded = await uploadToImageBB(req.file);
-  
 
         if (uploaded) {
           profilePhoto = uploaded;
@@ -1730,8 +1608,8 @@ export const signUpAsAdmin = async (req, res) => {
         type: 2,
         fullName,
         userId,
-        type:2,
-        profilePhoto:profilePhoto,
+        type: 2,
+        profilePhoto: profilePhoto,
         role,
         phoneNumber,
         adminStatus: "pending",
@@ -1756,18 +1634,6 @@ export const signUpAsAdmin = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const updateAdminPassword = async (req, res) => {
   const { password } = req.body;
@@ -1798,11 +1664,6 @@ export const updateAdminPassword = async (req, res) => {
   }
 };
 
-
-
-
-
-
 export const suspendUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -1815,17 +1676,16 @@ export const suspendUser = async (req, res) => {
     }
     if (user.adminStatus !== "active") {
       return badRequestResponse(res, "Unable to suspend user.", "User is already suspended.");
-    }
-    else{
+    } else {
       user.adminStatus = "suspended";
       await user.save();
-      return successResponse(res, user, "User suspended successfully.","User suspended successfully.");
+      return successResponse(res, user, "User suspended successfully.", "User suspended successfully.");
     }
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.","Something went wrong.");
+    return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong.");
   }
-}
+};
 
 export const activateUser = async (req, res) => {
   try {
@@ -1839,17 +1699,16 @@ export const activateUser = async (req, res) => {
     }
     if (user.adminStatus !== "suspended" && user.adminStatus !== "pending") {
       return badRequestResponse(res, "Unable to active user.", "User is already active.");
-    }
-    else{
+    } else {
       user.adminStatus = "active";
       await user.save();
-      return successResponse(res, user, "User activated successfully.","User active successfully.");
+      return successResponse(res, user, "User activated successfully.", "User active successfully.");
     }
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.","Something went wrong.");
+    return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong.");
   }
-}
+};
 
 export const deleteUser = async (req, res) => {
   try {
@@ -1867,59 +1726,12 @@ export const deleteUser = async (req, res) => {
       });
     }
 
-    return successResponse(
-      res,
-      user,
-      "User deleted successfully.",
-      "User deleted successfully."
-    );
+    return successResponse(res, user, "User deleted successfully.", "User deleted successfully.");
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(
-      res,
-      error,
-      "Something went wrong.",
-      "Something went wrong."
-    );
+    return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getAllAdminUsers = async (req, res) => {
   try {
@@ -1935,7 +1747,11 @@ export const getAllAdminUsers = async (req, res) => {
 
     const count = await User.countDocuments(filter);
 
-    const users = await User.find(filter).select("userId profilePhoto fullName email phoneNumber adminStatus createdAt role").sort({ [sortBy]: sortOrder }).skip(skip).limit(limit);
+    const users = await User.find(filter)
+      .select("userId profilePhoto fullName email phoneNumber adminStatus createdAt role")
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(limit);
 
     return paginatedSuccessResponse(res, users, page, limit, count, "Admin users retrieved successfully", "Get all admin users successfully.");
   } catch (error) {
@@ -1944,23 +1760,12 @@ export const getAllAdminUsers = async (req, res) => {
   }
 };
 
-
-
-
-
-
 export const updateRoleByAdmin = async (req, res) => {
   try {
     const { userId } = req.params;
     const { role } = req.body;
 
-    const allowedRoles = [
-      "admin",
-      "superadmin",
-      "communitymodarator",
-      "appointmentmanager",
-      "doctormanager",
-    ];
+    const allowedRoles = ["admin", "superadmin", "communitymodarator", "appointmentmanager", "doctormanager"];
 
     const user = await User.findOne({ userId });
 
@@ -1978,14 +1783,12 @@ export const updateRoleByAdmin = async (req, res) => {
       });
     }
 
-
     if (!allowedRoles.includes(role)) {
       return res.status(400).json({
         success: false,
         message: "Invalid role.",
       });
     }
-
 
     user.role = role;
     await user.save();
@@ -1995,4 +1798,4 @@ export const updateRoleByAdmin = async (req, res) => {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
-}
+};

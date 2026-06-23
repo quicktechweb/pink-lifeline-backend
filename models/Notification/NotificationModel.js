@@ -20,8 +20,7 @@ const notificationSchema = new mongoose.Schema(
       index: true,
     },
 
-
-    notificationSendDate:{
+    notificationSendDate: {
       type: String,
       required: true,
       index: true,

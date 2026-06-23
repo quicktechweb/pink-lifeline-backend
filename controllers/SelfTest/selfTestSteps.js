@@ -757,15 +757,19 @@ export const addUserSelfTest = async (req, res) => {
 export const getRecommendedDoctors = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { score } = req.body;
+    const { score, currentDate } = req.body;
 
-    // Save/update today's score
-    const startOfDay = new Date();
+    // Use provided date or today's date
+    const selectedDate = currentDate ? new Date(currentDate) : new Date();
+
+    // Start & end of the selected day
+    const startOfDay = new Date(selectedDate);
     startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date();
+    const endOfDay = new Date(selectedDate);
     endOfDay.setHours(23, 59, 59, 999);
 
+    // Save/update score for that day
     await UserSelfTest.findOneAndUpdate(
       {
         userId,
@@ -780,7 +784,7 @@ export const getRecommendedDoctors = async (req, res) => {
         },
         $setOnInsert: {
           userId,
-          currentDate: new Date(),
+          currentDate: selectedDate,
         },
       },
       {
@@ -798,7 +802,6 @@ export const getRecommendedDoctors = async (req, res) => {
       return { min: 81, max: 100 };
     };
 
-    // Get recommended doctors
     const { min, max } = getScoreRange(score);
 
     const doctors = await User.find({
@@ -819,7 +822,7 @@ export const getRecommendedDoctors = async (req, res) => {
         userId: 1,
         doctorIdCard: 1,
         doctorRegistrationNumber: 1,
-        _id: 0, // optional
+        _id: 0,
       })
       .sort({ score: -1 });
 

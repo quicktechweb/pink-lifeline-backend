@@ -21,27 +21,20 @@ const userFCMTokenSchema = new mongoose.Schema(
         type: String,
       },
 
+      //all types are here
 
-      //all types are here 
-
-    // "periodDate", 
-    // "missedSelfTest", 
-    // "post", 
-    // "doctorAppointment", 
-    // "patientAppointment",
-
-
-
+      // "periodDate",
+      // "missedSelfTest",
+      // "post",
+      // "doctorAppointment",
+      // "patientAppointment",
     ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const UserFCMToken = mongoose.model(
-  "UserFCMToken",
-  userFCMTokenSchema
-);
+const UserFCMToken = mongoose.model("UserFCMToken", userFCMTokenSchema);
 
 export default UserFCMToken;
