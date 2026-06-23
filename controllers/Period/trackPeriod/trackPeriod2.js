@@ -37,6 +37,8 @@ const getTimestamp = () => `[${new Date().toLocaleString()}]`;
 //
 // Request body shape is never changed — only the logic inside is hardened.
 // ─────────────────────────────────────────────────────────────────────────────
+
+
 export const recordPeriodLog = async (req, res) => {
   try {
     const payload = req.body;
@@ -729,6 +731,21 @@ export const recordPeriodStart = async (req, res) => {
       isEndedByUser: false,
       period: prefillEntries,
     });
+
+    const user = await User.findOne({ userId: payload.userId });
+    console.log("🚀 ~ trackPeriod2.js:736 ~ recordPeriodStart ~ user:", user)
+
+    if (user) {
+      const frequency = user.notificationSendTime
+      const preferredTime = user.notificationPreferenceTime
+      console.log("🚀 ~ trackPeriod2.js:741 ~ recordPeriodStart ~ preferredTime:", preferredTime)
+      
+    }
+
+
+    process.exit(0)
+    
+
 
     return successResponse(res, newRecord, "Period created successfully.", "Period log recorded successfully.");
   } catch (error) {

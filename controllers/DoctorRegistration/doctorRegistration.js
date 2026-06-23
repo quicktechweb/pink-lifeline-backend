@@ -790,31 +790,6 @@ export const enableDisableWeekDay = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getDailySchedule = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -863,47 +838,12 @@ export const getDailySchedule = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const addExceptionalSchedule = async (req, res) => {
   const { userId } = req.params;
   const { date, time, maxAppointments = 20 } = req.body;
 
   // 1. Validate required fields
-  if (!date || !time || !Array.isArray(time) || time.length === 0) {
+  if (!date || !time || !Array.isArray(time) ) {
     return res.status(400).json({
       success: false,
       message: "Date and Time array are required.",
@@ -1098,34 +1038,6 @@ export const getDoctorMonthlySchedule = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getDailyAppointments = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -1151,16 +1063,6 @@ export const getDailyAppointments = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
-
 
 export const getDailyScheduleWithAppointments = async (req, res) => {
   const { userId } = req.params;
@@ -1192,10 +1094,7 @@ export const getDailyScheduleWithAppointments = async (req, res) => {
         doctorUserId: userId,
         date: formattedDate,
       }),
-      WeeklyDays.findOne(
-        { doctorUserId: userId },
-        { [dayKey]: 1, doctorUserId: 1 },
-      ),
+      WeeklyDays.findOne({ doctorUserId: userId }, { [dayKey]: 1, doctorUserId: 1 }),
       Appointment.find({
         doctorUserId: userId,
         appointmentDate: formattedDate,
@@ -1212,36 +1111,13 @@ export const getDailyScheduleWithAppointments = async (req, res) => {
         dailyAppointments,
       },
       "Schedule and appointments fetched successfully.",
-      "Schedule and appointments fetched successfully."
+      "Schedule and appointments fetched successfully.",
     );
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Failed to fetch schedule and appointments");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getTotalCommentsPatients = async (req, res) => {
   const { userId } = req.params;
@@ -1258,31 +1134,10 @@ export const getTotalCommentsPatients = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const addDoctorWeeklySchedule = async (req, res) => {
   try {
     const { mon, tue, wed, thu, fri, sat, sun } = req.body;
-    console.log("🚀 ~ doctorRegistration.js:1264 ~ addDoctorWeeklySchedule ~ fri:", fri)
+    console.log("🚀 ~ doctorRegistration.js:1264 ~ addDoctorWeeklySchedule ~ fri:", fri);
     const { userId: doctorUserId } = req.params;
 
     if (!doctorUserId) {
@@ -1352,13 +1207,12 @@ export const addDoctorWeeklySchedule = async (req, res) => {
         }
 
         // maxAppointments must be a positive number
-        if (maxAppointments  && maxAppointments < 1) {
+        if (maxAppointments && maxAppointments < 1) {
           return res.status(400).json({
             success: false,
             message: `${dayKey} slot[${i}]: maxAppointments must be a positive number.`,
           });
         }
-
       }
     }
 
@@ -2001,4 +1855,3 @@ export const updateRoleByAdmin = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-

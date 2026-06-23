@@ -1261,62 +1261,245 @@ export const getAllUserComments = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// todo same api as below
+
+// export const getAllPostsByAdmin = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const skip = (page - 1) * limit;
+
+//     const [groupedUsers, totalUsers] = await Promise.all([
+//       Post.aggregate([
+//         {
+//           $group: {
+//             _id: "$userId",
+//             totalPosts: { $sum: 1 },
+//           },
+//         },
+//         {
+//           $sort: {
+//             totalPosts: -1,
+//           },
+//         },
+//         {
+//           $skip: skip,
+//         },
+//         {
+//           $limit: limit,
+//         },
+//       ]),
+
+//       Post.aggregate([
+//         {
+//           $group: {
+//             _id: "$userId",
+//           },
+//         },
+//         {
+//           $count: "total",
+//         },
+//       ]),
+//     ]);
+
+//     if (!groupedUsers.length) {
+//       return notFoundResponse(res, "Not Found", "No posts found.");
+//     }
+
+//     const userIds = groupedUsers.map((item) => item._id);
+
+//     const users = await User.find(
+//       {
+//         userId: { $in: userIds },
+//       },
+//       {
+//         _id: 0,
+//         userId: 1,
+//         fullName: 1,
+//         profilePhoto: 1,
+//         createdAt: 1,
+//       }
+//     ).lean();
+
+//     const userMap = users.reduce((acc, user) => {
+//       acc[user.userId] = user;
+//       return acc;
+//     }, {});
+
+//     const result = groupedUsers.map((item) => {
+//       const user = userMap[item._id] || {};
+
+//       return {
+//         userId: item._id,
+//         fullName: user.fullName || "",
+//         profilePhoto: user.profilePhoto || "",
+//         totalPosts: item.totalPosts,
+//         userCreatedAt: user.createdAt || null,
+//       };
+//     });
+
+//     return paginatedSuccessResponse(
+//       res,
+//       result,
+//       page,
+//       limit,
+//       totalUsers[0]?.total || 0,
+//       "All users with total posts fetched successfully.",
+//       "All users with total posts fetched successfully."
+//     );
+//   } catch (error) {
+//     console.error("GET_ALL_POSTS_ERROR:", error);
+
+//     return somethingWentWrong(
+//       res,
+//       null,
+//       "Unable to fetch the data.",
+//       "Unable to fetch the data."
+//     );
+//   }
+// };
+
+
+
+
+//todo this api does not work
 export const getAllPostsByAdmin = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const { sortBy } = req.query;
+    const { sortBy = "totalPosts", sortOrder = "desc" } = req.query;
 
-    const allowedSortFields = ["title", "name", "type", "upvote", "downvote", "netVote", "isVerified", "totalComments"];
+    const allowedSortFields = [
+      "fullName",
+      "userId",
+      "totalPosts",
+      "userCreatedAt",
+    ];
 
-    let sortConfig = { createdAt: -1 };
+    const order = sortOrder === "asc" ? 1 : -1;
+
+    let sortStage = {
+      totalPosts: -1,
+      userId: 1,
+    };
 
     if (allowedSortFields.includes(sortBy)) {
-      sortConfig = {
-        [sortBy]: 1,
-        createdAt: -1,
+      sortStage = {
+        [sortBy]: order,
+        userId: 1, // Tie breaker
       };
     }
 
-    const [allPosts, totalPosts] = await Promise.all([
-      Post.find(
-        {},
+    const [result, totalUsers] = await Promise.all([
+      Post.aggregate([
         {
-          _id: 1,
-          title: 1,
-          name: 1,
-          userId: 1,
-          createdAt: 1,
-          downvote: 1,
-          upvote: 1,
-          netVote: 1,
-          totalComments: 1,
-          type: 1,
-          isVerified: 1,
-          profilePhoto: 1,
+          $group: {
+            _id: "$userId",
+            totalPosts: { $sum: 1 },
+          },
         },
-      )
-        .sort(sortConfig)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+        {
+          $lookup: {
+            from: "users", // Make sure this matches your User collection name
+            localField: "_id",
+            foreignField: "userId",
+            as: "user",
+          },
+        },
+        {
+          $unwind: "$user",
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: "$_id",
+            fullName: "$user.fullName",
+            profilePhoto: "$user.profilePhoto",
+            totalPosts: 1,
+            userCreatedAt: "$user.createdAt",
+          },
+        },
+        {
+          $sort: sortStage,
+        },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
+      ]),
 
-      Post.countDocuments({}),
+      Post.aggregate([
+        {
+          $group: {
+            _id: "$userId",
+          },
+        },
+        {
+          $count: "total",
+        },
+      ]),
     ]);
 
-    if (!allPosts.length) {
+    console.log("🚀 ~ community.js:1461 ~ getAllPostsByAdmin ~ result:", result)
+    if (!result.length) {
       return notFoundResponse(res, "Not Found", "No posts found.");
     }
 
-    return paginatedSuccessResponse(res, allPosts, page, limit, totalPosts, "All saved posts are fetched", "All saved posts are fetched.");
+    return paginatedSuccessResponse(
+      res,
+      result,
+      page,
+      limit,
+      totalUsers[0]?.total || 0,
+      "All users with total posts fetched successfully.",
+      "All users with total posts fetched successfully."
+    );
   } catch (error) {
     console.error("GET_ALL_POSTS_ERROR:", error);
 
-    return somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
+    return somethingWentWrong(
+      res,
+      null,
+      "Unable to fetch the data.",
+      "Unable to fetch the data."
+    );
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 export const  getAllUserPosts2 = async (req, res) => {
