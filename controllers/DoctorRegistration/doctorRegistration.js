@@ -560,7 +560,7 @@ export const searchDoctors = async (req, res) => {
         },
       ],
     })
-      .select("fullName phoneNumber doctorRegistrationNumber email currentWorkplace")
+      .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
       .lean();
 
     if (!doctors.length) {
@@ -790,6 +790,31 @@ export const enableDisableWeekDay = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getDailySchedule = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -837,6 +862,41 @@ export const getDailySchedule = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to fetch schedule");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const addExceptionalSchedule = async (req, res) => {
   const { userId } = req.params;
@@ -1038,6 +1098,34 @@ export const getDoctorMonthlySchedule = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getDailyAppointments = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -1064,6 +1152,97 @@ export const getDailyAppointments = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+export const getDailyScheduleWithAppointments = async (req, res) => {
+  const { userId } = req.params;
+  const { date } = req.body;
+
+  const formattedDate = normalizeDate(date);
+
+  if (!formattedDate) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid date format.",
+    });
+  }
+
+  const day = new Date(date).getDay();
+  const dayNumber = Number(day);
+  const dayKey = DayMap[dayNumber];
+
+  if (!dayKey) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid day",
+    });
+  }
+
+  try {
+    const [exceptionalDay, weeklySchedule, dailyAppointments] = await Promise.all([
+      ExceptionalDays.findOne({
+        doctorUserId: userId,
+        date: formattedDate,
+      }),
+      WeeklyDays.findOne(
+        { doctorUserId: userId },
+        { [dayKey]: 1, doctorUserId: 1 },
+      ),
+      Appointment.find({
+        doctorUserId: userId,
+        appointmentDate: formattedDate,
+      }),
+    ]);
+
+    const dailySchedule = exceptionalDay ? [] : weeklySchedule?.[dayKey] ? [weeklySchedule[dayKey]] : [];
+
+    return successResponse(
+      res,
+      {
+        dailySchedule,
+        exceptionalDay: exceptionalDay ? [exceptionalDay] : [],
+        dailyAppointments,
+      },
+      "Schedule and appointments fetched successfully.",
+      "Schedule and appointments fetched successfully."
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to fetch schedule and appointments");
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getTotalCommentsPatients = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -1079,9 +1258,31 @@ export const getTotalCommentsPatients = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const addDoctorWeeklySchedule = async (req, res) => {
   try {
     const { mon, tue, wed, thu, fri, sat, sun } = req.body;
+    console.log("🚀 ~ doctorRegistration.js:1264 ~ addDoctorWeeklySchedule ~ fri:", fri)
     const { userId: doctorUserId } = req.params;
 
     if (!doctorUserId) {
@@ -1151,12 +1352,13 @@ export const addDoctorWeeklySchedule = async (req, res) => {
         }
 
         // maxAppointments must be a positive number
-        if (maxAppointments === undefined || maxAppointments === null || typeof maxAppointments !== "number" || maxAppointments < 1) {
+        if (maxAppointments  && maxAppointments < 1) {
           return res.status(400).json({
             success: false,
             message: `${dayKey} slot[${i}]: maxAppointments must be a positive number.`,
           });
         }
+
       }
     }
 
@@ -1799,3 +2001,4 @@ export const updateRoleByAdmin = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+

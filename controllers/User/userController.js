@@ -337,6 +337,8 @@ export async function bookAppointment(req, res) {
     }
 
     // ── 4. Availability checks ────────────────────────────────────────────────
+    console.log("🚀 ~ userController.js:340 ~ bookAppointment ~ daySchedule:", daySchedule)
+    console.log("🚀 ~ userController.js:341 ~ bookAppointment ~ daySchedule.isEnable:", daySchedule.isEnable)
     if (!daySchedule || !daySchedule.isEnable) {
       return res.status(400).json({
         success: false,

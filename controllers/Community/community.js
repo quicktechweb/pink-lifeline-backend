@@ -1317,3 +1317,48 @@ export const getAllPostsByAdmin = async (req, res) => {
     return somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
   }
 };
+
+
+export const  getAllUserPosts2 = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.max(Number(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+
+    if (!userId) {
+      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+    }
+
+    const totalPosts = await Post.countDocuments({ userId });
+
+    const allUserPosts = await Post.find({ userId })
+      .sort({ createdAt: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    return successResponse(
+      res,
+      {
+        posts: allUserPosts,
+        page,
+        limit,
+        totalPosts,
+        totalPages: Math.ceil(totalPosts / limit),
+        hasMore: page * limit < totalPosts,
+      },
+      "All user posts are fetched.",
+      "All user posts are fetched."
+    );
+  } catch (error) {
+    console.error("GET_ALL_USER_POSTS_ERROR:", error);
+
+    somethingWentWrong(
+      res,
+      null,
+      "Unable to fetch the user posts.",
+      "Unable to fetch the user posts."
+    );
+  }
+};

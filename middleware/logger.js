@@ -60,7 +60,7 @@ export const apiLogger = (req, res, next) => {
     const clockEmoji = getClockEmoji();
 
     console.log(
-      `➡️  ${timeEmoji} ${clockEmoji} ${new Date().toLocaleString()} | ${req.method.padEnd(
+      `➡️  ${timeEmoji}  ${clockEmoji} ${new Date().toLocaleString()} | ${req.method.padEnd(
         6
       )} | ${res.statusCode} | ${duration}ms | ${req.originalUrl}`
     );
