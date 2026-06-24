@@ -1145,7 +1145,7 @@
               "response": []
             },
             {
-              "name": "get-user-profile",
+              "name": "get-doctor-profile",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
               },
@@ -1175,7 +1175,42 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-IF9_JF"
+                      "value": "USR-N-CWAL"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-doctor-profile-details-with-schedule",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"month\": 6\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/doctor-details-schedule/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "doctor-details-schedule",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-N-CWAL"
                     }
                   ]
                 }
@@ -1841,7 +1876,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"month\": 7\r\n}",
+                  "raw": "{\r\n    \"month\": 6\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1862,7 +1897,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-IF9_JF"
+                      "value": "USR-N-CWAL"
                     }
                   ]
                 }
@@ -1912,7 +1947,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"userId\":\"USR-MUSZWJ\",\r\n    \"doctorUserId\":\"USR-IF9_JF\",\r\n      \"appointmentDate\": \"2026-06-26T10:00:00.000Z\",\r\n  \"startTime\": \"8:00 am\",\r\n  \"endTime\": \"11:00 am\"\r\n}",
+                  "raw": "{\r\n    \"userId\":\"USR-7KM7Y3\",\r\n    \"doctorUserId\":\"USR-N-CWAL\",\r\n    \r\n      \"appointmentDate\": \"2026-07-06T10:00:00.000Z\",\r\n  \"startTime\": \"04:30 am\",\r\n  \"endTime\": \"09:00 pm\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2171,6 +2206,84 @@
                     "api",
                     "registration",
                     "login-by-admin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-all-post-title-by-admin",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\":\"codeerid13255@gmail.com\",\r\n    \"password\":\"123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/community/v1/get-user-all-post-title-by-admin/:userid",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "community",
+                    "v1",
+                    "get-user-all-post-title-by-admin",
+                    ":userid"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userid",
+                      "value": "USR-XT90BI"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-posts-of-user-admin",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/community/v1/get-all-posts-of-user-admin/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "community",
+                    "v1",
+                    "get-all-posts-of-user-admin",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-XT90BI"
+                    }
                   ]
                 }
               },
@@ -3314,7 +3427,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"postId\": \"6a20192ea85655d2d381ae97\"\r\n}",
+              "raw": "{\r\n  \"postId\": \"6a3b793ad59bc3f6e01910cf\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3336,7 +3449,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1HQSUU"
+                  "value": "USR-XT90BI"
                 }
               ]
             }
@@ -3642,7 +3755,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-CIOXCQ"
+                  "value": "USR-XT90BI"
                 }
               ]
             }
@@ -3659,7 +3772,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3681,7 +3794,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-1NQ8FO"
+                  "value": "USR-N-CWAL"
                 }
               ]
             }
@@ -3825,7 +3938,7 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/community/v1/get-all-posts-admin?page=3&limit=5",
+              "raw": "{{base_url}}/api/community/v1/get-all-posts-admin?page=1&limit=5&sortBy=totalPosts&sortOrder=desc",
               "host": [
                 "{{base_url}}"
               ],
@@ -3838,11 +3951,19 @@
               "query": [
                 {
                   "key": "page",
-                  "value": "3"
+                  "value": "1"
                 },
                 {
                   "key": "limit",
                   "value": "5"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "totalPosts"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
                 }
               ]
             }
@@ -4485,7 +4606,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-SFYWPP\"\r\n}",
+              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-WPYOT8\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4581,7 +4702,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "weeklydays"
+                  "value": "doctors"
                 }
               ]
             }
@@ -5397,6 +5518,14 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "schedule details",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
         }
       ]
     },
@@ -5429,6 +5558,41 @@
             {
               "key": "userId",
               "value": "USR-IF9_JF"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get-doctor-profile-details-with-schedule Copy",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"month\": 6\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseurl}}/api/registration/doctor-details-schedule/:userId",
+          "host": [
+            "{{baseurl}}"
+          ],
+          "path": [
+            "api",
+            "registration",
+            "doctor-details-schedule",
+            ":userId"
+          ],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "USR-N-CWAL"
             }
           ]
         }
