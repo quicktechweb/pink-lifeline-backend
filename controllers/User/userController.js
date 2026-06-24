@@ -100,8 +100,7 @@ export const addToWishList = async (req, res) => {
     const exists = user.doctorWishList.includes(doctorUserId);
 
     if (exists) {
-    return successResponse(res, user, `Dr. ${isDoctorExist.fullName} is already in the wish list.`, `Dr. ${isDoctorExist.fullName} is already in the wish list.`);
-
+      return successResponse(res, user, `Dr. ${isDoctorExist.fullName} is already in the wish list.`, `Dr. ${isDoctorExist.fullName} is already in the wish list.`);
     } else {
       user.doctorWishList.push(doctorUserId);
     }
@@ -113,8 +112,6 @@ export const addToWishList = async (req, res) => {
   }
 };
 
-
-
 export const removeFromWishList = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -124,7 +121,7 @@ export const removeFromWishList = async (req, res) => {
     const isDoctorExist = await User.findOne({
       userId: doctorUserId,
       type: 1,
-      isRemoved: { $ne: true }, 
+      isRemoved: { $ne: true },
     });
 
     if (!isDoctorExist) {
@@ -145,31 +142,20 @@ export const removeFromWishList = async (req, res) => {
     // 3. Check if doctor is in list
     const exists = user.doctorWishList.includes(doctorUserId);
     if (!exists) {
-      return badRequestResponse(
-        res,
-        `Dr. ${isDoctorExist.fullName} is not in your wish list.`,
-        `Dr. ${isDoctorExist.fullName} is not in your wish list.`
-      );
+      return badRequestResponse(res, `Dr. ${isDoctorExist.fullName} is not in your wish list.`, `Dr. ${isDoctorExist.fullName} is not in your wish list.`);
     }
 
     // 4. Remove from list
     user.doctorWishList = user.doctorWishList.filter((id) => id !== doctorUserId);
-    
+
     // 5. Save and return updated user
     const updatedUser = await user.save();
-    
-    return successResponse(
-      res,
-      updatedUser,
-      "Doctor removed from wish list successfully.",
-      "Doctor removed from wish list successfully."
-    );
+
+    return successResponse(res, updatedUser, "Doctor removed from wish list successfully.", "Doctor removed from wish list successfully.");
   } catch (error) {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
 
 export const getUserDoctorWishList = async (req, res) => {
   try {
@@ -337,8 +323,7 @@ export async function bookAppointment(req, res) {
     }
 
     // ── 4. Availability checks ────────────────────────────────────────────────
-    console.log("🚀 ~ userController.js:340 ~ bookAppointment ~ daySchedule:", daySchedule)
-    console.log("🚀 ~ userController.js:341 ~ bookAppointment ~ daySchedule.isEnable:", daySchedule.isEnable)
+
     if (!daySchedule || !daySchedule.isEnable) {
       return res.status(400).json({
         success: false,
@@ -397,6 +382,23 @@ export async function bookAppointment(req, res) {
       });
     }
 
+    const user = await User.findOne({ userId, type: 0, isRemoved: { $ne: true } });
+    console.log("🚀 ~ userController.js:439 ~ bookAppointment ~ user:", user);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    const doctor = await User.findOne({ userId: doctorUserId, type: 1, isRemoved: { $ne: true } });
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: "Doctor not found.",
+      });
+    }
+
     // ── 7. Create appointment ─────────────────────────────────────────────────
     const appointment = await Appointment.create({
       userId,
@@ -408,10 +410,16 @@ export async function bookAppointment(req, res) {
       status: "pending",
     });
 
+    const response = {
+      doctor,
+      user,
+      appointment,
+    };
+
     return res.status(201).json({
       success: true,
       message: "Appointment booked successfully.",
-      data: appointment,
+      data: response,
     });
   } catch (err) {
     console.error("[bookAppointment]", err);
@@ -432,18 +440,17 @@ export const editAppointment = async (req, res) => {
       isDeleted: false,
     });
 
-    const doctor = await User.findOne({ userId: appointment.doctorUserId, type:1, isRemoved: { $ne: true }  });
+    const doctor = await User.findOne({ userId: appointment.doctorUserId, type: 1, isRemoved: { $ne: true } });
 
     if (!doctor) {
       return somethingWentWrong(res, null, "Unable to reschedule as doctor is no longer available now.", "Doctor not found in reschedule the user.");
     }
 
-    const user = await User.findOne({ 
-      userId: appointment.userId, 
-      type: 0, 
-      isRemoved: { $ne: true } 
+    const user = await User.findOne({
+      userId: appointment.userId,
+      type: 0,
+      isRemoved: { $ne: true },
     });
-
 
     if (!user) {
       return badRequestResponse(res, "You are not authorized to reschedule the appointment.", "User not found in reschedule.");
@@ -491,26 +498,23 @@ export const editAppointment = async (req, res) => {
 
     const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: updates }, { new: true, runValidators: true });
 
+    // For the User
+    const notificationToUser = await sendNotificationToUser({
+      userId: updated.userId,
+      title: "Appointment Rescheduled",
+      body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
+      type: "appointment",
+    });
 
-// For the User
-const notificationToUser = await sendNotificationToUser({
-  userId: updated.userId,
-  title: "Appointment Rescheduled",
-  body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-  type: "appointment",
-})
-
-// For the Doctor
-const notificationToDoctor = await sendNotificationToUser({
-  userId: doctor.userId,
-  title: "Appointment Rescheduled",
-  body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-  type: "appointment",
-})
-
+    // For the Doctor
+    const notificationToDoctor = await sendNotificationToUser({
+      userId: doctor.userId,
+      title: "Appointment Rescheduled",
+      body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
+      type: "appointment",
+    });
 
     return successResponse(res, updated, "Appointment updated successfully.", "Appointment updated successfully.");
-
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong.");
@@ -597,8 +601,6 @@ export const deleteAppointment = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong in deleting appointment by user.");
   }
 };
-
-
 
 // export const deleteAppointment2 = async (req, res) => {
 //   const { appointmentId } = req.params;

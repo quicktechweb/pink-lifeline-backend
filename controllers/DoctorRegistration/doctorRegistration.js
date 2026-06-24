@@ -59,6 +59,8 @@ export const registerUser = async (req, res) => {
       fcmToken,
     } = req.body;
 
+    console.log("🚀 ~ doctorRegistration.js:168 ~ registerUser ~ isVerified:", isVerified);
+
     if (type === undefined || (Number(type) !== 0 && Number(type) !== 1)) {
       return badRequestResponse(res, "User type is required.", "User type is not found.");
     }
@@ -843,7 +845,7 @@ export const addExceptionalSchedule = async (req, res) => {
   const { date, time, maxAppointments = 20 } = req.body;
 
   // 1. Validate required fields
-  if (!date || !time || !Array.isArray(time) ) {
+  if (!date || !time || !Array.isArray(time)) {
     return res.status(400).json({
       success: false,
       message: "Date and Time array are required.",
@@ -1853,5 +1855,45 @@ export const updateRoleByAdmin = async (req, res) => {
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const getDoctorDetailsWithSchedule = async (req, res) => {
+  const { userId } = req.params;
+  let { month } = req.body;
+  month = Number(req.body.month);
+
+  try {
+    if (!MonthMap[month]) {
+      return badRequestResponse(res, "Invalid month", "Month must be between 1 and 12");
+    }
+
+    const weekDay = await WeeklyDays.findOne({
+      doctorUserId: userId,
+    });
+
+    const exceptionalDay = await ExceptionalDays.find({
+      doctorUserId: userId,
+    });
+
+    const filteredExceptionalDays = exceptionalDay.filter((item) => {
+      return new Date(item.date).getMonth() + 1 === month;
+    });
+
+    const doctorDetails = await User.findOne({ userId });
+
+    return successResponse(
+      res,
+      {
+        doctorDetails,
+        weekDay,
+        exceptionalDay: filteredExceptionalDays,
+      },
+      "Schedule fetched successfully",
+      "Schedule fetched successfully",
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Failed to fetch schedule");
   }
 };

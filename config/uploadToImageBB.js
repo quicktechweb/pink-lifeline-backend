@@ -34,7 +34,6 @@ export const uploadToImageBB = async (file) => {
       }
     );
 
-    console.log("", response.data);
 // IMAGE_BB_RESPONSE:
     /**
      * Return image URL

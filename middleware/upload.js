@@ -170,7 +170,6 @@ const storage = multer.memoryStorage();
           "image/heif",
         ];
 
-        console.log("🚀 ~ upload.js:173 ~ file.mimetype:", file.mimetype)
         if (allowed.includes(file.mimetype)) {
           cb(null, true);
         } else {
