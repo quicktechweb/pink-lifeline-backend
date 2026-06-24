@@ -51,7 +51,7 @@ export const successResponse = (res, data, message, logMessage, total) => {
   });
 };
 
-export const paginatedSuccessResponse = (res, data, page, limit, total, message, logMessage) => {
+export const paginatedSuccessResponse = (res, data, page, limit, total, message, logMessage,hasMore) => {
   if (logMessage) {
     console.log(getTimestamp(), "SUCCESS:", logMessage);
   }
@@ -66,6 +66,7 @@ export const paginatedSuccessResponse = (res, data, page, limit, total, message,
       totalPages: Math.ceil(total / limit),
       hasNextPage: page * limit < total,
       hasPrevPage: page > 1,
+      hasMore: hasMore ? true : false
     },
     message,
   });

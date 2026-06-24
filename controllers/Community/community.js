@@ -1180,6 +1180,140 @@ export const getAllUserPosts = async (req, res) => {
   }
 };
 
+
+
+export const getAllPostOfUserAdmin = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [posts, totalPosts] = await Promise.all([
+      Post.find({ userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      Post.countDocuments({ userId }),
+    ]);
+
+    if (!posts.length) {
+      return paginatedSuccessResponse(
+        res,
+        [],
+        page,
+        limit,
+        totalPosts,
+        "No posts found.",
+        "No posts found."
+      );
+    }
+
+    const postIds = posts.map((post) => post._id);
+
+    const comments = await Comment.find({
+      postId: { $in: postIds },
+    })
+      .sort({ createdAt: 1 })
+      .lean();
+
+    const commentsByPost = {};
+
+    comments.forEach((comment) => {
+      const postId = comment.postId.toString();
+
+      if (!commentsByPost[postId]) {
+        commentsByPost[postId] = [];
+      }
+
+      commentsByPost[postId].push({
+        ...comment,
+        replies: [],
+      });
+    });
+
+    const result = posts.map((post) => {
+      const postComments = commentsByPost[post._id.toString()] || [];
+
+      const map = {};
+      const roots = [];
+
+      postComments.forEach((comment) => {
+        map[comment._id] = comment;
+      });
+
+      postComments.forEach((comment) => {
+        if (comment.parentId) {
+          const parent = map[comment.parentId.toString()];
+
+          if (parent) {
+            parent.replies.push(comment);
+          } else {
+            roots.push(comment);
+          }
+        } else {
+          roots.push(comment);
+        }
+      });
+
+      return {
+        ...post,
+        comments: roots,
+      };
+    });
+
+    // hasMore tells the client (and our infinite query) whether
+    // there's another page to fetch — same shape as get-user-posts
+
+    // return paginatedSuccessResponse(
+    //   res,
+    //   result,
+    //   page,
+    //   limit,
+    //   totalPosts,
+    //   "Posts fetched successfully.",
+    //   "Posts fetched successfully.",
+    //   hasMore // <-- only addition, assuming paginatedSuccessResponse accepts an extra trailing param
+    // );
+
+const hasMore = skip + posts.length < totalPosts;
+
+return res.status(200).json({
+  success: true,
+  data: result,
+  page,
+  limit,
+  totalPosts,
+  hasMore,
+  message: "Posts fetched successfully.",
+});
+
+  } catch (error) {
+    console.error("GET_ALL_POSTS_ERROR:", error);
+
+    return somethingWentWrong(
+      res,
+      null,
+      "Unable to fetch the posts.",
+      "Unable to fetch the posts."
+    );
+  }
+};
+
+
+// export const getAllPostsByAdmin = async (req, res) => {
+//   try {
+//     const allPosts = await Post.find({}).populate("userId");
+//     return successResponse(res, allPosts, "All posts are fetched", "All posts are fetched.");
+//   } catch (error) {
+//     console.error("GET_ALL_POSTS_ERROR:", error);
+//     somethingWentWrong(res, null, "Unable to fetch the posts.", "Unable to fetch the posts.");
+//   }
+// }
+
 export const deletePost = async (req, res) => {
   const { userId, postId } = req.params;
 
@@ -1372,5 +1506,28 @@ export const getAllUserPosts2 = async (req, res) => {
     console.error("GET_ALL_USER_POSTS_ERROR:", error);
 
     somethingWentWrong(res, null, "Unable to fetch the user posts.", "Unable to fetch the user posts.");
+  }
+};
+
+
+export const getAllPostTitles = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const posts = await Post.find({ userId }).select("title description createdAt").sort({ createdAt: -1 });
+
+    const formattedPosts = posts.map((post) => ({
+      ...post.toObject(),
+      description:
+        post.description
+          ?.split(/\s+/)
+          .slice(0, 10)
+          .join(" ") +
+        (post.description?.split(/\s+/).length > 10 ? "..." : ""),
+    }));
+
+    return successResponse(res, formattedPosts, "All post titles are fetched.", "All post titles are fetched.");
+  } catch (error) {
+    console.error("GET_ALL_POST_TITLES_ERROR:", error);
+    somethingWentWrong(res, null, "Unable to fetch the post titles.", "Unable to fetch the post titles.");
   }
 };

@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost, getAllPosts, getSearchedResults, postComment, getAllUserPosts, postDownVote, getSinglePost, commentUpVote, commentDownVote, postUpVote, getUpvotedPosts, getDownvotedPosts, getUpvotedComments, getDownvotedComments, savePost, getAllSavedPosts, deletePost, getAllUserComments, getAllPostsByAdmin, getAllUserPosts2 } from "../../controllers/Community/community.js";
+import { createPost, getAllPosts, getSearchedResults, postComment, getAllUserPosts, postDownVote, getSinglePost, commentUpVote, commentDownVote, postUpVote, getUpvotedPosts, getDownvotedPosts, getUpvotedComments, getDownvotedComments, savePost, getAllSavedPosts, deletePost, getAllUserComments, getAllPostsByAdmin, getAllUserPosts2, getAllPostTitles, getAllPostOfUserAdmin } from "../../controllers/Community/community.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 
@@ -39,5 +39,10 @@ router.get("/v1/get-user-comments/:userId", isUserExist, getAllUserComments);
 
 router.get("/v1/get-all-posts-admin", getAllPostsByAdmin);
 
+router.get("/v1/get-all-posts-of-user-admin/:userId", isUserExist, getAllPostOfUserAdmin);
+
+router.get("/v1/get-user-all-post-title-by-admin/:userId", isUserExist, getAllPostTitles);
+
+router.get("/v1/get-all-posts-by-admin", getAllUserPosts);
 
 export default router;
