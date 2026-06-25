@@ -440,5 +440,4 @@ async function runAll() {
 
 runAll().catch(err => {
   console.error("\n💥 Unhandled error:", err.message);
-  process.exit(1);
 });

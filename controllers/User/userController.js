@@ -1,8 +1,10 @@
+import mongoose from "mongoose";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 import { DayMap, ENV } from "../../constant/constant.js";
 import { Comment } from "../../models/Community/CommentModel.js";
 import { Post } from "../../models/Community/PostModel.js";
 import User from "../../models/DoctorRegistration/DoctorRegistration.js";
+import DoctorRatingModel from "../../models/Rating/DoctorRatingModel.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
 import { sendNotificationToUser } from "../../services/notificationService.js";
@@ -848,5 +850,180 @@ export const getDailyScheduleByUser = async (req, res) => {
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Failed to fetch schedule");
+  }
+};
+
+export const completeAppointmentByUser = async (req, res) => {
+  const { userId } = req.params;
+  const { appointmentId } = req.body;
+
+  try {
+    const appointment = await Appointment.findOneAndUpdate(
+      {
+        _id: appointmentId,
+        isDeleted: false,
+        status: "confirmed",
+      },
+      {
+        $set: {
+          status: "completed",
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!appointment) {
+      return res.status(400).json({
+        success: false,
+        message: "You already completed this appointment.",
+      });
+    }
+
+    return successResponse(res, appointment, "Appointment completed successfully.", "Appointment completed successfully.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const cancelAppointmentByUser = async (req, res) => {
+  const { userId } = req.params;
+  const { appointmentId } = req.body;
+
+  try {
+    const appointment = await Appointment.findOneAndUpdate(
+      {
+        _id: appointmentId,
+        isDeleted: false,
+        status: "confirmed",
+      },
+      {
+        $set: {
+          status: "cancelled",
+          cancelledBy: "user",
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!appointment) {
+      return res.status(400).json({
+        success: false,
+        message: "You already completed this appointment.",
+      });
+    }
+
+    return successResponse(res, appointment, "Appointment completed successfully.", "Appointment completed successfully.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const rateDoctorByUser = async (req, res) => {
+  const { userId } = req.params;
+  const { appointmentId, rating, review } = req.body;
+
+  if (rating > 5 && rating <= 0) {
+    return badRequestResponse(res, "Bad rating request.", `Rating must be between 1 and 5 but the user's rating is ${rating}.`);
+  }
+
+  try {
+    const appointment = await Appointment.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(appointmentId),
+        isDeleted: false,
+        status: "completed",
+      },
+      {
+        $set: {
+          rating: rating,
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!appointment) {
+      return res.status(400).json({
+        success: false,
+        message: "You already completed this appointment.",
+      });
+    }
+
+    const rate = await DoctorRatingModel.create({
+      userId,
+      doctorUserId: appointment.doctorUserId,
+      rating,
+      appointmentId: appointment._id,
+    });
+
+    const ratingStats = await DoctorRatingModel.aggregate([
+      {
+        $match: {
+          doctorUserId: appointment.doctorUserId,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: "$rating" },
+          totalRatings: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          averageRating: { $round: ["$averageRating", 1] },
+          totalRatings: 1,
+        },
+      },
+    ]);
+    console.log("🚀 ~ userController.js:994 ~ rateDoctorByUser ~ ratingStats:", ratingStats);
+
+    const user = await User.findOne({ userId });
+
+    const doctor = await User.findOneAndUpdate(
+      { userId: appointment.doctorUserId, type: 1, isVerified: true, isRemoved: false },
+      {
+        $set: {
+          rating: ratingStats[0].averageRating,
+          totalRatings: ratingStats[0].totalRatings,
+        },
+      },
+    );
+
+    const finalResponse = await DoctorRatingModel.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(rate._id),
+      },
+      {
+        $set: {
+          doctorName: doctor.fullName,
+          doctorProfilePhoto: doctor.profilePhoto,
+          userId,
+          review: review,
+          hospitalName: doctor.currentWorkplace,
+          doctorLocation: doctor.location,
+          appointmentId: appointment._id,
+          userId: user._id,
+          userName: user.fullName,
+          userProfilePhoto: user.profilePhoto,
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    return successResponse(res, finalResponse, "Thank you for your rating.", "Rating completed successfully.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
   }
 };

@@ -90,4 +90,8 @@ router.post("/doctor-details-schedule/:userId",isDoctor,getDoctorDetailsWithSche
 
 
 
+// router
+
+
+
 export default router;

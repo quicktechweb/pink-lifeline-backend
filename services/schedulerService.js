@@ -98,17 +98,30 @@ const scheduleTodaysNotifications = async () => {
   }
 };
 
-const startNotificationScheduler = () => {
-  console.log("✅ Notification Scheduler Started");
+  const startNotificationScheduler = () => {
+    console.log("✅ Notification Scheduler Started");
 
-  // On boot, schedule whatever's left for today — covers mid-day server restarts
-  scheduleTodaysNotifications();
-
-  // Every midnight, fetch and schedule the day's notifications
-  cron.schedule("0 0 * * *", () => {
-    console.log("⏰ Running daily notification scheduler...", new Date());
+    // On boot, schedule whatever's left for today — covers mid-day server restarts
     scheduleTodaysNotifications();
-  });
-};
+
+    // Every midnight, fetch and schedule the day's notifications
+    cron.schedule("0 0 * * *", () => {
+      console.log("⏰ Running daily notification scheduler...", new Date());
+      scheduleTodaysNotifications();
+    });
+  };
+
+// const startNotificationScheduler = () => {
+//   console.log("✅ Notification Scheduler Started");
+
+//   // Run immediately on startup
+//   scheduleTodaysNotifications();
+
+//   // Run every 30 seconds
+//   cron.schedule("*/30 * * * * *", () => {
+//     console.log("⏰ Running notification scheduler...", new Date());
+//     scheduleTodaysNotifications();
+//   });
+// };
 
 export default startNotificationScheduler;

@@ -33,6 +33,17 @@
         trim: true,
       },
 
+      rating: {
+        type: Number,
+        default: 0,
+        max: 5,
+      },
+
+      totalRateCount:{
+        type: Number,
+        default: 0
+      },
+
       password: {
         type: String,
         trim: true,

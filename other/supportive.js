@@ -305,53 +305,73 @@ internalUtilRoutes.post("/delete-specific-data-form-each-collection", async (req
 });
 
 
-internalUtilRoutes.patch("/update-schedule-time/:userId", async (req, res) => {
+internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
   try {
-    const { userId } = req.params;
-
-    const notifications = await Notification.find({ userId }).sort({
-      createdAt: 1,
-    });
-
-    if (notifications.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No notifications found.",
-      });
-    }
+    const {
+      userId,
+      fcmTokens,
+      body,
+      title,
+      type,
+      autoReminderLimit,
+    } = req.body;
 
     const now = new Date();
 
-    for (let i = 0; i < notifications.length; i++) {
-      const updatedTime = new Date(now);
+    const originalMinute = now.getMinutes();
 
-      // +1 minute, +2 minutes, +3 minutes...
-      updatedTime.setMinutes(updatedTime.getMinutes() + (i + 1));
+    // Add 30 seconds
+    now.setSeconds(now.getSeconds() + 30);
 
-      // HH:mm
-      const hh = String(updatedTime.getHours()).padStart(2, "0");
-      const mm = String(updatedTime.getMinutes()).padStart(2, "0");
-
-      // YYYY-MM-DD
-      const yyyy = updatedTime.getFullYear();
-      const month = String(updatedTime.getMonth() + 1).padStart(2, "0");
-      const day = String(updatedTime.getDate()).padStart(2, "0");
-
-      notifications[i].notificationSendTime = `${hh}:${mm}`;
-      notifications[i].notificationSendDate = `${yyyy}-${month}-${day}`;
-      notifications[i].autoReminderLimit = 3;
-
-      await notifications[i].save();
+    // If still in the same minute, move to the next minute
+    if (now.getMinutes() === originalMinute) {
+      now.setMinutes(now.getMinutes() + 1);
     }
 
-    const result = await Notification.find({ userId });
+    // Format date (YYYY-MM-DD)
+    const notificationSendDate = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+    // Format time (HH:mm)
+    const notificationSendTime = `${String(now.getHours()).padStart(
+      2,
+      "0"
+    )}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    const notification = await Notification.findOneAndUpdate(
+      { userId },
+      {
+        $set: {
+          fcmTokens,
+          notificationSendTime,
+          notificationSendDate,
+          body,
+          title,
+          type,
+          autoReminderLimit,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+        setDefaultsOnInsert: true,
+      }
+    );
+
+    // Restart after response is sent (only if using nodemon/pm2)
+
 
     return res.status(200).json({
       success: true,
-      data: result,
-      message: "Notification schedule updated successfully.",
-      totalUpdated: notifications.length,
+      message: "Notification saved successfully.",
+      data: notification,
     });
+
+        setTimeout(() => {
+      process.exit(0);
+    }, 500);
   } catch (error) {
     console.error(error);
 

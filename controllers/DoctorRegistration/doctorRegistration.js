@@ -1258,6 +1258,7 @@ export const addDoctorWeeklySchedule = async (req, res) => {
   }
 };
 
+
 export const getAllAppointmentsByAdmin = async (req, res) => {
   const {
     limit = 10,
@@ -1428,6 +1429,8 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
       ]),
     ]);
 
+
+
     const total = totalDoctors[0]?.total || 0;
 
     if (!doctors.length) {
@@ -1453,6 +1456,24 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const confirmAppointmentByAdmin = async (req, res) => {
   const { id } = req.params;

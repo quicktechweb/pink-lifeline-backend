@@ -733,18 +733,15 @@ export const recordPeriodStart = async (req, res) => {
     });
 
     const user = await User.findOne({ userId: payload.userId });
-    console.log("🚀 ~ trackPeriod2.js:736 ~ recordPeriodStart ~ user:", user)
 
     if (user) {
       const frequency = user.notificationSendTime
       const preferredTime = user.notificationPreferenceTime
-      console.log("🚀 ~ trackPeriod2.js:741 ~ recordPeriodStart ~ preferredTime:", preferredTime)
       
     }
 
 
-    process.exit(0)
-    
+
 
 
     return successResponse(res, newRecord, "Period created successfully.", "Period log recorded successfully.");
@@ -1117,7 +1114,7 @@ export const recordPeriodEnd = async (req, res) => {
           notificationSendTime: isUserExist.notificationPreferenceTime,
           body: `Your next period is estimated to start on ${estimatedNextPeriodDateOnly}.`,
           title: "Estimated Next Period Reminder",
-          type: "periodDate",
+          type: "period_check",
           autoReminderLimit: isUserExist.autoReminderLimit,
         });
         console.log("🚀 ~ trackPeriod2.js:1102 ~ recordPeriodEnd ~ noti:", noti)
