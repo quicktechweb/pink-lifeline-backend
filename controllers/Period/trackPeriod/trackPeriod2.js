@@ -604,6 +604,7 @@ const buildPrefillEntries = (firstEntry, fromDate, duration) => {
 export const recordPeriodStart = async (req, res) => {
   try {
     const payload = req.body;
+    console.log("🚀 ~ trackPeriod2.js:607 ~ recordPeriodStart ~ payload:", payload)
 
     // ── 1. User ───────────────────────────────────────────────────────────────
     if (!payload.userId) {
@@ -719,7 +720,7 @@ export const recordPeriodStart = async (req, res) => {
 
     // ── 7. Compute personalised duration & estimated endDate ──────────────────
     const periodDuration = await resolvePersonalisedDuration(payload.userId);
-
+    
     // ── 8. Pre-fill: copy today's full entry to every cycle day ───────────────
     const prefillEntries = buildPrefillEntries(newPeriodEntry, startDate, periodDuration);
 
@@ -737,10 +738,42 @@ export const recordPeriodStart = async (req, res) => {
     if (user) {
       const frequency = user.notificationSendTime
       const preferredTime = user.notificationPreferenceTime
-      
     }
 
+    // console.log("🚀 ~ trackPeriod2.js:748 ~ recordPeriodStart ~ newRecord:", newRecord)
 
+    
+let notificationSendDate = "";
+
+if (newRecord.period && newRecord.period.length > 0) {
+  const lastPeriod = newRecord.period[newRecord.period.length - 1];
+  const lastCurrentDate = new Date(lastPeriod.currentDate);
+
+  // Subtract 2 days
+  lastCurrentDate.setDate(lastCurrentDate.getDate() - 1);
+
+  // Format: YYYY-MM-DD
+  notificationSendDate = lastCurrentDate.toISOString().split("T")[0];
+}
+
+
+     const allFCMToken = await UserFCMToken.findOne(
+          { userId:payload.userId },
+          { fcmTokens: 1 }
+        );
+
+
+
+  const noti = await Notification.create({
+          userId: payload.userId,
+          fcmTokens: allFCMToken?.fcmTokens || [],
+          notificationSendDate: notificationSendDate,
+          notificationSendTime: isUserExist.notificationPreferenceTime,
+          body: `If your period is over please end the period cycle in the app.`,
+          title: "Period ending reminder.",
+          type: "periodDate",
+          autoReminderLimit: isUserExist.autoReminderLimit,
+        });
 
 
 
@@ -777,6 +810,7 @@ export const recordPeriodCurrent = async (req, res) => {
       return badRequestResponse(res, "Current date is invalid.", "currentDate must be a valid date string.");
     }
     if (currentDate.getTime() > todayUTC().getTime()) {
+
       return badRequestResponse(res, "Current date cannot be in the future.", "currentDate cannot be a future date.");
     }
 
@@ -1106,6 +1140,7 @@ export const recordPeriodEnd = async (req, res) => {
           { userId },
           { fcmTokens: 1 }
         );
+        console.log("🚀 ~ trackPeriod2.js:1130 ~ recordPeriodEnd ~ allFCMToken:", allFCMToken)
 
         const noti = await Notification.create({
           userId,
@@ -1114,10 +1149,10 @@ export const recordPeriodEnd = async (req, res) => {
           notificationSendTime: isUserExist.notificationPreferenceTime,
           body: `Your next period is estimated to start on ${estimatedNextPeriodDateOnly}.`,
           title: "Estimated Next Period Reminder",
-          type: "period_check",
+          type: "periodDate",
           autoReminderLimit: isUserExist.autoReminderLimit,
         });
-        console.log("🚀 ~ trackPeriod2.js:1102 ~ recordPeriodEnd ~ noti:", noti)
+        
 
 
 

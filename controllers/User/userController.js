@@ -790,6 +790,77 @@ export const getUserAppointments = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+export const getUserAppointmentsByStatus = async (req, res) => {
+  const { userId } = req.params;
+  let status
+  if(req.body?.status){
+    status = req.body.status
+  }
+
+  try {
+
+    let appointments
+
+    if(!status){
+          appointments = await Appointment.find({
+      userId,
+      isDeleted: false,
+    }).lean();
+    }else{
+           appointments = await Appointment.find({
+      userId,
+      status,
+      isDeleted: false,
+    }).lean();
+    }
+
+    const doctorIds = [...new Set(appointments.map((a) => a.doctorUserId))];
+
+    const doctors = await User.find({
+      userId: { $in: doctorIds },
+    }).lean();
+
+    const doctorMap = new Map(doctors.map((doctor) => [doctor.userId, doctor]));
+
+    const enrichedAppointments = appointments.map((appointment) => {
+      const doctor = doctorMap.get(appointment.doctorUserId);
+
+      if (!doctor) {
+        return {
+          ...appointment,
+          status: "cancelled",
+          doctor: null,
+        };
+      }
+
+      return {
+        ...appointment,
+        doctor,
+      };
+    });
+
+    return successResponse(res, enrichedAppointments, "Appointments retrieved successfully.", "Get appointments successful.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+
+
+
+
+
+
+
+
+
 export const getDailyScheduleByUser = async (req, res) => {
   const { doctorUserid: userId } = req.params;
   const { date } = req.body;
