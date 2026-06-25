@@ -1463,6 +1463,41 @@
               "response": []
             },
             {
+              "name": "get-daily-confirmed-appointments-by-doctor",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n     \"page\": 1,\r\n  \"limit\": 10\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-daily-confirmed-appointments-by-doctor/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-daily-confirmed-appointments-by-doctor",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-N-CWAL"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "search doctor",
               "protocolProfileBehavior": {
                 "disableBodyPruning": true
@@ -1602,6 +1637,114 @@
                     {
                       "key": "userId",
                       "value": "USR-IF9_JF"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-completed-appointments-by-doctor",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"date\": \"2026-06-30T00:00:00.000Z\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-completed-appointments-by-doctor/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-completed-appointments-by-doctor",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-N-CWAL"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-all-notification",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-all-notification/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-all-notification",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-N-CWAL"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-doctor-notification Copy",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n\"notificationIds\":[\r\n    \"6a3279efcbb5c0bbf6449349\",\r\n    \"6a327a24cbb5c0bbf644939c\"\r\n]\r\n    \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/mark-notification-as-read/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "mark-notification-as-read",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-N-CWAL"
                     }
                   ]
                 }
@@ -1970,6 +2113,42 @@
               "response": []
             },
             {
+              "name": "rate-doctor-by-user",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"appointmentId\":\"6a3b74ca0092b53465c4b9b6\"  ,\r\n    \"rating\":3,\r\n    \"review\":\"A good doctor.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/rate-doctor-by-user/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "rate-doctor-by-user",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-7KM7Y3"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
               "name": "reschedule-appointment",
               "request": {
                 "method": "PATCH",
@@ -2074,6 +2253,78 @@
                     {
                       "key": "userId",
                       "value": "USR-QR1TYH"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-appointments by status",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\":\"cancelled\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v2/get-user-appointments/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v2",
+                    "get-user-appointments",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-QR1TYH"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "confirm-appointment-by-user",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"appointmentId\":\"6a3b74ca0092b53465c4b9b6\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/confirm-appointment-by-user/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "confirm-appointment-by-user",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-7KM7Y3"
                     }
                   ]
                 }
@@ -4746,7 +4997,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "",
+              "raw": "{\r\n  \"userId\": \"USR-ZK2NV6\",\r\n  \"fcmTokens\": [\r\n    \"e3GawhfnQ1SChqHe6oSxtK:APA91bFQZbi4riaGjvRDnS0Yy45SoDsvFVtNCwyMjfNayydB9Fq3cBMUwK4S7e3RX2u-u3seySECSg5-Yt3i_ysqhQUcoc4mcymTsl6ix9dArlBa3HJEnPU\"\r\n  ],\r\n  \"notificationSendTime\": \"10:52\",\r\n  \"notificationSendDate\": \"2026-06-25\",\r\n  \"body\": \"Your next period is estimated to start on 2026-05-17.\",\r\n  \"title\": \"Estimated Next Period Reminder\",\r\n  \"type\": \"period_check\",\r\n  \"autoReminderLimit\": 3\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4754,20 +5005,13 @@
               }
             },
             "url": {
-              "raw": "{{baseurl}}/other/update-schedule-time/:userId",
+              "raw": "{{baseurl}}/other/update-schedule-time",
               "host": [
                 "{{baseurl}}"
               ],
               "path": [
                 "other",
-                "update-schedule-time",
-                ":userId"
-              ],
-              "variable": [
-                {
-                  "key": "userId",
-                  "value": "USR-MUSZWJ"
-                }
+                "update-schedule-time"
               ]
             }
           },
@@ -5315,7 +5559,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"date\": \"2026-06-15T00:00:00.000Z\"\r\n}",
+              "raw": "{\r\n    \"date\": \"2026-06-30T00:00:00.000Z\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5336,7 +5580,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-UAL29I"
+                  "value": "USR-N-CWAL"
                 }
               ]
             }
