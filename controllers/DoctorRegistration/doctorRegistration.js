@@ -11,6 +11,7 @@ import { Comment } from "../../models/Community/CommentModel.js";
 import { createOrUpdateFCMToken } from "../../services/notificationService.js";
 import bcrypt from "bcryptjs";
 import Role from "../../models/RolePermission/RolePermission.js";
+import Notification from "../../models/Notification/NotificationModel.js";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -1066,6 +1067,100 @@ export const getDailyAppointments = async (req, res) => {
   }
 };
 
+export const getConfirmedAppointments = async (req, res) => {
+  const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.body;
+
+  const parsedPage = Math.max(parseInt(page, 10), 1);
+  const parsedLimit = Math.max(parseInt(limit, 10), 1);
+
+  const filter = {
+    doctorUserId: userId,
+    status: "confirmed",
+  };
+
+  try {
+    const [appointments, totalAppointments] = await Promise.all([
+      Appointment.find(filter)
+        .sort({
+          appointmentDate: -1, // Latest date first
+          appointmentTime: -1, // Latest time first within the same date
+        })
+        .skip((parsedPage - 1) * parsedLimit)
+        .limit(parsedLimit),
+
+      Appointment.countDocuments(filter),
+    ]);
+
+    return successResponse(
+      res,
+      {
+        appointments,
+        pagination: {
+          page: parsedPage,
+          limit: parsedLimit,
+          totalAppointments,
+          totalPages: Math.ceil(totalAppointments / parsedLimit),
+          hasNextPage: parsedPage * parsedLimit < totalAppointments,
+          hasPreviousPage: parsedPage > 1,
+        },
+      },
+      "Appointments retrieved successfully.",
+      "Get appointments successful.",
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const getCompletedAppointments = async (req, res) => {
+  const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.body;
+
+  const parsedPage = Math.max(parseInt(page, 10), 1);
+  const parsedLimit = Math.max(parseInt(limit, 10), 1);
+
+  const filter = {
+    doctorUserId: userId,
+    status: "completed",
+  };
+
+  try {
+    const [appointments, totalAppointments] = await Promise.all([
+      Appointment.find(filter)
+        .sort({
+          appointmentDate: -1, // Latest date first
+          appointmentTime: -1, // Latest time first within the same date
+        })
+        .skip((parsedPage - 1) * parsedLimit)
+        .limit(parsedLimit),
+
+      Appointment.countDocuments(filter),
+    ]);
+
+    return successResponse(
+      res,
+      {
+        appointments,
+        pagination: {
+          page: parsedPage,
+          limit: parsedLimit,
+          totalAppointments,
+          totalPages: Math.ceil(totalAppointments / parsedLimit),
+          hasNextPage: parsedPage * parsedLimit < totalAppointments,
+          hasPreviousPage: parsedPage > 1,
+        },
+      },
+      "Appointments retrieved successfully.",
+      "Get appointments successful.",
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
 export const getDailyScheduleWithAppointments = async (req, res) => {
   const { userId } = req.params;
   const { date } = req.body;
@@ -1258,7 +1353,6 @@ export const addDoctorWeeklySchedule = async (req, res) => {
   }
 };
 
-
 export const getAllAppointmentsByAdmin = async (req, res) => {
   const {
     limit = 10,
@@ -1429,8 +1523,6 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
       ]),
     ]);
 
-
-
     const total = totalDoctors[0]?.total || 0;
 
     if (!doctors.length) {
@@ -1456,24 +1548,6 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const confirmAppointmentByAdmin = async (req, res) => {
   const { id } = req.params;
@@ -1916,5 +1990,44 @@ export const getDoctorDetailsWithSchedule = async (req, res) => {
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Failed to fetch schedule");
+  }
+};
+
+export const getDoctorAllNotifications = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const notifications = await Notification.find({ userId });
+    return successResponse(res, notifications, "Notifications fetched successfully", "Notifications fetched successfully");
+  } catch (error) {
+    return somethingWentWrong(res, error, "Failed to fetch notifications", "Failed to fetch notifications");
+  }
+};
+
+export const markNotificationAsRead = async (req, res) => {
+  try {
+    const { notificationIds } = req.body;
+
+    const result = await Notification.updateMany(
+      {
+        _id: { $in: notificationIds },
+      },
+      {
+        $set: {
+          isRead: true,
+        },
+      },
+    );
+
+    return successResponse(
+      res,
+      {
+        matchedCount: result.matchedCount,
+        modifiedCount: result.modifiedCount,
+      },
+      "Notifications marked as read successfully.",
+      "Notifications marked as read successfully.",
+    );
+  } catch (error) {
+    return somethingWentWrong(res, error, "Failed to mark notifications as read.", "Failed to mark notifications as read.");
   }
 };

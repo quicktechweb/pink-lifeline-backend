@@ -45,6 +45,11 @@ const notificationSchema = new mongoose.Schema(
       index: true,
     },
 
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+
     autoReminderLimit: {
       type: Number,
       default: 3,

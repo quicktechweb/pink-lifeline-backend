@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser, updateRoleByAdmin, getDailyScheduleWithAppointments, getDoctorDetailsWithSchedule } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser, updateRoleByAdmin, getDailyScheduleWithAppointments, getDoctorDetailsWithSchedule, getConfirmedAppointments, getCompletedAppointments, markNotificationAsRead, getDoctorAllNotifications } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -48,8 +48,10 @@ router.get("/get-total-comment-patients/:userId",isDoctor,getTotalCommentsPatien
 
 router.post("/get-daily-doctor-appointments/:userId", isDoctor, getDailyAppointments);
 
-
-
+router.post("/get-daily-confirmed-appointments-by-doctor/:userId", isDoctor, getConfirmedAppointments);
+router.post("/get-completed-appointments-by-doctor/:userId", isDoctor, getCompletedAppointments);
+router.get("/get-all-notification/:userId",isDoctor,getDoctorAllNotifications)
+router.post("/mark-notification-as-read/:userId",isUserExist,markNotificationAsRead)
 
 
 
@@ -85,7 +87,6 @@ router.patch("/update-role-by-admin/:userId",isUserExist,updateRoleByAdmin)
 router.post("/create-admin-by-admin",uploadImage.single("profilePhoto"),signUpAsAdmin)
 router.post("/get-daily-schedule-appointments/:userId", getDailyScheduleWithAppointments);
 router.post("/doctor-details-schedule/:userId",isDoctor,getDoctorDetailsWithSchedule)
-
 
 
 
