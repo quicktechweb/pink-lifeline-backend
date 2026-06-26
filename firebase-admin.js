@@ -1,10 +1,14 @@
 import admin from "firebase-admin";
-import fs from "fs";
-import path from "path";
+import dotenv from "dotenv";
+dotenv.config();
 
-const serviceAccount = JSON.parse(
-  fs.readFileSync(path.resolve("./firebase-service-account.json"), "utf-8")
-);
+// Make sure the env var exists
+if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  throw new Error("FIREBASE_SERVICE_ACCOUNT environment variable is not set");
+}
+
+// Parse the JSON string from the environment variable
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 // Initialize Firebase Admin only once
 if (!admin.apps.length) {
@@ -12,8 +16,8 @@ if (!admin.apps.length) {
     credential: admin.credential.cert(serviceAccount),
   });
 }
+
 const messaging = admin.messaging();
 
-// ✅ Export admin directly
 export { messaging };
 export default admin;
