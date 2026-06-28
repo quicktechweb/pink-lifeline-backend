@@ -397,7 +397,7 @@ export async function bookAppointment(req, res) {
     if (!doctor) {
       return res.status(404).json({
         success: false,
-        message: "Doctor not found.",
+        message: "The doctor not found.",
       });
     }
 
@@ -948,7 +948,7 @@ export const completeAppointmentByUser = async (req, res) => {
     if (!appointment) {
       return res.status(400).json({
         success: false,
-        message: "You already completed this appointment.",
+        message: "Appointment is not found.",
       });
     }
 
@@ -984,7 +984,7 @@ export const cancelAppointmentByUser = async (req, res) => {
     if (!appointment) {
       return res.status(400).json({
         success: false,
-        message: "You already completed this appointment.",
+        message: "Appointment is not found.",
       });
     }
 
@@ -1023,7 +1023,7 @@ export const rateDoctorByUser = async (req, res) => {
     if (!appointment) {
       return res.status(400).json({
         success: false,
-        message: "You already completed this appointment.",
+        message: "Appointment is not found.",
       });
     }
 

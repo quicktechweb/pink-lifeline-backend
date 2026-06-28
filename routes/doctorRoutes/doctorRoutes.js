@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser, updateRoleByAdmin, getDailyScheduleWithAppointments, getDoctorDetailsWithSchedule, getConfirmedAppointments, getCompletedAppointments, markNotificationAsRead, getDoctorAllNotifications } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser, updateRoleByAdmin, getDailyScheduleWithAppointments, getDoctorDetailsWithSchedule, getConfirmedAppointments, getCompletedAppointments, markNotificationAsRead, getDoctorAllNotifications, getDoctorUpcomingAppointments } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -18,15 +18,16 @@ router.post("/save-fcm-token/:userId",saveFCMToken)
 
 router.post("/update-profile/:userId",uploadImage.fields([{ name: "doctorIdCard", maxCount: 1 },{ name: "profilePhoto", maxCount: 1 },]),isUserExist,updateProfile);
 
-router.get("/get-profile/:userId", isDoctor, getProfile);
+router.get("/get-profile/:userId", isUserExist, getProfile);
 
 router.get("/get-all-doctors", getAllDoctors);
 router.put("/verify-doctor/:userId", isUserExist, approveSingleDoctor);
 router.put("/delete-doctor/:userId", isUserExist, deleteDoctor);
 router.get("/get-doctor-by-registration-number/:doctorRegistrationNumber", getDoctorByRegistrationNumber);
 router.get("/search-doctors/:query", searchDoctors);
-
+router.post("/get-upcoming-appointments/:userId", isDoctor, getDoctorUpcomingAppointments);
 router.put("/update-doctor-score/:userId", isUserExist, setDoctorScore);
+
 
 
 

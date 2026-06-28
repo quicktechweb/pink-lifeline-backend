@@ -21,6 +21,8 @@ export const createOrUpdateFCMToken = async ({ userId, email, fcmToken }) => {
   );
 };
 
+
+
 export const sendNotificationToUser = async ({ userId, title, body, type, data = {} }) => {
   try {
     // 1. Get user's FCM tokens

@@ -24,7 +24,7 @@ router.post("/v2/get-user-appointments/:userId", isUserExist, getUserAppointment
 router.post("/v1/get-daily-schedule-by-user/:doctorUserid", getDailyScheduleByUser);
 
 
-router.post("/v1/confirm-appointment-by-user/:appointmentId",completeAppointmentByUser);
+router.post("/v1/complete-appointment-by-user/:appointmentId",completeAppointmentByUser);
 router.post("/v1/cancel-appointment-by-user/:appointmentId",cancelAppointmentByUser);
 router.post("/v1/rate-doctor-by-user/:userId", isUserExist, rateDoctorByUser);
 

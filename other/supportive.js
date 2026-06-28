@@ -169,39 +169,59 @@ internalUtilRoutes.get("/get-all-connections", async (req, res) => {
 });
 
 
+
+
+
+
+
+
+
 internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
   try {
     const { collectionName } = req.params;
 
-    // Check if collection exists
     const collections = await mongoose.connection.db.listCollections({}, { nameOnly: true }).toArray();
-
     const exists = collections.some((c) => c.name === collectionName);
 
     if (!exists) {
       return res.status(404).json({
         success: false,
-        message: `Collection '${collectionName}' not found. Hit get-all-connections this api to get all collection names.`,
+        message: `Collection '${collectionName}' not found.`,
       });
     }
 
-    const data = await mongoose.connection.db.collection(collectionName).find({}).sort({ createdAt: -1 }).toArray();
+    const data = await mongoose.connection.db
+      .collection(collectionName)
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    const orderedData = data.map((doc) => {
+      const { createdAt, ...rest } = doc;
+      return { createdAt, ...rest };
+    });
 
     return res.status(200).json({
       success: true,
       collection: collectionName,
-      total: data.length,
-      data,
+      total: orderedData.length,
+      data: orderedData,
     });
   } catch (error) {
     console.error(error);
-
     return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 });
+
+
+
+
+
+
+
 
 
 internalUtilRoutes.put("/update-property-by-id/:collectionName/:id", async (req, res) => {
@@ -370,7 +390,7 @@ internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
     });
 
         setTimeout(() => {
-      process.exit(0);
+      // process.exit(0);
     }, 500);
   } catch (error) {
     console.error(error);
@@ -381,5 +401,74 @@ internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
     });
   }
 });
+
+
+function containsKeyword(value, keyword) {
+  if (value === null || value === undefined) return false;
+
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return String(value).toLowerCase().includes(keyword);
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString().toLowerCase().includes(keyword);
+  }
+
+  if (Array.isArray(value)) {
+    return value.some((item) => containsKeyword(item, keyword));
+  }
+
+  if (typeof value === "object") {
+    return Object.values(value).some((v) => containsKeyword(v, keyword));
+  }
+
+  return false;
+}
+
+internalUtilRoutes.get("/global-search/:keyword", async (req, res) => {
+  const keyword = req.params.keyword.toLowerCase();
+
+  try {
+    const collections = await mongoose.connection.db
+      .listCollections({}, { nameOnly: true })
+      .toArray();
+
+    const results = {};
+
+    await Promise.all(
+      collections.map(async ({ name }) => {
+        const docs = await mongoose.connection.db
+          .collection(name)
+          .find({})
+          .toArray();
+
+        const matched = docs.filter((doc) =>
+          containsKeyword(doc, keyword)
+        );
+
+        if (matched.length) {
+          results[name] = matched;
+        }
+      })
+    );
+
+    return res.json({
+      success: true,
+      results,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+});
+
 
 export default internalUtilRoutes;

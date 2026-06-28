@@ -32,6 +32,12 @@ const notificationSchema = new mongoose.Schema(
       trim: true,
     },
 
+    isSent: {
+    type: Boolean,
+    default: false,
+    index: true,
+},
+
     title: {
       type: String,
       required: true,
@@ -41,7 +47,7 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["periodDate", "missedSelfTest", "post", "doctorAppointment", "patientAppointment"],
+      enum: ["periodDateStart", "periodDateEnd", "missedSelfTest","accountVerified", "post", "doctorAppointment", "patientAppointment"],
       index: true,
     },
 

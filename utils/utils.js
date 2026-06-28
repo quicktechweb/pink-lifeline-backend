@@ -7,7 +7,7 @@ const getTimestamp = () => `[${new Date().toLocaleString()}]`;
 
 export const notFoundResponse = (res, message, logMessage) => {
   if (logMessage) {
-    console.error(getTimestamp(), "ERROR:", logMessage);
+    console.error(getTimestamp(), "ERROR::", logMessage);
   }
 
   return res.status(404).json({
