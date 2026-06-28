@@ -51,7 +51,7 @@ router.post("/get-daily-doctor-appointments/:userId", isDoctor, getDailyAppointm
 
 router.post("/get-daily-confirmed-appointments-by-doctor/:userId", isDoctor, getConfirmedAppointments);
 router.post("/get-completed-appointments-by-doctor/:userId", isDoctor, getCompletedAppointments);
-router.get("/get-all-notification/:userId",isDoctor,getDoctorAllNotifications)
+router.get("/get-all-notification/:userId",isUserExist,getDoctorAllNotifications)
 router.post("/mark-notification-as-read/:userId",isUserExist,markNotificationAsRead)
 
 

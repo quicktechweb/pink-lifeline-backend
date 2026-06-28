@@ -771,7 +771,7 @@ if (newRecord.period && newRecord.period.length > 0) {
           notificationSendTime: isUserExist.notificationPreferenceTime,
           body: `If your period is over please end the period cycle in the app.`,
           title: "Period ending reminder.",
-          type: "periodDate",
+          type: "periodDateEnd",
           autoReminderLimit: isUserExist.autoReminderLimit,
         });
 
@@ -1140,7 +1140,6 @@ export const recordPeriodEnd = async (req, res) => {
           { userId },
           { fcmTokens: 1 }
         );
-        console.log("🚀 ~ trackPeriod2.js:1130 ~ recordPeriodEnd ~ allFCMToken:", allFCMToken)
 
         const noti = await Notification.create({
           userId,
@@ -1149,7 +1148,7 @@ export const recordPeriodEnd = async (req, res) => {
           notificationSendTime: isUserExist.notificationPreferenceTime,
           body: `Your next period is estimated to start on ${estimatedNextPeriodDateOnly}.`,
           title: "Estimated Next Period Reminder",
-          type: "periodDate",
+          type: "periodDateStart",
           autoReminderLimit: isUserExist.autoReminderLimit,
         });
         

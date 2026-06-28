@@ -807,18 +807,22 @@ export const getUserAppointmentsByStatus = async (req, res) => {
 
     let appointments
 
-    if(!status){
-          appointments = await Appointment.find({
-      userId,
-      isDeleted: false,
-    }).lean();
-    }else{
-           appointments = await Appointment.find({
-      userId,
-      status,
-      isDeleted: false,
-    }).lean();
-    }
+if (!status) {
+    appointments = await Appointment.find({
+        userId,
+        isDeleted: false,
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+} else {
+    appointments = await Appointment.find({
+        userId,
+        status,
+        isDeleted: false,
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+}
 
     const doctorIds = [...new Set(appointments.map((a) => a.doctorUserId))];
 

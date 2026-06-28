@@ -48,7 +48,8 @@ const dispatchNotification = async (notification) => {
       async () => {
         // Fetch latest document in case it was changed/deleted
         const latestNotification = await Notification.findById(notification._id);
-
+        //todo
+        //work from her
         if (!latestNotification || latestNotification.autoReminderLimit <= 0) {
           return;
         }
