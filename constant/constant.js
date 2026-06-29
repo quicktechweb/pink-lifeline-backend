@@ -24,6 +24,22 @@ export const MonthMap = {
 };
 
 
+export const MONTH_ORDER = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
+
+
 export const AVERAGE_PERIOD_DURATION = 5;
 export const POST_MENSTRUAL_INTERVAL=10
 export const ENV = "dev" 

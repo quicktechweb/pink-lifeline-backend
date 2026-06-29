@@ -6,7 +6,7 @@ import { Bleeding } from "../../../models/Dropdowns/bleedingDropdownModel.js";
 import { Spotting } from "../../../models/Dropdowns/spottingDropdownModel.js";
 import { Symptom } from "../../../models/Dropdowns/symptomsDropdownModel.js";
 import { UserSelfTest } from "../../../models/SelfTest/selfTestUserMode.js";
-import { AVERAGE_PERIOD_DURATION, POST_MENSTRUAL_INTERVAL } from "../../../constant/constant.js";
+import { AVERAGE_PERIOD_DURATION, MONTH_ORDER, POST_MENSTRUAL_INTERVAL } from "../../../constant/constant.js";
 
 export const recordPeriodLog = async (req, res) => {
   try {
@@ -640,21 +640,35 @@ const expandPeriodAcrossMonths = (period) => {
  * based on month-name match. Periods with no matching self-test get
  * a single entry with selfTestDate: null.
  */
-const attachSelfTestsToPeriods = (expandedPeriods, selfTests) => {
-  return expandedPeriods.flatMap((period) => {
-    const matchingSelfTests = selfTests.filter((selfTest) => toMonthName(selfTest.currentDate) === period.monthName);
 
-    if (matchingSelfTests.length === 0) {
-      return [{ ...period, selfTestDate: null }];
+const attachSelfTestsToPeriods = (expandedPeriods, selfTests) => {
+  const usedSelfTests = new Set();
+
+  return expandedPeriods.map((period) => {
+    const selfTest = selfTests.find((test) => {
+      const key = test._id.toString();
+
+      return (
+        !usedSelfTests.has(key) &&
+        toMonthName(test.currentDate) === period.monthName
+      );
+    });
+
+    if (!selfTest) {
+      return {
+        ...period,
+        selfTestDate: null,
+      };
     }
 
-    return matchingSelfTests.map((selfTest) => ({
+    usedSelfTests.add(selfTest._id.toString());
+
+    return {
       ...period,
       selfTestDate: selfTest.currentDate,
-    }));
+    };
   });
 };
-
 /**
  * Returns the first day of the month, N months before today, at midnight.
  */
@@ -719,6 +733,36 @@ const computeCycleInsights = (cycles) => {
   });
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ── Controller ───────────────────────────────────────────────────────────
 
 export const getPeriodBasicInsights = async (req, res) => {
@@ -756,16 +800,57 @@ export const getPeriodBasicInsights = async (req, res) => {
 
         const sixMonthsAgo = getMonthsAgoStart(5);
 
-        const selfTests = await UserSelfTest.find({ userId, currentDate: { $gte: sixMonthsAgo } }, { selfTest: 0 })
-          .sort({ currentDate: 1 })
-          .lean();
+const selfTests = await UserSelfTest.aggregate([
+  {
+    $match: {
+      userId,
+      currentDate: { $gte: sixMonthsAgo },
+    },
+  },
+  {
+    $sort: {
+      currentDate: 1,
+      createdAt: 1, // keeps the earliest document for each date
+    },
+  },
+  {
+    $group: {
+      _id: "$currentDate",
+      doc: { $first: "$$ROOT" },
+    },
+  },
+  {
+    $replaceRoot: {
+      newRoot: "$doc",
+    },
+  },
+  {
+    $project: {
+      selfTest: 0,
+    },
+  },
+  {
+    $sort: {
+      currentDate: 1,
+    },
+  },
+]);
+        console.log("🚀 ~ trackPeriod.js:792 ~ getPeriodBasicInsights ~ selfTests:", selfTests)
 
         const latestSixPeriods = allPeriodDocs.slice(0, 6);
         const expandedPeriods = latestSixPeriods.flatMap(expandPeriodAcrossMonths);
 
         const periodSelfTests = attachSelfTestsToPeriods(expandedPeriods, selfTests);
 
-        result.sixMonthCycleHistory = periodSelfTests.slice(0, 6);
+result.sixMonthCycleHistory = periodSelfTests
+  .sort(
+    (a, b) =>
+      MONTH_ORDER.indexOf(a.monthName) - MONTH_ORDER.indexOf(b.monthName)
+  )
+  .slice(0, 6);        
+  
+  
+  // console.log("🚀 ~ trackPeriod.js:801 ~ getPeriodBasicInsights ~ result:", result)
 
         return successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
       }
@@ -796,6 +881,125 @@ export const getPeriodBasicInsights = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong while generating insights.");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const getPeriodBasicInsights = async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+
+//     // ─── Branch A: user has period docs with startDate/endDate ───────────────
+//     try {
+//       const allPeriodDocs = await PeriodTracker.find(
+//         {
+//           userId,
+//           startDate: { $exists: true, $ne: null },
+//           endDate: { $exists: true, $ne: null },
+//         },
+//         { period: 0 },
+//       ).sort({ startDate: -1 });
+
+//       if (allPeriodDocs.length > 0) {
+//         const result = {
+//           estimatedNextPeriodDate: null,
+//           averageDaysOfPeriods: null,
+//           averageCycleLength: null,
+//           sixMonthCycleHistory: [],
+//         };
+
+//         const averageCycleLength = getAverageCycleLength(allPeriodDocs);
+//         const averageDaysOfPeriods = getAveragePeriodDuration(allPeriodDocs);
+
+//         result.averageCycleLength = averageCycleLength;
+//         result.averageDaysOfPeriods = averageDaysOfPeriods;
+
+//         const estimatedNextPeriodDate = new Date(allPeriodDocs[0].startDate);
+//         estimatedNextPeriodDate.setDate(estimatedNextPeriodDate.getDate() + averageCycleLength);
+//         result.estimatedNextPeriodDate = estimatedNextPeriodDate;
+
+//         const sixMonthsAgo = getMonthsAgoStart(5);
+
+//         const selfTests = await UserSelfTest.find({ userId, currentDate: { $gte: sixMonthsAgo } }, { selfTest: 0 })
+//           .sort({ currentDate: 1 })
+//           .lean();
+
+//         const latestSixPeriods = allPeriodDocs.slice(0, 6);
+//         const expandedPeriods = latestSixPeriods.flatMap(expandPeriodAcrossMonths);
+
+//         const periodSelfTests = attachSelfTestsToPeriods(expandedPeriods, selfTests);
+
+//         result.sixMonthCycleHistory = periodSelfTests.slice(0, 6);
+
+//         return successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
+//       }
+//     } catch (error) {
+//       return somethingWentWrong(res, error, "Something went wrong while fetching period data.");
+//     }
+
+//     // ─── Branch B: fallback — user has legacy period[] array docs ────────────
+//     const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
+
+//     const periodDocs = await PeriodTracker.find({ userId }).sort({ createdAt: 1 });
+
+//     const allPeriods = periodDocs
+//       .flatMap((doc) => doc.period || [])
+//       .map((p) => ({ ...p, date: new Date(p.date) }))
+//       .sort((a, b) => a.date - b.date);
+
+//     if (!allPeriods.length) {
+//       return successResponse(res, { cycles: [] }, "No period data found.", "Empty dataset.");
+//     }
+
+//     const cycles = groupPeriodsIntoCycles(allPeriods, POST_MENSTRUAL_INTERVAL);
+//     const cycleInsights = computeCycleInsights(cycles);
+
+//     return successResponse(res, { totalCycles: cycles.length, cycleInsights }, "Cycle insights generated successfully.", "Insights computed successfully.");
+//   } catch (error) {
+//     console.error(error);
+//     return somethingWentWrong(res, error, "Something went wrong while generating insights.");
+//   }
+// };
+
+
+
+
+
+
+
+
 
 
 

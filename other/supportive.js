@@ -6,6 +6,7 @@ import DoctorRegistration from "../models/DoctorRegistration/DoctorRegistration.
 import mongoose from "mongoose";
 import Notification from "../models/Notification/NotificationModel.js";
 import Role from "../models/RolePermission/RolePermission.js";
+import BackupRole from "../models/RolePermission/RolePermissionBackup.js";
 
 const internalUtilRoutes = express.Router();
 
@@ -38,7 +39,13 @@ internalUtilRoutes.post("/create-role-route", async (req, res) => {
   try {
     const { role, routeJSON } = req.body;
     const newRole = new Role({ role, routeJSON });
-    await newRole.save();
+    const newBackupRole = new BackupRole({ role, routeJSON });
+
+    await Promise.all([
+      newRole.save(),
+      newBackupRole.save(),
+    ]);
+
     return res.status(200).json({
       success: true,
       message: "Role created successfully",
@@ -54,25 +61,7 @@ internalUtilRoutes.post("/create-role-route", async (req, res) => {
   }
 });
 
-internalUtilRoutes.post("/update-role-route", async (req, res) => {
-  const { role, route } = req.body;
 
-  try {
-    const updatedRole = await Role.findOneAndUpdate({ role }, { route }, { new: true });
-    return res.status(200).json({
-      success: true,
-      message: "Role updated successfully",
-      data: updatedRole,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update role",
-      error: error.message,
-    });
-  }
-});
 
 /**
  * Run insertPeriodData.js script
@@ -432,5 +421,59 @@ internalUtilRoutes.get("/get-current-time", async (req, res) => {
     data: bdCurrentTime,
   });
 });
+
+
+
+
+internalUtilRoutes.post("/update-role-route", async (req, res) => {
+  const { role, routeJSON } = req.body;
+
+  try {
+    // Get the current role
+    const existingRole = await Role.findOne({ role });
+
+    if (!existingRole) {
+      return res.status(404).json({
+        success: false,
+        message: "Role not found",
+      });
+    }
+
+    // Backup the current role
+    await BackupRole.findOneAndUpdate(
+      { role: existingRole.role },
+      {
+        role: existingRole.role,
+        routeJSON: existingRole.routeJSON,
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+
+    // Update the role
+    const updatedRole = await Role.findOneAndUpdate(
+      { role },
+      { routeJSON },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Role updated successfully",
+      data: updatedRole,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update role",
+      error: error.message,
+    });
+  }
+});
+
+
 
 export default internalUtilRoutes;

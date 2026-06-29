@@ -701,7 +701,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-KGHZRN"
+                  "value": "USR-X6YVWO"
                 }
               ]
             }
@@ -928,7 +928,7 @@
                     },
                     {
                       "key": "doctorRegistrationNumber",
-                      "value": "hajak",
+                      "value": "hajak12321",
                       "type": "text",
                       "uuid": "52dc945f-a00c-427c-b0d4-034b2f76ded2"
                     },
@@ -992,6 +992,12 @@
                       "type": "file",
                       "uuid": "27818785-6438-4a64-87e2-91ca25044822",
                       "src": "/E:/rafi/assests/Levi_Ackermann_29_character_image.webp"
+                    },
+                    {
+                      "key": "dateOfBirth",
+                      "value": "1998-06-30T00:00:00.000Z",
+                      "type": "text",
+                      "uuid": "d07ca062-19ae-48da-882c-592f571e1e07"
                     }
                   ]
                 },
@@ -1009,7 +1015,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-QDIOZR"
+                      "value": "USR-HZMDN_"
                     }
                   ]
                 }
@@ -1175,7 +1181,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-N-CWAL"
+                      "value": "USR-V1CSBA"
                     }
                   ]
                 }
@@ -1294,7 +1300,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"date\": \"2026-06-26\",\r\n  \"maxAppointments\": 20,\r\n  \"time\": [\r\n\r\n    {\r\n      \"startTime\": \"14:00\",\r\n      \"endTime\": \"17:00\",\r\n      \"maxAppointments\": 15\r\n    }\r\n  ]\r\n}",
+                  "raw": "{\r\n  \"date\": \"2026-06-26\",\r\n  \"maxAppointments\": 20,\r\n  \"time\": [\r\n\r\n    {\r\n      \"startTime\": \"09:00 PM\",\r\n      \"endTime\": \"11:00 PM\",\r\n      \"maxAppointments\": 15\r\n    }\r\n  ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1469,7 +1475,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n     \"page\": 1,\r\n  \"limit\": 10\r\n}",
+                  "raw": "{\r\n    \"page\": 1,\r\n    \"limit\": 10,\r\n    \"date\": \"2026-06-27T12:38:00.000Z\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1490,7 +1496,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-N-CWAL"
+                      "value": "USR-ZK2NV6"
                     }
                   ]
                 }
@@ -1650,7 +1656,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"date\": \"2026-06-30T00:00:00.000Z\"\r\n}",
+                  "raw": "{\r\n     \"page\": 1,\r\n  \"limit\": 10\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1709,7 +1715,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-N-CWAL"
+                      "value": "USR-CHJNB1"
                     }
                   ]
                 }
@@ -1717,13 +1723,13 @@
               "response": []
             },
             {
-              "name": "get-doctor-notification Copy",
+              "name": "mark-notification-as-read",
               "request": {
                 "method": "POST",
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n\"notificationIds\":[\r\n    \"6a3279efcbb5c0bbf6449349\",\r\n    \"6a327a24cbb5c0bbf644939c\"\r\n]\r\n    \r\n}",
+                  "raw": "",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1745,6 +1751,41 @@
                     {
                       "key": "userId",
                       "value": "USR-N-CWAL"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-upcoming-appointments-by doctor",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"date\": \"2026-06-28\",\r\n  \"page\": 1,\r\n  \"limit\": 10,\r\n  \"search\":\"Sa\" //optional\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/registration/get-upcoming-appointments/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "registration",
+                    "get-upcoming-appointments",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-H2ZE-E"
                     }
                   ]
                 }
@@ -1804,7 +1845,8 @@
                       "key": "notificationPreferenceDate",
                       "value": "",
                       "type": "text",
-                      "uuid": "322bedef-5498-46f4-846b-8490a7773f09"
+                      "uuid": "322bedef-5498-46f4-846b-8490a7773f09",
+                      "disabled": true
                     }
                   ]
                 },
@@ -2252,7 +2294,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-QR1TYH"
+                      "value": "USR-CHJNB1"
                     }
                   ]
                 }
@@ -2266,7 +2308,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"status\":\"cancelled\"\r\n}",
+                  "raw": "{\r\n    \"status\":\"confirmed\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2288,7 +2330,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-QR1TYH"
+                      "value": "USR-X6YVWO"
                     }
                   ]
                 }
@@ -2297,12 +2339,15 @@
             },
             {
               "name": "confirm-appointment-by-user",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
               "request": {
-                "method": "POST",
+                "method": "GET",
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"appointmentId\":\"6a3b74ca0092b53465c4b9b6\"\r\n}",
+                  "raw": "",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -2310,7 +2355,7 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseurl}}/api/user/v1/confirm-appointment-by-user/:userId",
+                  "raw": "{{baseurl}}/api/user/v1/complete-appointment-by-user/:userId",
                   "host": [
                     "{{baseurl}}"
                   ],
@@ -2318,7 +2363,7 @@
                     "api",
                     "user",
                     "v1",
-                    "confirm-appointment-by-user",
+                    "complete-appointment-by-user",
                     ":userId"
                   ],
                   "variable": [
@@ -4062,7 +4107,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"commentId\":\"6a0be87439c99aa77307872d\"\r\n}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4816,7 +4861,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-MUSZWJ"
+                  "value": "USR-X6YVWO"
                 }
               ]
             }
@@ -4857,7 +4902,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-WPYOT8\"\r\n}",
+              "raw": "{\r\n  \"field\": \"userId\",\r\n  \"value\": \"USR-5AF7CD\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4991,13 +5036,80 @@
           "response": []
         },
         {
+          "name": "global-search",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/global-search/:keyword",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "global-search",
+                ":keyword"
+              ],
+              "variable": [
+                {
+                  "key": "keyword",
+                  "value": "nusrat"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-current-time",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/get-current-time",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "get-current-time"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "update-schedule-time",
           "request": {
             "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"userId\": \"USR-ZK2NV6\",\r\n  \"fcmTokens\": [\r\n    \"e3GawhfnQ1SChqHe6oSxtK:APA91bFQZbi4riaGjvRDnS0Yy45SoDsvFVtNCwyMjfNayydB9Fq3cBMUwK4S7e3RX2u-u3seySECSg5-Yt3i_ysqhQUcoc4mcymTsl6ix9dArlBa3HJEnPU\"\r\n  ],\r\n  \"notificationSendTime\": \"10:52\",\r\n  \"notificationSendDate\": \"2026-06-25\",\r\n  \"body\": \"Your next period is estimated to start on 2026-05-17.\",\r\n  \"title\": \"Estimated Next Period Reminder\",\r\n  \"type\": \"period_check\",\r\n  \"autoReminderLimit\": 3\r\n}",
+              "raw": "{\r\n  \"userId\": \"USR-ZK2NV6\",\r\n  \"fcmTokens\": [\r\n    \"e3GawhfnQ1SChqHe6oSxtK:APA91bFQZbi4riaGjvRDnS0Yy45SoDsvFVtNCwyMjfNayydB9Fq3cBMUwK4S7e3RX2u-u3seySECSg5-Yt3i_ysqhQUcoc4mcymTsl6ix9dArlBa3HJEnPU\"\r\n  ],\r\n  \"notificationSendTime\": \"11:00\",\r\n  \"notificationSendDate\": \"2026-06-25\",\r\n  \"body\": \"Your next period is estimated to start on 2026-05-17.\",\r\n  \"title\": \"Estimated Next Period Reminder\",\r\n  \"type\": \"period_check\",\r\n  \"autoReminderLimit\": 3\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5039,6 +5151,33 @@
               "path": [
                 "other",
                 "create-role-route"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update-role-route",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"role\": \"admin\",\r\n    \"routeJSON\": \"[{\\\"key\\\":\\\"Dashboard\\\",\\\"title\\\":\\\"Dashboard\\\",\\\"icon\\\":\\\"FaHome\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard\\\"},{\\\"key\\\":\\\"Step-Management\\\",\\\"title\\\":\\\"Step Management\\\",\\\"icon\\\":\\\"Route\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/manage-self-test\\\"},{\\\"key\\\":\\\"Dropdown-Management\\\",\\\"title\\\":\\\"Dropdown Management\\\",\\\"icon\\\":\\\"ListCollapse\\\",\\\"links\\\":[{\\\"title\\\":\\\"Bleeding Dropdown Management\\\",\\\"icon\\\":\\\"Droplets\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/bleeding-dropdown\\\"},{\\\"title\\\":\\\"Spotting Dropdown Management\\\",\\\"icon\\\":\\\"HeartPlus\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/spotting-dropdown\\\"},{\\\"title\\\":\\\"Symptoms Dropdown Management\\\",\\\"icon\\\":\\\"Syringe\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/symptoms-dropdown\\\"}]}]\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/other/update-role-route",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "other",
+                "update-role-route"
               ]
             }
           },
@@ -5258,7 +5397,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-UAL29I"
+                  "value": "USR-CHJNB1"
                 }
               ]
             }
@@ -5368,7 +5507,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-QR1TYH"
+                  "value": "USR-CHJNB1"
                 }
               ]
             }
