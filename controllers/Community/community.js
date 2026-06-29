@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 import { Post } from "../../models/Community/PostModel.js";
-import { badRequestResponse, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, notFoundResponse, paginatedSuccessResponse, saveNotificationToDB, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import User from "./../../models/DoctorRegistration/DoctorRegistration.js";
 import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
@@ -346,6 +346,19 @@ export const postUpVote = async (req, res) => {
         });
       }
 
+      const notiSave = await saveNotificationToDB({
+        userId: postOwner.userId,
+        type: "post",
+        data: postId,
+        body: `${isUserExist.fullName} upvoted your post.`,
+        title: "Yours post is upvoted.",
+        autoReminderLimit: 1,
+        notificationSendTime: BD_CURRENT_TIME,
+        notificationSendDate: BD_CURRENT_DATE,
+      });
+
+      console.log("🚀 ~ community.js:357 ~ postUpVote ~ notiSave:", notiSave);
+
       await post.save();
 
       return successResponse(res, post, "Upvoted successfully", "post upvoted");
@@ -386,6 +399,17 @@ export const postUpVote = async (req, res) => {
           data: postId,
           body: `${isUserExist.fullName} upvoted your post.`,
           title: "Yours post is upvoted.",
+        });
+
+        const notiSave = await saveNotificationToDB({
+          userId: postOwner.userId,
+          type: "post",
+          data: postId,
+          body: `${isUserExist.fullName} upvoted your post.`,
+          title: "Yours post is upvoted.",
+          autoReminderLimit: 1,
+          notificationSendTime: BD_CURRENT_TIME,
+          notificationSendDate: BD_CURRENT_DATE,
         });
       }
 
@@ -456,6 +480,17 @@ export const postDownVote = async (req, res) => {
           body: `${isUserExist.fullName} downvoted your post.`,
           title: "Yours post is downvoted.",
         });
+
+        const notiSave = await saveNotificationToDB({
+          userId: postOwner.userId,
+          type: "post",
+          data: postId,
+          body: `${isUserExist.fullName} downvoted your post.`,
+          title: "Yours post is downvoted.",
+          autoReminderLimit: 1,
+          notificationSendTime: BD_CURRENT_TIME,
+          notificationSendDate: BD_CURRENT_DATE,
+        });
       }
 
       await post.save();
@@ -494,6 +529,17 @@ export const postDownVote = async (req, res) => {
           data: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
           title: "Yours post is downvoted.",
+        });
+
+        const notiSave = await saveNotificationToDB({
+          userId: postOwner.userId,
+          type: "post",
+          data: postId,
+          body: `${isUserExist.fullName} downvoted your post.`,
+          title: "Yours post is downvoted.",
+          autoReminderLimit: 1,
+          notificationSendTime: BD_CURRENT_TIME,
+          notificationSendDate: BD_CURRENT_DATE,
         });
       }
 
@@ -593,6 +639,17 @@ export const postComment = async (req, res) => {
         data: postId,
         title: parentId ? `${isUserExist.fullName} replied to your post.` : `${isUserExist.fullName} commented on your post.`,
         body: parentId ? `${isUserExist.fullName} replied to your post.` : "Yours post is commented.",
+      });
+
+      const notiSave = await saveNotificationToDB({
+        userId: post.userId.toString(),
+        type: "post",
+        data: postId,
+        title: parentId ? `${isUserExist.fullName} replied to your post.` : `${isUserExist.fullName} commented on your post.`,
+        body: parentId ? `${isUserExist.fullName} replied to your post.` : "Yours post is commented.",
+        autoReminderLimit: 1,
+        notificationSendTime: BD_CURRENT_TIME,
+        notificationSendDate: BD_CURRENT_DATE,
       });
     }
 
@@ -761,6 +818,17 @@ export const commentDownVote = async (req, res) => {
           title: `${isUserExist.fullName} has downvoted your comment.`,
           body: "Someone downvoted your comment",
         });
+
+        const notiSave = await saveNotificationToDB({
+          userId: commentOwner.userId.toString(),
+          type: "post",
+          data: post._id.toString(),
+          title: `${isUserExist.fullName} has downvoted your comment.`,
+          body: "Someone downvoted your comment",
+          autoReminderLimit: 1,
+          notificationSendTime: BD_CURRENT_TIME,
+          notificationSendDate: BD_CURRENT_DATE,
+        });
       }
 
       await comment.save();
@@ -858,12 +926,24 @@ export const commentUpVote = async (req, res) => {
       comment.isDownvotedByUser = false;
 
       if (commentOwner.userId !== userId) {
-        const notification = await sendNotificationToUser({
+        const obj = {
           userId: commentOwner.userId.toString(),
           type: "post",
           data: post._id.toString(),
           title: `${isUserExist.fullName} has upvoted your comment.`,
           body: "Someone upvoted your comment",
+        };
+
+        const notification = await sendNotificationToUser(obj);
+
+        const notiSave = await saveNotificationToDB({
+          userId: commentOwner.userId.toString(),
+          type: "post",
+          data: post._id.toString(),
+          title: `${isUserExist.fullName} has upvoted your comment.`,
+          body: "Someone upvoted your comment",
+          notificationSendTime: BD_CURRENT_TIME,
+          notificationSendDate: BD_CURRENT_DATE,
         });
       }
 
@@ -1180,8 +1260,6 @@ export const getAllUserPosts = async (req, res) => {
   }
 };
 
-
-
 export const getAllPostOfUserAdmin = async (req, res) => {
   const { userId } = req.params;
 
@@ -1190,26 +1268,10 @@ export const getAllPostOfUserAdmin = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const [posts, totalPosts] = await Promise.all([
-      Post.find({ userId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-
-      Post.countDocuments({ userId }),
-    ]);
+    const [posts, totalPosts] = await Promise.all([Post.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(), Post.countDocuments({ userId })]);
 
     if (!posts.length) {
-      return paginatedSuccessResponse(
-        res,
-        [],
-        page,
-        limit,
-        totalPosts,
-        "No posts found.",
-        "No posts found."
-      );
+      return paginatedSuccessResponse(res, [], page, limit, totalPosts, "No posts found.", "No posts found.");
     }
 
     const postIds = posts.map((post) => post._id);
@@ -1279,30 +1341,23 @@ export const getAllPostOfUserAdmin = async (req, res) => {
     //   hasMore // <-- only addition, assuming paginatedSuccessResponse accepts an extra trailing param
     // );
 
-const hasMore = skip + posts.length < totalPosts;
+    const hasMore = skip + posts.length < totalPosts;
 
-return res.status(200).json({
-  success: true,
-  data: result,
-  page,
-  limit,
-  totalPosts,
-  hasMore,
-  message: "Posts fetched successfully.",
-});
-
+    return res.status(200).json({
+      success: true,
+      data: result,
+      page,
+      limit,
+      totalPosts,
+      hasMore,
+      message: "Posts fetched successfully.",
+    });
   } catch (error) {
     console.error("GET_ALL_POSTS_ERROR:", error);
 
-    return somethingWentWrong(
-      res,
-      null,
-      "Unable to fetch the posts.",
-      "Unable to fetch the posts."
-    );
+    return somethingWentWrong(res, null, "Unable to fetch the posts.", "Unable to fetch the posts.");
   }
 };
-
 
 // export const getAllPostsByAdmin = async (req, res) => {
 //   try {
@@ -1509,7 +1564,6 @@ export const getAllUserPosts2 = async (req, res) => {
   }
 };
 
-
 export const getAllPostTitles = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -1517,12 +1571,7 @@ export const getAllPostTitles = async (req, res) => {
 
     const formattedPosts = posts.map((post) => ({
       ...post.toObject(),
-      description:
-        post.description
-          ?.split(/\s+/)
-          .slice(0, 10)
-          .join(" ") +
-        (post.description?.split(/\s+/).length > 10 ? "..." : ""),
+      description: post.description?.split(/\s+/).slice(0, 10).join(" ") + (post.description?.split(/\s+/).length > 10 ? "..." : ""),
     }));
 
     return successResponse(res, formattedPosts, "All post titles are fetched.", "All post titles are fetched.");

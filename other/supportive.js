@@ -34,8 +34,6 @@ internalUtilRoutes.delete("/clear-user-data/:userId", async (req, res) => {
   }
 });
 
-
-
 internalUtilRoutes.post("/create-role-route", async (req, res) => {
   try {
     const { role, routeJSON } = req.body;
@@ -56,9 +54,6 @@ internalUtilRoutes.post("/create-role-route", async (req, res) => {
   }
 });
 
-
-
-
 internalUtilRoutes.post("/update-role-route", async (req, res) => {
   const { role, route } = req.body;
 
@@ -78,8 +73,6 @@ internalUtilRoutes.post("/update-role-route", async (req, res) => {
     });
   }
 });
-
-
 
 /**
  * Run insertPeriodData.js script
@@ -126,7 +119,6 @@ internalUtilRoutes.post("/run-script", async (req, res) => {
   }
 });
 
-
 internalUtilRoutes.get("/all-types-of-user", async (req, res) => {
   try {
     const users = await DoctorRegistration.find({});
@@ -144,7 +136,6 @@ internalUtilRoutes.get("/all-types-of-user", async (req, res) => {
     });
   }
 });
-
 
 internalUtilRoutes.get("/get-all-connections", async (req, res) => {
   try {
@@ -168,14 +159,6 @@ internalUtilRoutes.get("/get-all-connections", async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
-
 internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
   try {
     const { collectionName } = req.params;
@@ -190,11 +173,7 @@ internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
       });
     }
 
-    const data = await mongoose.connection.db
-      .collection(collectionName)
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    const data = await mongoose.connection.db.collection(collectionName).find({}).sort({ createdAt: -1 }).toArray();
 
     const orderedData = data.map((doc) => {
       const { createdAt, ...rest } = doc;
@@ -215,14 +194,6 @@ internalUtilRoutes.get("/collection/:collectionName", async (req, res) => {
     });
   }
 });
-
-
-
-
-
-
-
-
 
 internalUtilRoutes.put("/update-property-by-id/:collectionName/:id", async (req, res) => {
   try {
@@ -278,7 +249,6 @@ internalUtilRoutes.put("/update-property-by-id/:collectionName/:id", async (req,
   }
 });
 
-
 internalUtilRoutes.post("/delete-specific-data-form-each-collection", async (req, res) => {
   try {
     const { field, value } = req.body;
@@ -324,17 +294,9 @@ internalUtilRoutes.post("/delete-specific-data-form-each-collection", async (req
   }
 });
 
-
 internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
   try {
-    const {
-      userId,
-      fcmTokens,
-      body,
-      title,
-      type,
-      autoReminderLimit,
-    } = req.body;
+    const { userId, fcmTokens, body, title, type, autoReminderLimit } = req.body;
 
     const now = new Date();
 
@@ -349,15 +311,10 @@ internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
     }
 
     // Format date (YYYY-MM-DD)
-    const notificationSendDate = `${now.getFullYear()}-${String(
-      now.getMonth() + 1
-    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const notificationSendDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
     // Format time (HH:mm)
-    const notificationSendTime = `${String(now.getHours()).padStart(
-      2,
-      "0"
-    )}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const notificationSendTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
     const notification = await Notification.findOneAndUpdate(
       { userId },
@@ -377,11 +334,10 @@ internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
         upsert: true,
         runValidators: true,
         setDefaultsOnInsert: true,
-      }
+      },
     );
 
     // Restart after response is sent (only if using nodemon/pm2)
-
 
     return res.status(200).json({
       success: true,
@@ -389,7 +345,7 @@ internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
       data: notification,
     });
 
-        setTimeout(() => {
+    setTimeout(() => {
       // process.exit(0);
     }, 500);
   } catch (error) {
@@ -402,15 +358,10 @@ internalUtilRoutes.patch("/update-schedule-time", async (req, res) => {
   }
 });
 
-
 function containsKeyword(value, keyword) {
   if (value === null || value === undefined) return false;
 
-  if (
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean"
-  ) {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
     return String(value).toLowerCase().includes(keyword);
   }
 
@@ -433,27 +384,20 @@ internalUtilRoutes.get("/global-search/:keyword", async (req, res) => {
   const keyword = req.params.keyword.toLowerCase();
 
   try {
-    const collections = await mongoose.connection.db
-      .listCollections({}, { nameOnly: true })
-      .toArray();
+    const collections = await mongoose.connection.db.listCollections({}, { nameOnly: true }).toArray();
 
     const results = {};
 
     await Promise.all(
       collections.map(async ({ name }) => {
-        const docs = await mongoose.connection.db
-          .collection(name)
-          .find({})
-          .toArray();
+        const docs = await mongoose.connection.db.collection(name).find({}).toArray();
 
-        const matched = docs.filter((doc) =>
-          containsKeyword(doc, keyword)
-        );
+        const matched = docs.filter((doc) => containsKeyword(doc, keyword));
 
         if (matched.length) {
           results[name] = matched;
         }
-      })
+      }),
     );
 
     return res.json({
@@ -470,15 +414,23 @@ internalUtilRoutes.get("/global-search/:keyword", async (req, res) => {
   }
 });
 
-
 internalUtilRoutes.get("/get-current-time", async (req, res) => {
   const now = new Date();
 
+  const bdCurrentTime = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now);
+
   return res.json({
     success: true,
-    data: now,
+    data: bdCurrentTime,
   });
-})
-
+});
 
 export default internalUtilRoutes;

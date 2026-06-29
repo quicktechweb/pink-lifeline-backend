@@ -2,7 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, formatQuantityNumber, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, formatQuantityNumber, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { DayMap, ENV, MonthMap, STATIC_TIME_FOR_SEND_NOTI_AT_TODAY } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
@@ -497,8 +497,10 @@ export const approveSingleDoctor = async (req, res) => {
     doctor.isVerified = true;
 
     await doctor.save();
+    const obj = { userId, title: "Account Verified", body: "Your account has been verified successfully.", type: "accountVerified" };
 
-    const notification = await sendNotificationToUser({ userId, title: "Account Verified", body: "Your account has been verified successfully.", type: "accountVerified" });
+    const notification = await sendNotificationToUser(obj);
+    const notiSave = await saveNotificationToDB({ userId, title: "Account Verified", body: "Your account has been verified successfully.", type: "accountVerified", notificationSendTime: BD_CURRENT_TIME, notificationSendDate: BD_CURRENT_DATE });
 
     return successResponse(res, doctor, "Doctor verified successfully", `Doctor verified: ${userId}`);
   } catch (error) {
@@ -1726,11 +1728,26 @@ export const confirmAppointmentByAdmin = async (req, res) => {
             endTime: appointment.endTime,
           },
         }),
+
+        // Save notification for patient
+        Notification.create({
+          userId: patient.userId.toString(),
+          type: "patientAppointment",
+          title: "Appointment Confirmed",
+          body: `Your appointment with Dr. ${doctor.fullName} has been confirmed for ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
+        }),
+
+        // Save notification for doctor
+        Notification.create({
+          userId: doctor.userId.toString(),
+          type: "doctorAppointment",
+          title: "Appointment Confirmed",
+          body: `Your appointment with ${patient.fullName} has been confirmed for ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
+        }),
       ]);
     }
 
     const patientFCMTOkens = await UserFCMToken.findOne({ userId: patient.userId });
-    console.log("🚀 ~ doctorRegistration.js:1819 ~ confirmAppointmentByAdmin ~ patientFCMTOkens:", patientFCMTOkens.fcmTokens);
 
     const reminders = [];
 
@@ -1870,6 +1887,22 @@ export const cancelAppointmentByAdmin = async (req, res) => {
             endTime: appointment.endTime,
             note: note || "",
           },
+        }),
+
+        // Save notification for patient
+        Notification.create({
+          userId: patient.userId.toString(),
+          type: "doctorAppointment",
+          title: "Appointment Cancelled",
+          body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
+        }),
+
+        // Save notification for doctor
+        Notification.create({
+          userId: doctor.userId.toString(),
+          type: "patientAppointment",
+          title: "Appointment Cancelled",
+          body: `The appointment with ${patient.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
         }),
       ]);
     }
@@ -2253,17 +2286,7 @@ export const getDoctorDetailsWithSchedule = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-export const getDoctorAllNotifications = async (req, res) => {
+export const getAllNotificationsToAll = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -2277,7 +2300,7 @@ export const getDoctorAllNotifications = async (req, res) => {
 
     if (user.type === 0) {
       // Patient
-      notificationTypes = ["patientAppointment", "periodDateStart", "periodDateEnd", "missedSelfTest", "post"];
+      notificationTypes = ["patientAppointment", "post"];
     } else if (user.type === 1) {
       // Doctor
       notificationTypes = ["post", "doctorAppointment", "accountVerified"];
@@ -2294,25 +2317,41 @@ export const getDoctorAllNotifications = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
 export const markNotificationAsRead = async (req, res) => {
   try {
     const { userId } = req.params;
 
+    // Current Bangladesh time
+    const now = new Date();
+
+    const bdCurrentTime = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Dhaka",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(now);
+
+    // Format: YYYY-MM-DD HH:mm
+    const currentDateTime = bdCurrentTime.replace(",", "");
+
+    const notifications = await Notification.find({
+      userId,
+      isRead: false,
+    });
+
+    const notificationIds = notifications
+      .filter((notification) => {
+        const notificationDateTime = `${notification.notificationSendDate} ${notification.notificationSendTime}`;
+        return notificationDateTime <= currentDateTime;
+      })
+      .map((notification) => notification._id);
+
     const result = await Notification.updateMany(
       {
-        userId,
-        isRead: false, // Optional: only update unread notifications
+        _id: { $in: notificationIds },
       },
       {
         $set: {

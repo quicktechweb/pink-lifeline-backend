@@ -16,6 +16,19 @@ const MAX_PERIOD_DURATION = parseInt(process.env.MAX_PERIOD_DURATION) || 10;
 const MAX_EXTEND_DAYS = parseInt(process.env.MAX_EXTEND_DAYS) || 3;
 const getTimestamp = () => `[${new Date().toLocaleString()}]`;
 
+const addDaysToDateOnly = (dateStr, daysToAdd) => {
+  // dateStr is "YYYY-MM-DD"
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() + daysToAdd);
+
+  const newYear = date.getUTCFullYear();
+  const newMonth = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const newDay = String(date.getUTCDate()).padStart(2, "0");
+
+  return `${newYear}-${newMonth}-${newDay}`;
+};
+
 // ─── RECORD PERIOD LOG ────────────────────────────────────────────────────────
 //
 // Single unified endpoint — handles four distinct flows based on what
@@ -904,53 +917,6 @@ export const recordPeriodCurrent = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ─── RECORD PERIOD END ────────────────────────────────────────────────────────
 // Closes the active cycle by confirming its endDate.
 // currentDate must equal endDate (you end a period on the day you confirm it).
@@ -1216,6 +1182,33 @@ export const recordPeriodEnd = async (req, res) => {
     });
 
     console.log("🚀 ~ trackPeriod2.js:1277 ~ recordPeriodEnd ~ noti:", noti);
+
+    const selfTestReminderBody = "Don't forget to complete your self-test.";
+    const selfTestReminderTitle = "Self Test Reminder";
+
+    // Self-test reminder #1 -> notificationSendDateOnly + 2 days
+    const selfTestReminder1 = await Notification.create({
+      userId,
+      fcmTokens: allFCMToken?.fcmTokens || [],
+      notificationSendDate: addDaysToDateOnly(notificationSendDateOnly, 2),
+      notificationSendTime: isUserExist.notificationPreferenceTime,
+      body: selfTestReminderBody,
+      title: selfTestReminderTitle,
+      type: "missedSelfTest",
+      autoReminderLimit: isUserExist.autoReminderLimit,
+    });
+
+    // Self-test reminder #2 -> notificationSendDateOnly + 3 days
+    const selfTestReminder2 = await Notification.create({
+      userId,
+      fcmTokens: allFCMToken?.fcmTokens || [],
+      notificationSendDate: addDaysToDateOnly(notificationSendDateOnly, 3),
+      notificationSendTime: isUserExist.notificationPreferenceTime,
+      body: selfTestReminderBody,
+      title: selfTestReminderTitle,
+      type: "missedSelfTest",
+      autoReminderLimit: isUserExist.autoReminderLimit,
+    });
 
     return successResponse(res, finalRecord, "Period end date updated successfully.", "Successfully updated period.");
   } catch (error) {

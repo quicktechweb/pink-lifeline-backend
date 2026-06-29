@@ -8,7 +8,7 @@ import DoctorRatingModel from "../../models/Rating/DoctorRatingModel.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { Appointment } from "../../models/Schedule/userBooking.js";
 import { sendNotificationToUser } from "../../services/notificationService.js";
-import { badRequestResponse, convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, saveNotificationToDB, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -505,7 +505,17 @@ export const editAppointment = async (req, res) => {
       userId: updated.userId,
       title: "Appointment Rescheduled",
       body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-      type: "appointment",
+      type: "patientAppointment",
+    });
+
+    const noti1 = await saveNotificationToDB({
+      userId: updated.userId,
+      title: "Appointment Rescheduled",
+      body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
+      type: "patientAppointment",
+      autoReminderLimit: 1,
+      notificationSendTime: BD_CURRENT_TIME,
+      notificationSendDate: BD_CURRENT_DATE,
     });
 
     // For the Doctor
@@ -513,7 +523,17 @@ export const editAppointment = async (req, res) => {
       userId: doctor.userId,
       title: "Appointment Rescheduled",
       body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-      type: "appointment",
+      type: "doctorAppointment",
+    });
+
+    const noti2 = await saveNotificationToDB({
+      userId: doctor.userId,
+      title: "Appointment Rescheduled",
+      body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
+      type: "doctorAppointment",
+      autoReminderLimit: 1,
+      notificationSendTime: BD_CURRENT_TIME,
+      notificationSendDate: BD_CURRENT_DATE,
     });
 
     return successResponse(res, updated, "Appointment updated successfully.", "Appointment updated successfully.");
@@ -587,8 +607,20 @@ export const deleteAppointment = async (req, res) => {
               userId: doctor.userId,
               title: "Appointment Cancelled",
               body: `Your appointment with ${userId.fullName} on ${updated.appointmentDate} at ${updated.startTime} has been cancelled.`,
-              type: "appointment",
+              type: "doctorAppointment",
             });
+
+            const noti = await saveNotificationToDB({
+              userId: doctor.userId,
+              notificationSendTime: BD_CURRENT_TIME,
+              notificationSendDate: BD_CURRENT_DATE,
+              autoReminderLimit: 1,
+
+              title: "Appointment Cancelled",
+              body: `Your appointment with ${userId.fullName} on ${updated.appointmentDate} at ${updated.startTime} has been cancelled.`,
+              type: "doctorAppointment",
+            });
+
             return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
           } else {
             updated.isDeleted = true;
@@ -790,39 +822,32 @@ export const getUserAppointments = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
 export const getUserAppointmentsByStatus = async (req, res) => {
   const { userId } = req.params;
-  let status
-  if(req.body?.status){
-    status = req.body.status
+  let status;
+  if (req.body?.status) {
+    status = req.body.status;
   }
 
   try {
+    let appointments;
 
-    let appointments
-
-if (!status) {
-    appointments = await Appointment.find({
+    if (!status) {
+      appointments = await Appointment.find({
         userId,
         isDeleted: false,
-    })
-    .sort({ createdAt: -1 })
-    .lean();
-} else {
-    appointments = await Appointment.find({
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+    } else {
+      appointments = await Appointment.find({
         userId,
         status,
         isDeleted: false,
-    })
-    .sort({ createdAt: -1 })
-    .lean();
-}
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+    }
 
     const doctorIds = [...new Set(appointments.map((a) => a.doctorUserId))];
 
@@ -855,15 +880,6 @@ if (!status) {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
 
 export const getDailyScheduleByUser = async (req, res) => {
   const { doctorUserid: userId } = req.params;

@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser, updateRoleByAdmin, getDailyScheduleWithAppointments, getDoctorDetailsWithSchedule, getConfirmedAppointments, getCompletedAppointments, markNotificationAsRead, getDoctorAllNotifications, getDoctorUpcomingAppointments } from "../../controllers/DoctorRegistration/doctorRegistration.js";
+import { registerUser, searchDoctors,getDailyAppointments, addSchedule, loginUser, loginadmin, updateProfile, getProfile, getAllDoctors, deleteDoctor, approveSingleDoctor, getDoctorByRegistrationNumber, removeSchedule, addExceptionalSchedule, getDoctorMonthlySchedule, setDoctorScore, enableDisableWeekDay, getDailySchedule, removeExceptionalDay, getTotalCommentsPatients, addDoctorWeeklySchedule, getAllAppointmentsByAdmin, confirmAppointmentByAdmin, cancelAppointmentByAdmin, getAllDoctorByAdmin, saveFCMToken, loginByAdmin, signUpAsAdmin, getAllAdminUsers, logoutAdmin, updateAdminPassword, suspendUser, activateUser, deleteUser, updateRoleByAdmin, getDailyScheduleWithAppointments, getDoctorDetailsWithSchedule, getConfirmedAppointments, getCompletedAppointments, markNotificationAsRead, getAllNotificationsToAll, getDoctorUpcomingAppointments } from "../../controllers/DoctorRegistration/doctorRegistration.js";
 import { uploadImage } from "../../middleware/upload.js";
 import { isUserExist } from "../../middleware/isUserExist.js";
 import { isDoctor } from "../../middleware/isDoctor.js";
@@ -51,7 +51,7 @@ router.post("/get-daily-doctor-appointments/:userId", isDoctor, getDailyAppointm
 
 router.post("/get-daily-confirmed-appointments-by-doctor/:userId", isDoctor, getConfirmedAppointments);
 router.post("/get-completed-appointments-by-doctor/:userId", isDoctor, getCompletedAppointments);
-router.get("/get-all-notification/:userId",isUserExist,getDoctorAllNotifications)
+router.get("/get-all-notification/:userId",isUserExist,getAllNotificationsToAll)
 router.post("/mark-notification-as-read/:userId",isUserExist,markNotificationAsRead)
 
 

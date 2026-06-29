@@ -1,6 +1,7 @@
 import { Bleeding } from "../models/Dropdowns/bleedingDropdownModel.js";
 import { Spotting } from "../models/Dropdowns/spottingDropdownModel.js";
 import { Symptom } from "../models/Dropdowns/symptomsDropdownModel.js";
+import Notification from "../models/Notification/NotificationModel.js";
 
 // Helper to generate a standardized, readable timestamp string
 const getTimestamp = () => `[${new Date().toLocaleString()}]`;
@@ -51,7 +52,7 @@ export const successResponse = (res, data, message, logMessage, total) => {
   });
 };
 
-export const paginatedSuccessResponse = (res, data, page, limit, total, message, logMessage,hasMore) => {
+export const paginatedSuccessResponse = (res, data, page, limit, total, message, logMessage, hasMore) => {
   if (logMessage) {
     console.log(getTimestamp(), "SUCCESS:", logMessage);
   }
@@ -66,7 +67,7 @@ export const paginatedSuccessResponse = (res, data, page, limit, total, message,
       totalPages: Math.ceil(total / limit),
       hasNextPage: page * limit < total,
       hasPrevPage: page > 1,
-      hasMore: hasMore ? true : false
+      hasMore: hasMore ? true : false,
     },
     message,
   });
@@ -196,10 +197,6 @@ export function normalizeDate(date) {
   return parsedDate.toISOString().split("T")[0];
 }
 
-
-
-
-
 export const generateToken = (user) => {
   return jwt.sign(
     {
@@ -210,6 +207,30 @@ export const generateToken = (user) => {
     process.env.JWT_SECRET,
     {
       expiresIn: "7d",
-    }
+    },
   );
 };
+
+export const saveNotificationToDB = async (notification) => {
+  const newNotification = new Notification(notification);
+  const response = await newNotification.save();
+  console.log("🚀 ~ utils.js:222 ~ saveNotificationToDB ~ respone:", response);
+  return response;
+};
+
+export const BD_CURRENT_TIME = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Dhaka",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+}).format(new Date());
+
+export const BD_CURRENT_DATE = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Dhaka",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+}).format(new Date());
