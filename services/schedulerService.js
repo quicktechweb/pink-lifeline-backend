@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import Notification from "../models/Notification/NotificationModel.js";
 import { sendNotificationToUser } from "./notificationService.js";
+
 // import { sendPushNotification } from "../firebase-admin.js";
 
 const getTodayDateString = () => new Date().toISOString().split("T")[0];
@@ -13,6 +14,29 @@ const buildSendDateTime = (notificationSendTime) => {
   return sendDateTime;
 };
 
+const getNextNotificationDate = (type, currentDateStr) => {
+  // currentDateStr is "YYYY-MM-DD"
+  const [year, month, day] = currentDateStr.split("-").map(Number);
+
+  // Use UTC to avoid timezone shifting the date by ±1 day
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (type === "periodDateStart") {
+    date.setUTCDate(date.getUTCDate() + 2);
+  } else if (type === "periodDateEnd") {
+    date.setUTCDate(date.getUTCDate() + 1);
+  } else {
+    // other types: no date shift
+    return currentDateStr;
+  }
+
+  const newYear = date.getUTCFullYear();
+  const newMonth = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const newDay = String(date.getUTCDate()).padStart(2, "0");
+
+  return `${newYear}-${newMonth}-${newDay}`;
+};
+
 const dispatchNotification = async (notification) => {
   const notificationStatus = await sendNotificationToUser({
     title: notification.title,
@@ -20,46 +44,39 @@ const dispatchNotification = async (notification) => {
     type: notification.type,
     userId: notification.userId,
   });
- 
+
   let updatedNotification = null;
 
   if (notificationStatus.success) {
-    updatedNotification = await Notification.findOneAndUpdate(
-      { userId: notification.userId },
+    // Step 1: decrement the reminder limit (only if still > 0)
+    const decremented = await Notification.findOneAndUpdate(
       {
-        $set: {
-          success: true,
-        },
+        _id: notification._id,
+        autoReminderLimit: { $gt: 0 },
+      },
+      {
+        $inc: { autoReminderLimit: -1 },
       },
       { new: true },
     );
+
+    if (decremented) {
+      if (decremented.autoReminderLimit > 0) {
+        // Still has reminders left -> bump the send date forward
+        const nextDate = getNextNotificationDate(decremented.type, decremented.notificationSendDate);
+
+        updatedNotification = await Notification.findByIdAndUpdate(decremented._id, { notificationSendDate: nextDate }, { new: true });
+      } else {
+        // Limit just hit zero -> mark as sent, stop reminders
+        updatedNotification = await Notification.findByIdAndUpdate(decremented._id, { isSent: true }, { new: true });
+      }
+    }
   }
 
-  console.log(`🔔 [${new Date().toLocaleString()}] | User: ${notification.userId} | Status: ${notificationStatus.success ? "✅ Success" : "❌ Failed"} | Remaining Reminders: ${updatedNotification.autoReminderLimit !== null ? updatedNotification.autoReminderLimit : "null"}`);
-  if (notification.success == false) {
-    console.error(`🚨 [${new Date().toLocaleString()}] | User: ${notification.userId} | Notification Status: ${notification.status} | Notification: ${notification.message}`);
-  }
+  console.log(`🔔 [${new Date().toLocaleString()}] | User: ${notification.userId} | Status: ${notificationStatus.success ? "✅ Success" : "❌ Failed"} | Remaining Reminders: ${updatedNotification ? updatedNotification.autoReminderLimit : "null"}`);
 
-  // Schedule next reminder after 2 minutes
-  if (updatedNotification.autoReminderLimit > 0) {
-    console.log(`⏳ Next reminder for ${notification.userId} in 20 seconds...`);
-
-    setTimeout(
-      async () => {
-        // Fetch latest document in case it was changed/deleted
-        const latestNotification = await Notification.findById(notification._id);
-        //todo
-        //work from her
-        if (!latestNotification || latestNotification.autoReminderLimit <= 0) {
-          return;
-        }
-
-        await dispatchNotification(latestNotification);
-      },
-      1 * 60 * 1000,
-    ); // 2 minutes
-  } else {
-    console.log(`🏁 [${new Date().toLocaleString()}] | User: ${notification.userId} | Reminder limit reached.`);
+  if (!notificationStatus.success) {
+    console.error(`🚨 [${new Date().toLocaleString()}] | User: ${notification.userId} | Notification Status: ${notificationStatus.status} | Notification: ${notificationStatus.message}`);
   }
 };
 
@@ -73,6 +90,7 @@ const scheduleTodaysNotifications = async () => {
   try {
     const notifications = await Notification.find({
       notificationSendDate: today,
+      isSent: false,
     });
 
     for (const notification of notifications) {
@@ -99,18 +117,6 @@ const scheduleTodaysNotifications = async () => {
   }
 };
 
-  // const startNotificationScheduler = () => {
-  //   console.log("✅ Notification Scheduler Started");
-
-  //   // On boot, schedule whatever's left for today — covers mid-day server restarts
-  //   scheduleTodaysNotifications();
-
-  //   // Every midnight, fetch and schedule the day's notifications
-  //   cron.schedule("0 0 * * *", () => {
-  //     console.log("⏰ Running daily notification scheduler...", new Date());
-  //     scheduleTodaysNotifications();
-  //   });
-  // };
 
 const startNotificationScheduler = () => {
   console.log("✅ Notification Scheduler Started");
@@ -118,8 +124,8 @@ const startNotificationScheduler = () => {
   // Run immediately on startup
   scheduleTodaysNotifications();
 
-  // Run every 30 seconds
-  cron.schedule("*/30 * * * * *", () => {
+  // Run every 1 minutes
+  cron.schedule("0 1 * * *", () => {
     console.log("⏰ Running notification scheduler...", new Date());
     scheduleTodaysNotifications();
   });

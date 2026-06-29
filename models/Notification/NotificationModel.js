@@ -33,10 +33,10 @@ const notificationSchema = new mongoose.Schema(
     },
 
     isSent: {
-    type: Boolean,
-    default: false,
-    index: true,
-},
+      type: Boolean,
+      default: false,
+      index: true,
+    },
 
     title: {
       type: String,
@@ -47,7 +47,7 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["periodDateStart", "periodDateEnd", "missedSelfTest","accountVerified", "post", "doctorAppointment", "patientAppointment"],
+      enum: ["periodDateStart", "periodDateEnd", "missedSelfTest", "accountVerified", "post", "doctorAppointment", "patientAppointment"],
       index: true,
     },
 
@@ -59,7 +59,7 @@ const notificationSchema = new mongoose.Schema(
     autoReminderLimit: {
       type: Number,
       default: 3,
-      min: 1,
+      min: 0,
       max: 5,
     },
   },

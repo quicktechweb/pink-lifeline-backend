@@ -14,7 +14,6 @@ import Role from "../../models/RolePermission/RolePermission.js";
 import Notification from "../../models/Notification/NotificationModel.js";
 import UserFCMToken from "../../models/Notification/FCMModel.js";
 
-
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
   return type === "doctor" ? `DOC-${id}` : `USR-${id}`;
@@ -61,7 +60,6 @@ export const registerUser = async (req, res) => {
       specialties,
       fcmToken,
     } = req.body;
-
 
     if (type === undefined || (Number(type) !== 0 && Number(type) !== 1)) {
       return badRequestResponse(res, "User type is required.", "User type is not found.");
@@ -272,8 +270,8 @@ export const saveFCMToken = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  let {dateOfBirth, phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard, location, specialties } = req.body;
-  console.log("🚀 ~ doctorRegistration.js:275 ~ updateProfile ~ req.body:", req.body)
+  let { dateOfBirth, phoneNumber, isVerified, type, aboutMe, doctorRegistrationNumber, currentWorkplace, currentDesignation, qualifications, doctorIdCard, location, specialties } = req.body;
+  console.log("🚀 ~ doctorRegistration.js:275 ~ updateProfile ~ req.body:", req.body);
 
   const { userId } = req.params;
 
@@ -379,12 +377,9 @@ export const updateProfile = async (req, res) => {
       };
     }
 
-
     if (dateOfBirth !== undefined) {
       updateData.dateOfBirth = dateOfBirth;
     }
-
-
 
     if (req.files?.profilePhoto?.[0]) {
       const uploadedProfilePhoto = await uploadToImageBB(req.files.profilePhoto[0]);
@@ -851,25 +846,6 @@ export const getDailySchedule = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const addExceptionalSchedule = async (req, res) => {
   const { userId } = req.params;
   const { date, maxAppointments = 20 } = req.body;
@@ -935,10 +911,7 @@ export const addExceptionalSchedule = async (req, res) => {
       const a = time[i];
       const b = time[j];
 
-      if (
-        toMinutes(a.startTime) < toMinutes(b.endTime) &&
-        toMinutes(a.endTime) > toMinutes(b.startTime)
-      ) {
+      if (toMinutes(a.startTime) < toMinutes(b.endTime) && toMinutes(a.endTime) > toMinutes(b.startTime)) {
         return res.status(400).json({
           success: false,
           message: `Slots overlap each other: ${a.startTime}-${a.endTime} and ${b.startTime}-${b.endTime}`,
@@ -1003,7 +976,7 @@ export const addExceptionalSchedule = async (req, res) => {
         },
         {
           new: true,
-        }
+        },
       );
 
       return res.status(200).json({
@@ -1035,15 +1008,6 @@ export const addExceptionalSchedule = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
 
 export const removeExceptionalDay = async (req, res) => {
   const { userId } = req.params;
@@ -1168,9 +1132,6 @@ export const getDailyAppointments = async (req, res) => {
 //       Appointment.countDocuments(filter),
 //     ]);
 
-
-
-
 //     return successResponse(
 //       res,
 //       {
@@ -1192,12 +1153,6 @@ export const getDailyAppointments = async (req, res) => {
 //     return somethingWentWrong(res, error, "Something went wrong.");
 //   }
 // };
-
-
-
-
-
-
 
 export const getConfirmedAppointments = async (req, res) => {
   const { userId } = req.params;
@@ -1233,14 +1188,7 @@ export const getConfirmedAppointments = async (req, res) => {
     // Fetch all users in one query
     // ---------------------------------------
 
-    const ids = [
-      ...new Set(
-        appointments.flatMap((appointment) => [
-          appointment.userId,
-          appointment.doctorUserId,
-        ])
-      ),
-    ];
+    const ids = [...new Set(appointments.flatMap((appointment) => [appointment.userId, appointment.doctorUserId]))];
 
     const users = await User.find({
       userId: { $in: ids },
@@ -1274,18 +1222,13 @@ export const getConfirmedAppointments = async (req, res) => {
         },
       },
       "Appointments retrieved successfully.",
-      "Get appointments successful."
+      "Get appointments successful.",
     );
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
 
 export const getCompletedAppointments = async (req, res) => {
   const { userId } = req.params;
@@ -1722,30 +1665,6 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const confirmAppointmentByAdmin = async (req, res) => {
   const { id } = req.params;
 
@@ -1763,7 +1682,7 @@ export const confirmAppointmentByAdmin = async (req, res) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     if (!appointment) {
@@ -1774,10 +1693,7 @@ export const confirmAppointmentByAdmin = async (req, res) => {
     }
 
     // Fetch doctor & patient
-    const [patient, doctor] = await Promise.all([
-      User.findOne({ userId: appointment.userId }).lean(),
-      User.findOne({ userId: appointment.doctorUserId }).lean(),
-    ]);
+    const [patient, doctor] = await Promise.all([User.findOne({ userId: appointment.userId }).lean(), User.findOne({ userId: appointment.doctorUserId }).lean()]);
 
     if (patient && doctor) {
       await Promise.all([
@@ -1813,146 +1729,82 @@ export const confirmAppointmentByAdmin = async (req, res) => {
       ]);
     }
 
+    const patientFCMTOkens = await UserFCMToken.findOne({ userId: patient.userId });
+    console.log("🚀 ~ doctorRegistration.js:1819 ~ confirmAppointmentByAdmin ~ patientFCMTOkens:", patientFCMTOkens.fcmTokens);
 
+    const reminders = [];
 
-  const patientFCMTOkens = await UserFCMToken.findOne({ userId : patient.userId });
-  console.log("🚀 ~ doctorRegistration.js:1819 ~ confirmAppointmentByAdmin ~ patientFCMTOkens:", patientFCMTOkens.fcmTokens)
+    const [year, month, day] = appointment.appointmentDate.split("-").map(Number);
 
+    // Appointment day
+    const appointmentDate = new Date(year, month - 1, day);
 
+    // 2 days before
+    const twoDaysBefore = new Date(appointmentDate);
+    twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
 
+    // 1 day before
+    const oneDayBefore = new Date(appointmentDate);
+    oneDayBefore.setDate(oneDayBefore.getDate() - 1);
 
+    const formatDate = (date) => {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
 
+      return `${yyyy}-${mm}-${dd}`;
+    };
 
-const reminders = [];
+    // Reminder (2 days before)
+    reminders.push({
+      userId: patient.userId,
+      fcmTokens: patientFCMTOkens.fcmTokens,
+      notificationSendDate: formatDate(twoDaysBefore),
+      notificationSendTime: patient.notificationPreferenceTime,
+      title: "Appointment Reminder",
+      body: `Reminder: You have an appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
+      type: "patientAppointment",
+      isSent: false,
+      autoReminderLimit: 1,
+    });
 
-const [year, month, day] = appointment.appointmentDate
-  .split("-")
-  .map(Number);
+    // 1 Day Before
 
-// Appointment day
-const appointmentDate = new Date(year, month - 1, day);
+    reminders.push({
+      userId: patient.userId,
+      fcmTokens: patientFCMTOkens?.fcmTokens || [],
+      notificationSendDate: formatDate(oneDayBefore),
+      notificationSendTime: patient.notificationPreferenceTime,
+      title: "Appointment Reminder",
+      body: `Reminder: Tomorrow you have an appointment with Dr. ${doctor.fullName} from ${appointment.startTime} to ${appointment.endTime}.`,
+      type: "patientAppointment",
+      isSent: false,
+      autoReminderLimit: 1,
+    });
 
-// 2 days before
-const twoDaysBefore = new Date(appointmentDate);
-twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
+    // Reminder (same day)
+    reminders.push({
+      userId: patient.userId,
+      fcmTokens: patientFCMTOkens.fcmTokens,
+      notificationSendDate: formatDate(appointmentDate),
+      // notificationSendTime: patient.notificationPreferenceTime,
+      //todo here im sending notification at 6 AM even though user have their own prefered time
+      notificationSendTime: STATIC_TIME_FOR_SEND_NOTI_AT_TODAY,
+      title: "Appointment Today",
+      body: `Today you have an appointment with Dr. ${doctor.fullName} from ${appointment.startTime} to ${appointment.endTime}.`,
+      type: "patientAppointment",
+      isSent: false,
+      autoReminderLimit: 1,
+    });
 
-// 1 day before
-const oneDayBefore = new Date(appointmentDate);
-oneDayBefore.setDate(oneDayBefore.getDate() - 1);
+    const result = await Notification.insertMany(reminders);
 
-const formatDate = (date) => {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-
-  return `${yyyy}-${mm}-${dd}`;
-};
-
-// Reminder (2 days before)
-reminders.push({
-  userId: patient.userId,
-  fcmTokens:patientFCMTOkens.fcmTokens,
-  notificationSendDate: formatDate(twoDaysBefore),
-  notificationSendTime: patient.notificationPreferenceTime,
-  title: "Appointment Reminder",
-  body: `Reminder: You have an appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
-  type: "patientAppointment",
-  isSent: false,
-});
-
-
-
-// 1 Day Before
-
-reminders.push({
-  userId: patient.userId,
-  fcmTokens: patientFCMTOkens?.fcmTokens || [],
-  notificationSendDate: formatDate(oneDayBefore),
-  notificationSendTime: patient.notificationPreferenceTime,
-  title: "Appointment Reminder",
-  body: `Reminder: Tomorrow you have an appointment with Dr. ${doctor.fullName} from ${appointment.startTime} to ${appointment.endTime}.`,
-  type: "patientAppointment",
-  isSent: false,
-});
-
-
-
-// Reminder (same day)
-reminders.push({
-  userId: patient.userId,
-  fcmTokens:patientFCMTOkens.fcmTokens,
-  notificationSendDate: formatDate(appointmentDate),
-  // notificationSendTime: patient.notificationPreferenceTime,
-  //todo here im sending notification at 6 AM even though user have their own prefered time
-    notificationSendTime: STATIC_TIME_FOR_SEND_NOTI_AT_TODAY,
-  title: "Appointment Today",
-  body: `Today you have an appointment with Dr. ${doctor.fullName} from ${appointment.startTime} to ${appointment.endTime}.`,
-  type: "patientAppointment",
-  isSent: false,
-});
-
-
-
-const result = await Notification.insertMany(reminders);
-console.log("🚀 ~ doctorRegistration.js:1796 ~ confirmAppointmentByAdmin ~ result:", result)
-
-    
-
-
-
-
-    return successResponse(
-      res,
-      appointment,
-      "Appointment confirmed successfully.",
-      "Appointment confirmed successfully."
-    );
+    return successResponse(res, appointment, "Appointment confirmed successfully.", "Appointment confirmed successfully.");
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const cancelAppointmentByAdmin = async (req, res) => {
   const { id } = req.params;
@@ -1973,7 +1825,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     if (!appointment) {
@@ -1984,19 +1836,14 @@ export const cancelAppointmentByAdmin = async (req, res) => {
     }
 
     // Fetch patient & doctor
-    const [patient, doctor] = await Promise.all([
-      User.findOne({ userId: appointment.userId }).lean(),
-      User.findOne({ userId: appointment.doctorUserId }).lean(),
-    ]);
+    const [patient, doctor] = await Promise.all([User.findOne({ userId: appointment.userId }).lean(), User.findOne({ userId: appointment.doctorUserId }).lean()]);
 
     if (patient && doctor) {
       await Promise.all([
         sendNotificationToUser({
           userId: patient.userId,
           title: "Appointment Cancelled",
-          body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${
-            note ? ` Reason: ${note}` : ""
-          }`,
+          body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
           type: "doctorAppointment",
           data: {
             appointmentId: appointment._id,
@@ -2012,9 +1859,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
         sendNotificationToUser({
           userId: doctor.userId,
           title: "Appointment Cancelled",
-          body: `The appointment with ${patient.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${
-            note ? ` Reason: ${note}` : ""
-          }`,
+          body: `The appointment with ${patient.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
           type: "patientAppointment",
           data: {
             appointmentId: appointment._id,
@@ -2029,25 +1874,12 @@ export const cancelAppointmentByAdmin = async (req, res) => {
       ]);
     }
 
-    return successResponse(
-      res,
-      appointment,
-      "Appointment cancelled successfully.",
-      "Appointment cancelled successfully."
-    );
+    return successResponse(res, appointment, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
 
 export const loginByAdmin = async (req, res) => {
   const { email, password } = req.body;
@@ -2424,7 +2256,28 @@ export const getDoctorDetailsWithSchedule = async (req, res) => {
 export const getDoctorAllNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
-    const notifications = await Notification.find({ userId });
+
+    const user = await User.findOne({ userId }).select("type");
+
+    if (!user) {
+      return notFoundResponse(res, "User not found", "User not found");
+    }
+
+    let notificationTypes = [];
+
+    if (user.type === 0) {
+      // Patient
+      notificationTypes = ["patientAppointment", "periodDateStart", "periodDateEnd", "missedSelfTest", "post"];
+    } else if (user.type === 1) {
+      // Doctor
+      notificationTypes = ["post", "doctorAppointment", "accountVerified"];
+    }
+
+    const notifications = await Notification.find({
+      userId,
+      type: { $in: notificationTypes },
+    }).sort({ createdAt: -1 });
+
     return successResponse(res, notifications, "Notifications fetched successfully", "Notifications fetched successfully");
   } catch (error) {
     return somethingWentWrong(res, error, "Failed to fetch notifications", "Failed to fetch notifications");
@@ -2433,11 +2286,12 @@ export const getDoctorAllNotifications = async (req, res) => {
 
 export const markNotificationAsRead = async (req, res) => {
   try {
-    const { notificationIds } = req.body;
+    const { userId } = req.params;
 
     const result = await Notification.updateMany(
       {
-        _id: { $in: notificationIds },
+        userId,
+        isRead: false, // Optional: only update unread notifications
       },
       {
         $set: {
@@ -2460,22 +2314,11 @@ export const markNotificationAsRead = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
 export const getDoctorUpcomingAppointments = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const {
-      date,
-      page = 1,
-      limit = 10,
-      search = "",
-    } = req.body;
+    const { date, page = 1, limit = 10, search = "" } = req.body;
 
     const parsedPage = Math.max(parseInt(page), 1);
     const parsedLimit = Math.max(parseInt(limit), 1);
@@ -2485,7 +2328,7 @@ export const getDoctorUpcomingAppointments = async (req, res) => {
       doctorUserId: userId,
       appointmentDate: date,
       isDeleted: false,
-      status:"confirmed"
+      status: "confirmed",
     };
 
     // Fetch all appointments for that date
@@ -2506,12 +2349,12 @@ export const getDoctorUpcomingAppointments = async (req, res) => {
           },
         },
         "No appointments found.",
-        "Appointments fetched successfully."
+        "Appointments fetched successfully.",
       );
     }
 
     // Collect all patient ids
-    const patientIds = [...new Set(appointments.map(a => a.userId))];
+    const patientIds = [...new Set(appointments.map((a) => a.userId))];
 
     // Fetch all patients in one query
     const users = await User.find({
@@ -2520,12 +2363,12 @@ export const getDoctorUpcomingAppointments = async (req, res) => {
 
     const userMap = {};
 
-    users.forEach(user => {
+    users.forEach((user) => {
       userMap[user.userId] = user;
     });
 
     // Attach patient info
-    let mergedAppointments = appointments.map(appointment => ({
+    let mergedAppointments = appointments.map((appointment) => ({
       ...appointment,
       patient: userMap[appointment.userId] || null,
     }));
@@ -2534,32 +2377,22 @@ export const getDoctorUpcomingAppointments = async (req, res) => {
     if (search.trim()) {
       const keyword = search.toLowerCase();
 
-      mergedAppointments = mergedAppointments.filter(item => {
+      mergedAppointments = mergedAppointments.filter((item) => {
         const patient = item.patient;
 
         if (!patient) return false;
 
-        return (
-          patient.fullName?.toLowerCase().includes(keyword) ||
-          patient.email?.toLowerCase().includes(keyword) ||
-          patient.phoneNumber?.toLowerCase().includes(keyword) ||
-          patient.userId?.toLowerCase().includes(keyword)
-        );
+        return patient.fullName?.toLowerCase().includes(keyword) || patient.email?.toLowerCase().includes(keyword) || patient.phoneNumber?.toLowerCase().includes(keyword) || patient.userId?.toLowerCase().includes(keyword);
       });
     }
 
     // Sort by start time
-    mergedAppointments.sort((a, b) =>
-      a.startTime.localeCompare(b.startTime)
-    );
+    mergedAppointments.sort((a, b) => a.startTime.localeCompare(b.startTime));
 
     // Pagination
     const totalAppointments = mergedAppointments.length;
 
-    const paginatedAppointments = mergedAppointments.slice(
-      (parsedPage - 1) * parsedLimit,
-      parsedPage * parsedLimit
-    );
+    const paginatedAppointments = mergedAppointments.slice((parsedPage - 1) * parsedLimit, parsedPage * parsedLimit);
 
     return successResponse(
       res,
@@ -2575,16 +2408,11 @@ export const getDoctorUpcomingAppointments = async (req, res) => {
         },
       },
       "Appointments fetched successfully.",
-      "Appointments fetched successfully."
+      "Appointments fetched successfully.",
     );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(
-      res,
-      error,
-      "Failed to fetch appointments",
-      "Failed to fetch appointments"
-    );
+    return somethingWentWrong(res, error, "Failed to fetch appointments", "Failed to fetch appointments");
   }
 };
