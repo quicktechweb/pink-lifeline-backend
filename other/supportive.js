@@ -6,6 +6,7 @@ import DoctorRegistration from "../models/DoctorRegistration/DoctorRegistration.
 import mongoose from "mongoose";
 import Notification from "../models/Notification/NotificationModel.js";
 import Role from "../models/RolePermission/RolePermission.js";
+import RoleBackup from "../models/RolePermission/RolePermissionBackUp.js";
 
 const internalUtilRoutes = express.Router();
 
@@ -34,18 +35,35 @@ internalUtilRoutes.delete("/clear-user-data/:userId", async (req, res) => {
   }
 });
 
+
+
+
 internalUtilRoutes.post("/create-role-route", async (req, res) => {
   try {
     const { role, routeJSON } = req.body;
-    const newRole = new Role({ role, routeJSON });
-    await newRole.save();
-    return res.status(200).json({
+
+    const routeJSONString = JSON.stringify(routeJSON);
+
+    // Create Role
+    const newRole = await Role.create({
+      role,
+      routeJSON: routeJSONString,
+    });
+
+    // Backup
+    await RoleBackup.create({
+      role: newRole.role,
+      routeJSON: newRole.routeJSON,
+    });
+
+    return res.status(201).json({
       success: true,
       message: "Role created successfully",
       data: newRole,
     });
   } catch (error) {
     console.error(error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to create role",
@@ -54,25 +72,66 @@ internalUtilRoutes.post("/create-role-route", async (req, res) => {
   }
 });
 
-internalUtilRoutes.post("/update-role-route", async (req, res) => {
-  const { role, route } = req.body;
 
+
+internalUtilRoutes.put("/update-role-route/:id", async (req, res) => {
   try {
-    const updatedRole = await Role.findOneAndUpdate({ role }, { route }, { new: true });
+    const { id } = req.params;
+    const { role, routeJSON } = req.body;
+
+    // Find existing role
+    const oldRole = await Role.findById(id);
+
+    if (!oldRole) {
+      return res.status(404).json({
+        success: false,
+        message: "Role not found",
+      });
+    }
+
+    const newRouteJSONString = JSON.stringify(routeJSON);
+
+    // Check if routeJSON is exactly the same
+    if (oldRole.routeJSON === newRouteJSONString) {
+      return res.status(400).json({
+        success: false,
+        message: "No changes detected in routeJSON.",
+      });
+    }
+
+    // Backup previous data
+    await RoleBackup.create({
+      role: oldRole.role,
+      routeJSON: oldRole.routeJSON,
+    });
+
+    // Update role
+    const updatedRole = await Role.findByIdAndUpdate(
+      id,
+      {
+        role,
+        routeJSON: newRouteJSONString,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
     return res.status(200).json({
       success: true,
-      message: "Role updated successfully",
+      message: "Role updated successfully.",
       data: updatedRole,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Failed to update role",
-      error: error.message,
+      message: err.message,
     });
   }
 });
+
+
 
 /**
  * Run insertPeriodData.js script
