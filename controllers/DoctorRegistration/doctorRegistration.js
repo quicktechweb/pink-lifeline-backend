@@ -2253,6 +2253,16 @@ export const getDoctorDetailsWithSchedule = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
 export const getDoctorAllNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -2283,6 +2293,17 @@ export const getDoctorAllNotifications = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to fetch notifications", "Failed to fetch notifications");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
 
 export const markNotificationAsRead = async (req, res) => {
   try {

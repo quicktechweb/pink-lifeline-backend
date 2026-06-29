@@ -904,6 +904,53 @@ export const recordPeriodCurrent = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ─── RECORD PERIOD END ────────────────────────────────────────────────────────
 // Closes the active cycle by confirming its endDate.
 // currentDate must equal endDate (you end a period on the day you confirm it).

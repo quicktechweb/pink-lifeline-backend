@@ -471,4 +471,14 @@ internalUtilRoutes.get("/global-search/:keyword", async (req, res) => {
 });
 
 
+internalUtilRoutes.get("/get-current-time", async (req, res) => {
+  const now = new Date();
+
+  return res.json({
+    success: true,
+    data: now,
+  });
+})
+
+
 export default internalUtilRoutes;
