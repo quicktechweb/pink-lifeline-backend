@@ -88,10 +88,11 @@ const scheduleTodaysNotifications = async () => {
   console.log("📅 Fetching today's notifications...", today);
 
   try {
-    const notifications = await Notification.find({
-      notificationSendDate: today,
-      isSent: false,
-    });
+      const notifications = await Notification.find({
+        notificationSendDate: today,
+        isSent: false,
+        fcmTokens: { $exists: true, $ne: [] },
+      });
 
     for (const notification of notifications) {
       const sendDateTime = buildSendDateTime(notification.notificationSendTime);
