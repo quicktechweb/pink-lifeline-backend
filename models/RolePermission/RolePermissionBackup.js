@@ -1,15 +1,14 @@
 import mongoose from "mongoose";
 
-const backupRoleSchema = new mongoose.Schema(
+const roleSchema = new mongoose.Schema(
   {
     role: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       enum: [
         "superadmin",
-        "admin",
+        "admin", 
         "communitymodarator",
         "appointmentmanager",
         "doctormanager",
@@ -26,6 +25,6 @@ const backupRoleSchema = new mongoose.Schema(
   }
 );
 
-const BackupRole = mongoose.model("BackupRole", backupRoleSchema);
+const RoleBackup = mongoose.model("RoleBackup", roleSchema);
 
-export default BackupRole;
+export default RoleBackup;
