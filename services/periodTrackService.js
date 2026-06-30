@@ -1,6 +1,7 @@
 import { MONTH_ORDER } from "../constant/constant.js";
 import { attachSelfTestsToPeriods, computeCycleInsights, expandPeriodAcrossMonths, getAverageCycleLength, getAveragePeriodDuration, getMonthsAgoStart, groupPeriodsIntoCycles } from "../controllers/Period/trackPeriod/trackPeriod.js";
 import { UserSelfTest } from "../models/SelfTest/selfTestUserMode.js";
+import { getBDCurrentDate } from "../utils/utils.js";
 import PeriodTracker from "./../models/Period/PeriodModel.js";
 
 
@@ -24,6 +25,7 @@ export const getPeriodBasicInsightsService = async (userId) => {
       averageDaysOfPeriods: null,
       averageCycleLength: null,
       sixMonthCycleHistory: [],
+      selfTestDone:true
     };
 
     const averageCycleLength = getAverageCycleLength(allPeriodDocs);
@@ -82,16 +84,32 @@ export const getPeriodBasicInsightsService = async (userId) => {
     const expandedPeriods =
       latestSixPeriods.flatMap(expandPeriodAcrossMonths);
 
-    result.sixMonthCycleHistory = attachSelfTestsToPeriods(
-      expandedPeriods,
-      selfTests
-    )
-      .sort(
-        (a, b) =>
-          MONTH_ORDER.indexOf(a.monthName) -
-          MONTH_ORDER.indexOf(b.monthName)
-      )
-      .slice(0, 6);
+result.sixMonthCycleHistory = attachSelfTestsToPeriods(
+  expandedPeriods,
+  selfTests
+)
+  .sort(
+    (a, b) =>
+      MONTH_ORDER.indexOf(a.monthName) -
+      MONTH_ORDER.indexOf(b.monthName)
+  )
+  .slice(0, 6);
+
+// Get current month in Bangladesh
+const currentMonth = new Date(getBDCurrentDate()).toLocaleString("en-US", {
+  month: "short",
+  timeZone: "Asia/Dhaka",
+}).toUpperCase(); // JAN, FEB, MAR...
+
+// Check if current month's record has a self test
+result.selfTestDone = result.sixMonthCycleHistory.some(
+  (item) =>
+    item.monthName === currentMonth &&
+    item.selfTestDate !== null
+);
+
+
+
 
     return {
       data: result,

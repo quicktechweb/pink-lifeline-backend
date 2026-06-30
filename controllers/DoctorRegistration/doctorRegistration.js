@@ -2,7 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, formatQuantityNumber, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, formatQuantityNumber, getBDCurrentDate, getBDCurrentTime, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { DayMap, ENV, MonthMap, STATIC_TIME_FOR_SEND_NOTI_AT_TODAY } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
@@ -13,6 +13,7 @@ import bcrypt from "bcryptjs";
 import Role from "../../models/RolePermission/RolePermission.js";
 import Notification from "../../models/Notification/NotificationModel.js";
 import UserFCMToken from "../../models/Notification/FCMModel.js";
+import mongoose from "mongoose";
 
 const generateUserId = (type) => {
   const id = nanoid(6).toUpperCase();
@@ -1083,32 +1084,6 @@ export const getDoctorMonthlySchedule = async (req, res) => {
   }
 };
 
-export const getDailyAppointments = async (req, res) => {
-  const { userId } = req.params;
-  const { date } = req.body;
-
-  const formattedDate = normalizeDate(date);
-
-  if (!formattedDate) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid date format.",
-    });
-  }
-
-  try {
-    const appointments = await Appointment.find({
-      doctorUserId: userId,
-      appointmentDate: formattedDate, // assuming your schema uses appointmentDate
-    });
-
-    return successResponse(res, appointments, "Appointments retrieved successfully.", "Get appointments successful.");
-  } catch (error) {
-    console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
-  }
-};
-
 // export const getConfirmedAppointments = async (req, res) => {
 //   const { userId } = req.params;
 //   const { page = 1, limit = 10 } = req.body;
@@ -1155,6 +1130,32 @@ export const getDailyAppointments = async (req, res) => {
 //     return somethingWentWrong(res, error, "Something went wrong.");
 //   }
 // };
+
+export const getDailyAppointments = async (req, res) => {
+  const { userId } = req.params;
+  const { date } = req.body;
+
+  const formattedDate = normalizeDate(date);
+
+  if (!formattedDate) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid date format.",
+    });
+  }
+
+  try {
+    const appointments = await Appointment.find({
+      doctorUserId: userId,
+      appointmentDate: formattedDate, // assuming your schema uses appointmentDate
+    });
+
+    return successResponse(res, appointments, "Appointments retrieved successfully.", "Get appointments successful.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
 
 export const getConfirmedAppointments = async (req, res) => {
   const { userId } = req.params;
@@ -1669,9 +1670,10 @@ export const getAllAppointmentsByAdmin = async (req, res) => {
 
 export const confirmAppointmentByAdmin = async (req, res) => {
   const { id } = req.params;
+  console.log("🚀 ~ doctorRegistration.js:1672 ~ confirmAppointmentByAdmin ~ id:", id);
 
   try {
-    const appointment = await Appointment.findOneAndUpdate(
+    const appointment = await Appointment.findByIdAndUpdate(
       {
         _id: id,
         isDeleted: false,
@@ -1686,6 +1688,7 @@ export const confirmAppointmentByAdmin = async (req, res) => {
         new: true,
       },
     );
+    console.log("🚀 ~ doctorRegistration.js:1689 ~ confirmAppointmentByAdmin ~ appointment:", appointment);
 
     if (!appointment) {
       return res.status(400).json({
@@ -1735,6 +1738,8 @@ export const confirmAppointmentByAdmin = async (req, res) => {
           type: "patientAppointment",
           title: "Appointment Confirmed",
           body: `Your appointment with Dr. ${doctor.fullName} has been confirmed for ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
+          notificationSendTime: getBDCurrentTime(),
+          notificationSendDate: getBDCurrentDate(),
         }),
 
         // Save notification for doctor
@@ -1743,6 +1748,8 @@ export const confirmAppointmentByAdmin = async (req, res) => {
           type: "doctorAppointment",
           title: "Appointment Confirmed",
           body: `Your appointment with ${patient.fullName} has been confirmed for ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
+          notificationSendTime: getBDCurrentTime(),
+          notificationSendDate: getBDCurrentDate(),
         }),
       ]);
     }

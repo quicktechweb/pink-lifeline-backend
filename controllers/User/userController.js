@@ -13,6 +13,7 @@ import { Vote } from "../../models/Community/VoteModel.js";
 import { getPeriodBasicInsightsService } from "../../services/periodTrackService.js";
 import { previousPeriodsInfoService } from "../Period/trackPeriod/trackPeriod.js";
 import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
+import Notification from "../../models/Notification/NotificationModel.js";
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -988,29 +989,32 @@ export const cancelAppointmentByUser = async (req, res) => {
   const { appointmentId } = req.body;
 
   try {
-    const appointment = await Appointment.findOneAndUpdate(
-      {
-        _id: appointmentId,
-        isDeleted: false,
-        status: "confirmed",
-      },
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment || appointment.isDeleted) {
+      return res.status(400).json({
+        success: false,
+        message: "Appointment is not found.",
+      });
+    }
+
+    if (!["pending", "confirmed"].includes(appointment.status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Only pending or confirmed appointments can be cancelled.",
+      });
+    }
+
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
       {
         $set: {
           status: "cancelled",
           cancelledBy: "user",
         },
       },
-      {
-        new: true,
-      },
+      { new: true },
     );
-
-    if (!appointment) {
-      return res.status(400).json({
-        success: false,
-        message: "Appointment is not found.",
-      });
-    }
 
     const user = await User.findOne({
       userId: userId,
