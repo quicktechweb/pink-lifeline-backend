@@ -979,12 +979,6 @@ export const completeAppointmentByUser = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
 export const cancelAppointmentByUser = async (req, res) => {
   const { userId } = req.params;
   const { appointmentId } = req.body;
@@ -1045,9 +1039,7 @@ export const cancelAppointmentByUser = async (req, res) => {
     // ── Cancel matching pending reminder notifications ───────────────────────
     const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-    const matchRegex = new RegExp(
-      `${escapeRegex(doctor.fullName)}.*${escapeRegex(appointment.startTime)}.*${escapeRegex(appointment.endTime)}`,
-    );
+    const matchRegex = new RegExp(`${escapeRegex(doctor.fullName)}.*${escapeRegex(appointment.startTime)}.*${escapeRegex(appointment.endTime)}`);
 
     const pendingReminders = await Notification.find({
       userId: user.userId,
@@ -1075,15 +1067,6 @@ export const cancelAppointmentByUser = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
-
-
 
 export const rateDoctorByUser = async (req, res) => {
   const { userId } = req.params;
@@ -1183,6 +1166,110 @@ export const rateDoctorByUser = async (req, res) => {
     );
 
     return successResponse(res, finalResponse, "Thank you for your rating.", "Rating completed successfully.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const getAllUserInspectListByAdmin = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy = "fullName", // fullName | userId | createdAt
+      sortOrder = "asc", // asc | desc
+    } = req.body;
+
+    const pageNumber = Math.max(1, Number(page));
+    const limitNumber = Math.max(1, Number(limit));
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Base filter
+    const match = {
+      type: 0,
+      isRemoved: false,
+    };
+
+    // Search
+    // Search
+    if (search?.trim()) {
+      const keyword = search.trim();
+
+      match.$or = [
+        {
+          fullName: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+        {
+          userId: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+        {
+          phoneNumber: {
+            $regex: keyword,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    // Allowed sort fields
+    const allowedSortFields = ["fullName", "userId", "createdAt"];
+
+    const sort = {
+      [allowedSortFields.includes(sortBy) ? sortBy : "fullName"]: sortOrder === "desc" ? -1 : 1,
+    };
+
+    const [users, totalCount] = await Promise.all([
+      User.aggregate([
+        { $match: match },
+        { $sort: sort },
+        { $skip: skip },
+        { $limit: limitNumber },
+        {
+          $project: {
+            _id: 0,
+            fullName: 1,
+            userId: 1,
+            profilePhoto: 1,
+            createdAt: 1,
+            email: 1,
+            phoneNumber: 1,
+            autoReminderLimit: 1,
+            notificationPreferenceTime: 1,
+            dateOfBirth: 1,
+          },
+        },
+      ]),
+      User.countDocuments(match),
+    ]);
+
+    return successResponse(
+      res,
+      {
+        users,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total: totalCount,
+          totalPages: Math.ceil(totalCount / limitNumber),
+        },
+      },
+      "User list fetched successfully.",
+      "User list fetched successfully.",
+    );
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");

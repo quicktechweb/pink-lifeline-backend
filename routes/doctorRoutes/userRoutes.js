@@ -1,6 +1,6 @@
 import express from "express";
 import { isUserExist } from "../../middleware/isUserExist.js";
-import { updateUserProfile, addToWishList, getUserDoctorWishList, getAllDoctors,getUserAppointments, getUserProfileInsights, bookAppointment, editAppointment,  removeFromWishList, getDailyScheduleByUser, completeAppointmentByUser, cancelAppointmentByUser, rateDoctorByUser, getUserAppointmentsByStatus } from "../../controllers/User/userController.js";
+import { updateUserProfile, addToWishList, getUserDoctorWishList, getAllDoctors,getUserAppointments, getUserProfileInsights, bookAppointment, editAppointment,  removeFromWishList, getDailyScheduleByUser, completeAppointmentByUser, cancelAppointmentByUser, rateDoctorByUser, getUserAppointmentsByStatus, getAllUserInspectListByAdmin } from "../../controllers/User/userController.js";
 import { uploadImage } from "../../middleware/upload.js";
 
 const router = express.Router();
@@ -27,6 +27,8 @@ router.post("/v1/get-daily-schedule-by-user/:doctorUserid", getDailyScheduleByUs
 router.post("/v1/complete-appointment-by-user/:appointmentId",completeAppointmentByUser);
 // router.post("/v1/cancel-appointment-by-user/:appointmentId", deleteAppointment);
 router.post("/v1/rate-doctor-by-user/:userId", isUserExist, rateDoctorByUser);
+
+router.post("/v1/get-all-users-inspect-list-by-admin",getAllUserInspectListByAdmin)
 
 
 export default router;
