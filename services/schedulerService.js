@@ -1,6 +1,8 @@
 import cron from "node-cron";
 import Notification from "../models/Notification/NotificationModel.js";
 import { sendNotificationToUser } from "./notificationService.js";
+import { getBDCurrentDate, getBDCurrentTime } from "../utils/utils.js";
+import { Appointment } from "../models/Schedule/userBooking.js";
 
 // import { sendPushNotification } from "../firebase-admin.js";
 
@@ -88,11 +90,11 @@ const scheduleTodaysNotifications = async () => {
   console.log("📅 Fetching today's notifications...", today);
 
   try {
-      const notifications = await Notification.find({
-        notificationSendDate: today,
-        isSent: false,
-        fcmTokens: { $exists: true, $ne: [] },
-      });
+    const notifications = await Notification.find({
+      notificationSendDate: today,
+      isSent: false,
+      fcmTokens: { $exists: true, $ne: [] },
+    });
 
     for (const notification of notifications) {
       const sendDateTime = buildSendDateTime(notification.notificationSendTime);
@@ -112,12 +114,38 @@ const scheduleTodaysNotifications = async () => {
       console.log(`Scheduled notification for user ${notification.userId} at ${notification.notificationSendTime} (in ${Math.round(delayMs / 1000)}s)`);
     }
 
+    const currentDate = getBDCurrentDate();
+    const currentTime = getBDCurrentTime().split(", ")[1]; // "HH:MM"
+
+    const result = await Appointment.updateMany(
+      {
+        status: "confirmed",
+        $or: [
+          // Any confirmed appointment before today
+          {
+            appointmentDate: { $lt: currentDate },
+          },
+          // Today's confirmed appointments whose end time has passed
+          {
+            appointmentDate: currentDate,
+            endTime: { $lt: currentTime },
+          },
+        ],
+      },
+      {
+        $set: {
+          status: "missed",
+        },
+      },
+    );
+
+    console.log(`Marked ${result.modifiedCount} appointment(s) as missed.`);
+
     console.log(`Scheduler set up ${notifications.length} notification(s) for today.`);
   } catch (err) {
     console.error("Scheduler Error:", err);
   }
 };
-
 
 const startNotificationScheduler = () => {
   console.log("✅ Notification Scheduler Started");
@@ -125,9 +153,21 @@ const startNotificationScheduler = () => {
   // Run immediately on startup
   scheduleTodaysNotifications();
 
-  // Run every 1 minutes
-  cron.schedule("0 1 * * *", () => {
-    console.log("⏰ Running notification scheduler...", new Date());
+  // // gonna run at 1:00 AM everyday
+  // cron.schedule(
+  //   "0 1 * * *",
+  //   () => {
+  //     console.log("⏰ Running notification scheduler...", getBDCurrentTime());
+  //     scheduleTodaysNotifications();
+  //   },
+  //   {
+  //     timezone: "Asia/Dhaka",
+  //   }
+  // );
+
+  // Testing: Runs every 50 seconds
+  cron.schedule("*/50 * * * * *", () => {
+    console.log("🧪 Running notification scheduler (50s)...", getBDCurrentTime());
     scheduleTodaysNotifications();
   });
 };
