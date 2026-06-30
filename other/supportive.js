@@ -6,7 +6,6 @@ import DoctorRegistration from "../models/DoctorRegistration/DoctorRegistration.
 import mongoose from "mongoose";
 import Notification from "../models/Notification/NotificationModel.js";
 import Role from "../models/RolePermission/RolePermission.js";
-import BackupRole from "../models/RolePermission/RolePermissionBackup.js";
 
 const internalUtilRoutes = express.Router();
 
@@ -35,17 +34,14 @@ internalUtilRoutes.delete("/clear-user-data/:userId", async (req, res) => {
   }
 });
 
+
+
+
 internalUtilRoutes.post("/create-role-route", async (req, res) => {
   try {
     const { role, routeJSON } = req.body;
     const newRole = new Role({ role, routeJSON });
-    const newBackupRole = new BackupRole({ role, routeJSON });
-
-    await Promise.all([
-      newRole.save(),
-      newBackupRole.save(),
-    ]);
-
+    await newRole.save();
     return res.status(200).json({
       success: true,
       message: "Role created successfully",
@@ -53,6 +49,7 @@ internalUtilRoutes.post("/create-role-route", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to create role",
@@ -61,7 +58,25 @@ internalUtilRoutes.post("/create-role-route", async (req, res) => {
   }
 });
 
+internalUtilRoutes.post("/update-role-route", async (req, res) => {
+  const { role, route } = req.body;
 
+  try {
+    const updatedRole = await Role.findOneAndUpdate({ role }, { route }, { new: true });
+    return res.status(200).json({
+      success: true,
+      message: "Role updated successfully",
+      data: updatedRole,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update role",
+      error: error.message,
+    });
+  }
+});
 
 /**
  * Run insertPeriodData.js script
