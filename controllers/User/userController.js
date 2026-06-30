@@ -9,6 +9,10 @@ import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedul
 import { Appointment } from "../../models/Schedule/userBooking.js";
 import { sendNotificationToUser } from "../../services/notificationService.js";
 import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, saveNotificationToDB, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { Vote } from "../../models/Community/VoteModel.js";
+import { getPeriodBasicInsightsService } from "../../services/periodTrackService.js";
+import { previousPeriodsInfoService } from "../Period/trackPeriod/trackPeriod.js";
+import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
 
 export const updateUserProfile = async (req, res) => {
   try {
@@ -1269,6 +1273,250 @@ export const getAllUserInspectListByAdmin = async (req, res) => {
       },
       "User list fetched successfully.",
       "User list fetched successfully.",
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const getUserInspectsDetails = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findOne({
+      userId,
+      type: 0,
+      isRemoved: false,
+    });
+
+    if (!user) {
+      return notFoundResponse(res, "User not found.", "User not found.");
+    }
+
+    const [voteStats, totalComments, totalReplies, periodInsights, previousPeriods] = await Promise.all([
+      Vote.aggregate([
+        {
+          $match: {
+            userId,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalVotes: { $sum: 1 },
+            totalUpvotes: {
+              $sum: {
+                $cond: [{ $eq: ["$type", "upvote"] }, 1, 0],
+              },
+            },
+            totalDownvotes: {
+              $sum: {
+                $cond: [{ $eq: ["$type", "downvote"] }, 1, 0],
+              },
+            },
+          },
+        },
+      ]),
+
+      Comment.countDocuments({
+        userId,
+        parentId: null,
+      }),
+
+      Comment.countDocuments({
+        userId,
+        parentId: { $ne: null },
+      }),
+
+      getPeriodBasicInsightsService(userId),
+
+      previousPeriodsInfoService(userId),
+    ]);
+
+    const statistics = {
+      totalVotes: voteStats[0]?.totalVotes || 0,
+      totalUpvotes: voteStats[0]?.totalUpvotes || 0,
+      totalDownvotes: voteStats[0]?.totalDownvotes || 0,
+      totalComments,
+      totalReplies,
+    };
+
+    return successResponse(
+      res,
+      {
+        ...user.toObject(),
+        statistics,
+        periodInsights: periodInsights.data,
+        previousPeriods: previousPeriods,
+      },
+      "User details fetched successfully.",
+      "User details fetched successfully.",
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const getUserSpecificSelfTest = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const userSelfTest = await UserSelfTest.find({ userId });
+
+    if (!userSelfTest) {
+      return notFoundResponse(res, "User self test not found.", "User self test not found.");
+    }
+
+    return successResponse(res, userSelfTest, "User self test details fetched successfully.", "User self test details fetched successfully.");
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+};
+
+export const getUserSpecificAllAppointments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { page = 1, limit = 10, search = "", status, sortBy = "appointmentDate", sortOrder = "desc" } = req.body;
+
+    const pageNumber = Math.max(1, Number(page));
+    const limitNumber = Math.max(1, Number(limit));
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const match = {
+      userId,
+      isDeleted: false,
+    };
+
+    // Filter by appointment status
+    if (status && status !== "all") {
+      match.status = status;
+    }
+
+    const pipeline = [
+      {
+        $match: match,
+      },
+
+      // Join doctor
+      {
+        $lookup: {
+          from: "doctors", // collection name of Doctor model
+          localField: "doctorUserId",
+          foreignField: "userId",
+          as: "doctor",
+        },
+      },
+
+      {
+        $unwind: {
+          path: "$doctor",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    // Search
+    if (search.trim()) {
+      pipeline.push({
+        $match: {
+          $or: [
+            {
+              "doctor.fullName": {
+                $regex: search.trim(),
+                $options: "i",
+              },
+            },
+            {
+              "doctor.email": {
+                $regex: search.trim(),
+                $options: "i",
+              },
+            },
+            {
+              "doctor.phoneNumber": {
+                $regex: search.trim(),
+                $options: "i",
+              },
+            },
+            {
+              doctorUserId: {
+                $regex: search.trim(),
+                $options: "i",
+              },
+            },
+          ],
+        },
+      });
+    }
+
+    const allowedSortFields = ["appointmentDate", "startTime", "endTime", "status", "createdAt"];
+
+    pipeline.push({
+      $sort: {
+        [allowedSortFields.includes(sortBy) ? sortBy : "appointmentDate"]: sortOrder === "asc" ? 1 : -1,
+      },
+    });
+
+    pipeline.push({
+      $facet: {
+        data: [
+          { $skip: skip },
+          { $limit: limitNumber },
+
+          {
+            $project: {
+              doctor: {
+                userId: "$doctor.userId",
+                fullName: "$doctor.fullName",
+                profilePhoto: "$doctor.profilePhoto",
+                email: "$doctor.email",
+                phoneNumber: "$doctor.phoneNumber",
+                currentDesignation: "$doctor.currentDesignation",
+                currentWorkplace: "$doctor.currentWorkplace",
+                specialties: "$doctor.specialties",
+                rating: "$doctor.rating",
+                totalRateCount: "$doctor.totalRateCount",
+              },
+
+              appointmentDate: 1,
+              startTime: 1,
+              endTime: 1,
+              status: 1,
+              rating: 1,
+              cancelledBy: 1,
+              note: 1,
+              createdAt: 1,
+              updatedAt: 1,
+            },
+          },
+        ],
+
+        totalCount: [{ $count: "count" }],
+      },
+    });
+
+    const result = await Appointment.aggregate(pipeline);
+
+    const appointments = result[0].data;
+    const total = result[0].totalCount[0]?.count || 0;
+
+    return successResponse(
+      res,
+      {
+        appointments,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total,
+          totalPages: Math.ceil(total / limitNumber),
+        },
+      },
+      "User appointments fetched successfully.",
+      "User appointments fetched successfully.",
     );
   } catch (error) {
     console.error(error);

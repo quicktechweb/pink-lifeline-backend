@@ -154,22 +154,22 @@ const startNotificationScheduler = () => {
   scheduleTodaysNotifications();
 
   // // gonna run at 1:00 AM everyday
-  // cron.schedule(
-  //   "0 1 * * *",
-  //   () => {
-  //     console.log("⏰ Running notification scheduler...", getBDCurrentTime());
-  //     scheduleTodaysNotifications();
-  //   },
-  //   {
-  //     timezone: "Asia/Dhaka",
-  //   }
-  // );
+  cron.schedule(
+    "0 1 * * *",
+    () => {
+      console.log("⏰ Running notification scheduler...", getBDCurrentTime());
+      scheduleTodaysNotifications();
+    },
+    {
+      timezone: "Asia/Dhaka",
+    }
+  );
 
   // Testing: Runs every 50 seconds
-  cron.schedule("*/50 * * * * *", () => {
-    console.log("🧪 Running notification scheduler (50s)...", getBDCurrentTime());
-    scheduleTodaysNotifications();
-  });
+  // cron.schedule("*/50 * * * * *", () => {
+  //   console.log("🧪 Running notification scheduler (50s)...", getBDCurrentTime());
+  //   scheduleTodaysNotifications();
+  // });
 };
 
 export default startNotificationScheduler;
