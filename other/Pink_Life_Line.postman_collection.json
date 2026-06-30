@@ -2047,7 +2047,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-KGHZRN"
+                      "value": "USR-X6YVWO"
                     }
                   ]
                 }
@@ -2375,6 +2375,35 @@
                 }
               },
               "response": []
+            },
+            {
+              "name": "get-all-users-inspect-list-by-admin",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"page\": 1,\r\n  \"limit\": 10,\r\n  \"search\": \"\",\r\n  \"sortBy\": \"fullName\",\r\n  \"sortOrder\": \"asc\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-all-users-inspect-list-by-admin",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-all-users-inspect-list-by-admin"
+                  ]
+                }
+              },
+              "response": []
             }
           ]
         },
@@ -2579,6 +2608,120 @@
                     {
                       "key": "userId",
                       "value": "USR-XT90BI"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-specific-selftest-by-admin",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"page\": 1,\r\n  \"limit\": 10,\r\n  \"search\": \"\",\r\n  \"sortBy\": \"fullName\",\r\n  \"sortOrder\": \"asc\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-user-specific-selftest-by-admin/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-user-specific-selftest-by-admin",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-X6YVWO"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-specific-appointments-by-admin",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"page\": 1,\r\n  \"limit\": 10,\r\n  \"status\": \"missed\",\r\n  \"search\": \"asd\",\r\n  \"sortBy\": \"appointmentDate\",\r\n  \"sortOrder\": \"desc\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-user-specific-appointments-by-admin/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-user-specific-appointments-by-admin",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-X6YVWO"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get-user-inspect-by-admin",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-user-inspect-by-admin/:userId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-user-inspect-by-admin",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "USR-X6YVWO"
                     }
                   ]
                 }
@@ -3182,7 +3325,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n  \"currentDate\": \"2026-06-09T00:00:00.000Z\",\r\n  \"score\": 2\r\n}",
+                      "raw": "{\r\n  \"currentDate\": \"2026-06-22T00:00:00.000Z\",\r\n  \"score\": 2\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -3204,7 +3347,7 @@
                       "variable": [
                         {
                           "key": "userId",
-                          "value": "USR-CHJNB1"
+                          "value": "USR-X6YVWO"
                         }
                       ]
                     }
@@ -4998,7 +5141,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "doctors"
+                  "value": "userselftests"
                 }
               ]
             }
@@ -5163,7 +5306,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"role\": \"admin\",\r\n    \"routeJSON\": \"[{\\\"key\\\":\\\"Dashboard\\\",\\\"title\\\":\\\"Dashboard\\\",\\\"icon\\\":\\\"FaHome\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard\\\"},{\\\"key\\\":\\\"Step-Management\\\",\\\"title\\\":\\\"Step Management\\\",\\\"icon\\\":\\\"Route\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/manage-self-test\\\"},{\\\"key\\\":\\\"Dropdown-Management\\\",\\\"title\\\":\\\"Dropdown Management\\\",\\\"icon\\\":\\\"ListCollapse\\\",\\\"links\\\":[{\\\"title\\\":\\\"Bleeding Dropdown Management\\\",\\\"icon\\\":\\\"Droplets\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/bleeding-dropdown\\\"},{\\\"title\\\":\\\"Spotting Dropdown Management\\\",\\\"icon\\\":\\\"HeartPlus\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/spotting-dropdown\\\"},{\\\"title\\\":\\\"Symptoms Dropdown Management\\\",\\\"icon\\\":\\\"Syringe\\\",\\\"path\\\":\\\"/dashboard-admin-pink-life-line/dashboard/symptoms-dropdown\\\"}]}]\"\r\n}",
+              "raw": "{\r\n  \"role\": \"admin\",\r\n  \"routeJSON\": [\r\n    {\r\n      \"key\": \"Dashboard\",\r\n      \"title\": \"Dashboard\",\r\n      \"icon\": \"FaHome\",\r\n      \"path\": \"/dashboard-admin-pink-life-line/dashboard\"\r\n    },\r\n    {\r\n      \"key\": \"Step-Management\",\r\n      \"title\": \"Step Management\",\r\n      \"icon\": \"Route\",\r\n      \"path\": \"/dashboard-admin-pink-life-line/dashboard/manage-self-test\"\r\n    },\r\n    {\r\n      \"key\": \"Dropdown-Management\",\r\n      \"title\": \"Dropdown Management\",\r\n      \"icon\": \"ListCollapse\",\r\n      \"links\": [\r\n        {\r\n          \"title\": \"Bleeding Dropdown Management\",\r\n          \"icon\": \"Droplets\",\r\n          \"path\": \"/dashboard-admin-pink-life-line/dashboard/bleeding-dropdown\"\r\n        },\r\n        {\r\n          \"title\": \"Spotting Dropdown Management\",\r\n          \"icon\": \"HeartPlus\",\r\n          \"path\": \"/dashboard-admin-pink-life-line/dashboard/spotting-dropdown\"\r\n        },\r\n        {\r\n          \"title\": \"Symptoms Dropdown Management\",\r\n          \"icon\": \"Syringe\",\r\n          \"path\": \"/dashboard-admin-pink-life-line/dashboard/symptoms-dropdown\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5171,13 +5314,20 @@
               }
             },
             "url": {
-              "raw": "{{baseurl}}/other/update-role-route",
+              "raw": "{{baseurl}}/other/update-role-route/:id",
               "host": [
                 "{{baseurl}}"
               ],
               "path": [
                 "other",
-                "update-role-route"
+                "update-role-route",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6a33b189323b30f057dc02a4"
+                }
               ]
             }
           },
@@ -5521,7 +5671,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\":\"USR-QR1TYH\" \r\n}",
+              "raw": "{\r\n    \"appointmentId\":\"USR-QR1TYH\" \r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5529,7 +5679,7 @@
               }
             },
             "url": {
-              "raw": "{{baseurl}}/api/user/v1/cancel-appointment-by-user/:appointmentId",
+              "raw": "{{baseurl}}/api/user/v1/cancel-appointment-by-user/:userId",
               "host": [
                 "{{baseurl}}"
               ],
@@ -5538,12 +5688,12 @@
                 "user",
                 "v1",
                 "cancel-appointment-by-user",
-                ":appointmentId"
+                ":userId"
               ],
               "variable": [
                 {
-                  "key": "appointmentId",
-                  "value": "6a29a7b869af5a4f4210b0dc"
+                  "key": "userId",
+                  "value": ""
                 }
               ]
             }
