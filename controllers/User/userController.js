@@ -543,98 +543,98 @@ export const editAppointment = async (req, res) => {
   }
 };
 
-export const deleteAppointment = async (req, res) => {
-  const { appointmentId } = req.params;
-  const { userId } = req.body;
+// export const deleteAppointment = async (req, res) => {
+//   const { appointmentId } = req.params;
+//   const { userId } = req.body;
 
-  try {
-    const appointment = await Appointment.findOne({
-      _id: appointmentId,
-      isDeleted: false,
-    });
+//   try {
+//     const appointment = await Appointment.findOne({
+//       _id: appointmentId,
+//       isDeleted: false,
+//     });
 
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: "Appointment not found.",
-      });
-    }
+//     if (!appointment) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Appointment not found.",
+//       });
+//     }
 
-    if (appointment.status === "completed") {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot cancel a completed appointment.",
-      });
-    }
+//     if (appointment.status === "completed") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Cannot cancel a completed appointment.",
+//       });
+//     }
 
-    if (appointment.status === "cancelled") {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot cancel a cancelled appointment.",
-      });
-    }
+//     if (appointment.status === "cancelled") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Cannot cancel a cancelled appointment.",
+//       });
+//     }
 
-    //     const notificationToUser = await sendNotificationToUser({
-    //   userId: appointment.userId,
-    //   title: "Appointment Cancelled",
-    //   body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
-    //   type: "appointment",
-    // })
+//     //     const notificationToUser = await sendNotificationToUser({
+//     //   userId: appointment.userId,
+//     //   title: "Appointment Cancelled",
+//     //   body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
+//     //   type: "appointment",
+//     // })
 
-    if (appointment.userId !== userId) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not authorized to cancel this appointment.",
-      });
-    } else {
-      const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: { isDeleted: true } }, { new: true, runValidators: true });
+//     if (appointment.userId !== userId) {
+//       return res.status(403).json({
+//         success: false,
+//         message: "You are not authorized to cancel this appointment.",
+//       });
+//     } else {
+//       const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: { isDeleted: true } }, { new: true, runValidators: true });
 
-      if (!updated) {
-        return res.status(500).json({
-          success: false,
-          message: "Something went wrong.",
-        });
-      } else {
-        updated.status = "cancelled";
-        await updated.save();
+//       if (!updated) {
+//         return res.status(500).json({
+//           success: false,
+//           message: "Something went wrong.",
+//         });
+//       } else {
+//         updated.status = "cancelled";
+//         await updated.save();
 
-        if (updated.status === "cancelled") {
-          const doctor = await User.findOne({ userId: updated.doctorUserId, type: 1, $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }] });
+//         if (updated.status === "cancelled") {
+//           const doctor = await User.findOne({ userId: updated.doctorUserId, type: 1, $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }] });
 
-          if (doctor) {
-            const user = await User.findOne({ userId: userId, type: 0, $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }] });
-            const notificationToUser = await sendNotificationToUser({
-              userId: doctor.userId,
-              title: "Appointment Cancelled",
-              body: `Your appointment with ${userId.fullName} on ${updated.appointmentDate} at ${updated.startTime} has been cancelled.`,
-              type: "doctorAppointment",
-            });
+//           if (doctor) {
+//             const user = await User.findOne({ userId: userId, type: 0, $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }] });
+//             const notificationToUser = await sendNotificationToUser({
+//               userId: doctor.userId,
+//               title: "Appointment Cancelled",
+//               body: `Your appointment with ${userId.fullName} on ${updated.appointmentDate} at ${updated.startTime} has been cancelled.`,
+//               type: "doctorAppointment",
+//             });
 
-            const noti = await saveNotificationToDB({
-              userId: doctor.userId,
-              notificationSendTime: BD_CURRENT_TIME,
-              notificationSendDate: BD_CURRENT_DATE,
-              autoReminderLimit: 1,
+//             const noti = await saveNotificationToDB({
+//               userId: doctor.userId,
+//               notificationSendTime: BD_CURRENT_TIME,
+//               notificationSendDate: BD_CURRENT_DATE,
+//               autoReminderLimit: 1,
 
-              title: "Appointment Cancelled",
-              body: `Your appointment with ${userId.fullName} on ${updated.appointmentDate} at ${updated.startTime} has been cancelled.`,
-              type: "doctorAppointment",
-            });
+//               title: "Appointment Cancelled",
+//               body: `Your appointment with ${userId.fullName} on ${updated.appointmentDate} at ${updated.startTime} has been cancelled.`,
+//               type: "doctorAppointment",
+//             });
 
-            return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
-          } else {
-            updated.isDeleted = true;
-            await updated.save();
-            return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong in deleting appointment by user.");
-  }
-};
+//             return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
+//           } else {
+//             updated.isDeleted = true;
+//             await updated.save();
+//             return successResponse(res, updated, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
+//           }
+//         }
+//       }
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong in deleting appointment by user.");
+//   }
+// };
 
 // export const deleteAppointment2 = async (req, res) => {
 //   const { appointmentId } = req.params;
@@ -979,6 +979,12 @@ export const completeAppointmentByUser = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
 export const cancelAppointmentByUser = async (req, res) => {
   const { userId } = req.params;
   const { appointmentId } = req.body;
@@ -1008,12 +1014,76 @@ export const cancelAppointmentByUser = async (req, res) => {
       });
     }
 
-    return successResponse(res, appointment, "Appointment completed successfully.", "Appointment completed successfully.");
+    const user = await User.findOne({
+      userId: userId,
+      type: 0,
+      $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+    });
+
+    const doctor = await User.findOne({
+      userId: appointment.doctorUserId,
+      type: 1,
+      $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
+    });
+
+    // Notify user
+    await sendNotificationToUser({
+      userId: user.userId,
+      title: "Appointment Cancelled",
+      body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
+      type: "patientAppointment",
+    });
+
+    // Notify doctor
+    await sendNotificationToUser({
+      userId: doctor.userId,
+      title: "Appointment Cancelled",
+      body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
+      type: "doctorAppointment",
+    });
+
+    // ── Cancel matching pending reminder notifications ───────────────────────
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    const matchRegex = new RegExp(
+      `${escapeRegex(doctor.fullName)}.*${escapeRegex(appointment.startTime)}.*${escapeRegex(appointment.endTime)}`,
+    );
+
+    const pendingReminders = await Notification.find({
+      userId: user.userId,
+      type: "patientAppointment",
+      isSent: false,
+      body: matchRegex,
+    });
+
+    if (pendingReminders.length) {
+      await Notification.updateMany(
+        { _id: { $in: pendingReminders.map((n) => n._id) } },
+        {
+          $set: {
+            isSent: true,
+            title: "Appointment Cancelled",
+            body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
+          },
+        },
+      );
+    }
+
+    return successResponse(res, appointment, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
   } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+
+
+
+
 
 export const rateDoctorByUser = async (req, res) => {
   const { userId } = req.params;

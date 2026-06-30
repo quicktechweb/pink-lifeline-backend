@@ -74,7 +74,7 @@ internalUtilRoutes.post("/create-role-route", async (req, res) => {
 
 
 
-internalUtilRoutes.put("/update-role-route/:id", async (req, res) => {
+internalUtilRoutes.post("/update-role-route/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { role, routeJSON } = req.body;
@@ -495,54 +495,54 @@ internalUtilRoutes.get("/get-current-time", async (req, res) => {
 
 
 
-internalUtilRoutes.post("/update-role-route", async (req, res) => {
-  const { role, routeJSON } = req.body;
+// internalUtilRoutes.post("/update-role-route", async (req, res) => {
+//   const { role, routeJSON } = req.body;
 
-  try {
-    // Get the current role
-    const existingRole = await Role.findOne({ role });
+//   try {
+//     // Get the current role
+//     const existingRole = await Role.findOne({ role });
 
-    if (!existingRole) {
-      return res.status(404).json({
-        success: false,
-        message: "Role not found",
-      });
-    }
+//     if (!existingRole) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Role not found",
+//       });
+//     }
 
-    // Backup the current role
-    await BackupRole.findOneAndUpdate(
-      { role: existingRole.role },
-      {
-        role: existingRole.role,
-        routeJSON: existingRole.routeJSON,
-      },
-      {
-        upsert: true,
-        new: true,
-      }
-    );
+//     // Backup the current role
+//     await BackupRole.findOneAndUpdate(
+//       { role: existingRole.role },
+//       {
+//         role: existingRole.role,
+//         routeJSON: existingRole.routeJSON,
+//       },
+//       {
+//         upsert: true,
+//         new: true,
+//       }
+//     );
 
-    // Update the role
-    const updatedRole = await Role.findOneAndUpdate(
-      { role },
-      { routeJSON },
-      { new: true }
-    );
+//     // Update the role
+//     const updatedRole = await Role.findOneAndUpdate(
+//       { role },
+//       { routeJSON },
+//       { new: true }
+//     );
 
-    return res.status(200).json({
-      success: true,
-      message: "Role updated successfully",
-      data: updatedRole,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update role",
-      error: error.message,
-    });
-  }
-});
+//     return res.status(200).json({
+//       success: true,
+//       message: "Role updated successfully",
+//       data: updatedRole,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to update role",
+//       error: error.message,
+//     });
+//   }
+// });
 
 
 
