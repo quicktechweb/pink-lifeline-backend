@@ -10,7 +10,7 @@ import { Appointment } from "../../models/Schedule/userBooking.js";
 import { sendNotificationToUser } from "../../services/notificationService.js";
 import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, saveNotificationToDB, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { Vote } from "../../models/Community/VoteModel.js";
-import { getPeriodBasicInsightsService } from "../../services/periodTrackService.js";
+import { getPeriodBasicInsightsService, getPeriodBasicInsightsServiceV2 } from "../../services/periodTrackService.js";
 import { previousPeriodsInfoService } from "../Period/trackPeriod/trackPeriod.js";
 import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
 import Notification from "../../models/Notification/NotificationModel.js";
@@ -1333,7 +1333,7 @@ export const getUserInspectsDetails = async (req, res) => {
       return notFoundResponse(res, "User not found.", "User not found.");
     }
 
-    const [voteStats, totalComments, totalReplies, periodInsights, previousPeriods] = await Promise.all([
+    const [voteStats, totalComments, totalReplies, periodInsights,periodSixMonthInsights, previousPeriods] = await Promise.all([
       Vote.aggregate([
         {
           $match: {
@@ -1369,7 +1369,7 @@ export const getUserInspectsDetails = async (req, res) => {
       }),
 
       getPeriodBasicInsightsService(userId),
-
+      getPeriodBasicInsightsServiceV2(userId),
       previousPeriodsInfoService(userId),
     ]);
 
@@ -1387,6 +1387,7 @@ export const getUserInspectsDetails = async (req, res) => {
         ...user.toObject(),
         statistics,
         periodInsights: periodInsights.data,
+        periodSixMonthInsights: periodSixMonthInsights.data,
         previousPeriods: previousPeriods,
       },
       "User details fetched successfully.",
@@ -1592,3 +1593,106 @@ export const getUserSpecificAppointmentDetailsByPatient = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 }
+
+
+export const getUserSpecificAppointmentsByAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      userId,
+      isDeleted: false,
+    };
+
+    const [appointments, total] = await Promise.all([
+      Appointment.aggregate([
+        {
+          $match: filter,
+        },
+
+        {
+          $sort: {
+            appointmentDate: -1,
+            startTime: -1,
+          },
+        },
+
+        {
+          $skip: skip,
+        },
+
+        {
+          $limit: limit,
+        },
+
+        {
+          $lookup: {
+            from: "doctors", // collection name
+            localField: "doctorUserId",
+            foreignField: "userId",
+            as: "doctor",
+          },
+        },
+
+        {
+          $unwind: {
+            path: "$doctor",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+
+        {
+          $project: {
+            userId: 1,
+            doctorUserId: 1,
+            appointmentDate: 1,
+            startTime: 1,
+            endTime: 1,
+            status: 1,
+            rating: 1,
+            note: 1,
+            cancelledBy: 1,
+            createdAt: 1,
+
+            doctor: {
+              userId: "$doctor.userId",
+              fullName: "$doctor.fullName",
+              profilePhoto: "$doctor.profilePhoto",
+              rating: "$doctor.rating",
+              totalRateCount: "$doctor.totalRateCount",
+              specialties: "$doctor.specialties",
+              currentDesignation: "$doctor.currentDesignation",
+              currentWorkplace: "$doctor.currentWorkplace",
+              location: "$doctor.location",
+              qualifications: "$doctor.qualifications",
+            },
+          },
+        },
+      ]),
+
+      Appointment.countDocuments(filter),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: appointments,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong.",
+    });
+  }
+};
