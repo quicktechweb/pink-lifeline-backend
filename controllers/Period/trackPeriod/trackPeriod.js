@@ -7,7 +7,7 @@ import { Spotting } from "../../../models/Dropdowns/spottingDropdownModel.js";
 import { Symptom } from "../../../models/Dropdowns/symptomsDropdownModel.js";
 import { UserSelfTest } from "../../../models/SelfTest/selfTestUserMode.js";
 import { AVERAGE_PERIOD_DURATION, MONTH_ORDER, POST_MENSTRUAL_INTERVAL } from "../../../constant/constant.js";
-import { getPeriodBasicInsightsService } from "../../../services/periodTrackService.js";
+import { getPeriodBasicInsightsService, getPeriodBasicInsightsServiceV2 } from "../../../services/periodTrackService.js";
 import { Vote } from "../../../models/Community/VoteModel.js";
 import { Comment } from "../../../models/Community/CommentModel.js";
 
@@ -1025,7 +1025,27 @@ export const getPeriodBasicInsights = async (req, res) => {
 };
 
 
+export const getPeriodBasicInsightsV2 = async (req, res) => {
+  try {
+    const { userId } = req.params;
 
+    const result = await getPeriodBasicInsightsServiceV2(userId);
+
+    return successResponse(
+      res,
+      result.data,
+      result.message,
+      result.logMessage
+    );
+  } catch (error) {
+    console.error(error);
+    return somethingWentWrong(
+      res,
+      error,
+      error.message || "Something went wrong while generating insights."
+    );
+  }
+};
 
 
 

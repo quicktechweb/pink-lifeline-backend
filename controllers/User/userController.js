@@ -1534,3 +1534,33 @@ export const getUserSpecificAllAppointments = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+export const getUserSpecificAppointmentDetailsByPatient = async (req, res) => {
+  try {
+    const {  appointmentId } = req.params;
+    const appointment = await Appointment.findById(appointmentId).lean();
+    if (!appointment) {
+      return notFoundResponse(res, "Appointment not found.", "Appointment not found.");
+    }
+    const user = await User.findOne({ userId: appointment.userId, type: 0 }).lean();
+    const doctor = await User.findOne({ userId: appointment.doctorUserId, type: 1 }).lean();
+
+    return successResponse(
+      res,
+      {
+        appointment,
+        user,
+        doctor,
+      },
+      "User appointment details fetched successfully.",
+      "User appointment details fetched successfully."
+    );
+  }
+  catch (error) {
+    console.error(error);
+    return somethingWentWrong(res, error, "Something went wrong.");
+  }
+}
