@@ -39,19 +39,19 @@ app.use(express.json());
 // http://192.168.0.130:5173
 
 
-app.use(
-  cors({
-    origin: [
-      "https://pinklifelinebackend.shiftingglobal.com",
-      "http://localhost:5173",
-      "https://chimerical-cocada-1ab025.netlify.app"
-    ],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: [
+//       "https://pinklifelinebackend.shiftingglobal.com",
+//       "http://localhost:5173",
+//       "https://chimerical-cocada-1ab025.netlify.app"
+//     ],
+//     credentials: true,
+//   })
+// );
 
 
-// app.use(cors());
+app.use(cors());
 
 
 app.use(apiLogger);
@@ -83,8 +83,8 @@ app.use("/api/dashboard-stats",dashboardStatsRoutes)
 
 
 
-app.get("/api/user/me", verifyToken, async (req, res) => {
-  // app.get("/api/user/me",  async (req, res) => {
+// app.get("/api/user/me", verifyToken, async (req, res) => {
+  app.get("/api/user/me",  async (req, res) => {
   try {
     const userDoc = await User.findOne({ userId: req.user.userId }).select("_id userId email type role").lean(); 
 
