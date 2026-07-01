@@ -23,10 +23,11 @@ export const createOrUpdateFCMToken = async ({ userId, email, fcmToken }) => {
 
 
 
-export const sendNotificationToUser = async ({ userId, title, body, type, data = {} }) => {
+export const sendNotificationToUser = async ({ userId, title, body, type, data = {}, postId, commentId, appointmentId }) => {
   try {
     // 1. Get user's FCM tokens
     const user = await UserFCMToken.findOne({ userId });
+    console.log("🚀 ~ notificationService.js:33 ~ sendNotificationToUser ~ user:", user)
 
     if (!user || !user.fcmTokens?.length) {
       return {
@@ -38,10 +39,14 @@ export const sendNotificationToUser = async ({ userId, title, body, type, data =
     // 2. Build Firebase-compatible data payload (ALL STRINGS)
     const formattedData = {
       type,
-      ...Object.fromEntries(Object.entries(data).map(([key, value]) => [key, String(value)])),
+      postId: postId ? String(postId) : "",
+      commentId: commentId ? String(commentId) : "",
+      appointmentId: appointmentId ? String(appointmentId) : "",
+      // ...Object.fromEntries(Object.entries(data).map(([key, value]) => [key, String(value)])),
     };
 
     // 3. Build multicast message
+      console.log("🚀 ~ notificationService.js:48 ~ sendNotificationToUser ~ formattedData:", formattedData)
     const message = {
       tokens: user.fcmTokens,
 

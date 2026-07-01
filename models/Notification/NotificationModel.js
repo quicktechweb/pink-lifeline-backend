@@ -14,6 +14,22 @@ const notificationSchema = new mongoose.Schema(
       },
     ],
 
+    postId:{
+      type: String,
+    },
+
+    commentId: {
+      type: String,
+    },
+
+    appointmentId: {
+      type: String,
+    },
+
+    data: {
+      type: String,
+    },
+
     notificationSendTime: {
       type: String,
       required: true,
@@ -47,7 +63,17 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["periodDateStart", "periodDateEnd", "missedSelfTest", "accountVerified", "post", "doctorAppointment", "patientAppointment"],
+      enum: [
+        "periodDateStart", // it will redirect to period start page
+        "periodDateEnd",  // it will redirect to period end page
+        "missedSelfTest", // it will redirect to self test page
+        "accountVerified", // it will redirect to profile page
+
+        "post", // it will redirect to post page using postId
+        "doctorAppointment", // it will redirect to doctor appointment page using appointmentId
+        "patientAppointment" // it will redirect to patient appointment page using appointmentId
+
+      ],
       index: true,
     },
 

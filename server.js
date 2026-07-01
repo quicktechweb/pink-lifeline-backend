@@ -42,8 +42,6 @@ app.use(
     origin: [
       "https://pinklifelinebackend.shiftingglobal.com",
       "http://localhost:5173",
-      "http://192.168.0.112:5173",
-      "http://192.168.0.130:5173",
       "https://chimerical-cocada-1ab025.netlify.app"
     ],
     credentials: true,

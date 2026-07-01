@@ -343,6 +343,7 @@ export const postUpVote = async (req, res) => {
           data: postId,
           body: `${isUserExist.fullName} upvoted your post.`,
           title: "Yours post is upvoted.",
+          postId: postId,
         });
       }
 
@@ -350,6 +351,7 @@ export const postUpVote = async (req, res) => {
         userId: postOwner.userId,
         type: "post",
         data: postId,
+        postId: postId,
         body: `${isUserExist.fullName} upvoted your post.`,
         title: "Yours post is upvoted.",
         autoReminderLimit: 1,
@@ -397,6 +399,7 @@ export const postUpVote = async (req, res) => {
           userId: postOwner.userId,
           type: "post",
           data: postId,
+          postId: postId,
           body: `${isUserExist.fullName} upvoted your post.`,
           title: "Yours post is upvoted.",
         });
@@ -405,6 +408,7 @@ export const postUpVote = async (req, res) => {
           userId: postOwner.userId,
           type: "post",
           data: postId,
+          postId: postId,
           body: `${isUserExist.fullName} upvoted your post.`,
           title: "Yours post is upvoted.",
           autoReminderLimit: 1,
@@ -477,6 +481,7 @@ export const postDownVote = async (req, res) => {
           userId: postOwner.userId,
           type: "post",
           data: postId,
+          postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
           title: "Yours post is downvoted.",
         });
@@ -485,6 +490,7 @@ export const postDownVote = async (req, res) => {
           userId: postOwner.userId,
           type: "post",
           data: postId,
+          postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
           title: "Yours post is downvoted.",
           autoReminderLimit: 1,
@@ -527,6 +533,7 @@ export const postDownVote = async (req, res) => {
           userId: postOwner.userId,
           type: "post",
           data: postId,
+          postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
           title: "Yours post is downvoted.",
         });
@@ -535,6 +542,7 @@ export const postDownVote = async (req, res) => {
           userId: postOwner.userId,
           type: "post",
           data: postId,
+          postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
           title: "Yours post is downvoted.",
           autoReminderLimit: 1,
@@ -636,6 +644,7 @@ export const postComment = async (req, res) => {
       const notificationStatus = await sendNotificationToUser({
         userId: post.userId.toString(),
         type: "post",
+        postId,
         data: postId,
         title: parentId ? `${isUserExist.fullName} replied to your post.` : `${isUserExist.fullName} commented on your post.`,
         body: parentId ? `${isUserExist.fullName} replied to your post.` : "Yours post is commented.",
@@ -644,6 +653,7 @@ export const postComment = async (req, res) => {
       const notiSave = await saveNotificationToDB({
         userId: post.userId.toString(),
         type: "post",
+        postId,
         data: postId,
         title: parentId ? `${isUserExist.fullName} replied to your post.` : `${isUserExist.fullName} commented on your post.`,
         body: parentId ? `${isUserExist.fullName} replied to your post.` : "Yours post is commented.",
@@ -814,6 +824,7 @@ export const commentDownVote = async (req, res) => {
         const notification = await sendNotificationToUser({
           userId: commentOwner.userId.toString(),
           type: "post",
+          postId: post._id.toString(),
           data: post._id.toString(),
           title: `${isUserExist.fullName} has downvoted your comment.`,
           body: "Someone downvoted your comment",
@@ -822,6 +833,7 @@ export const commentDownVote = async (req, res) => {
         const notiSave = await saveNotificationToDB({
           userId: commentOwner.userId.toString(),
           type: "post",
+          postId: post._id.toString(),
           data: post._id.toString(),
           title: `${isUserExist.fullName} has downvoted your comment.`,
           body: "Someone downvoted your comment",
@@ -930,6 +942,7 @@ export const commentUpVote = async (req, res) => {
           userId: commentOwner.userId.toString(),
           type: "post",
           data: post._id.toString(),
+          postId: post._id.toString(),
           title: `${isUserExist.fullName} has upvoted your comment.`,
           body: "Someone upvoted your comment",
         };
@@ -940,6 +953,7 @@ export const commentUpVote = async (req, res) => {
           userId: commentOwner.userId.toString(),
           type: "post",
           data: post._id.toString(),
+          postId: post._id.toString(),
           title: `${isUserExist.fullName} has upvoted your comment.`,
           body: "Someone upvoted your comment",
           notificationSendTime: BD_CURRENT_TIME,

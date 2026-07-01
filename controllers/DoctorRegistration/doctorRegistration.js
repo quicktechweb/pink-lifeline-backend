@@ -1688,7 +1688,7 @@ export const confirmAppointmentByAdmin = async (req, res) => {
         new: true,
       },
     );
-    console.log("🚀 ~ doctorRegistration.js:1689 ~ confirmAppointmentByAdmin ~ appointment:", appointment);
+
 
     if (!appointment) {
       return res.status(400).json({
@@ -1700,15 +1700,18 @@ export const confirmAppointmentByAdmin = async (req, res) => {
     // Fetch doctor & patient
     const [patient, doctor] = await Promise.all([User.findOne({ userId: appointment.userId }).lean(), User.findOne({ userId: appointment.doctorUserId }).lean()]);
 
+    const appointmentId = appointment._id.toString();
+
     if (patient && doctor) {
       await Promise.all([
         sendNotificationToUser({
+          appointmentId,
           userId: patient.userId,
           title: "Appointment Confirmed",
           body: `Your appointment with Dr. ${doctor.fullName} has been confirmed for ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
           type: "patientAppointment",
           data: {
-            appointmentId: appointment._id,
+            appointmentId,
             doctorUserId: doctor.userId,
             doctorName: doctor.fullName,
             appointmentDate: appointment.appointmentDate,
@@ -1718,12 +1721,13 @@ export const confirmAppointmentByAdmin = async (req, res) => {
         }),
 
         sendNotificationToUser({
+          appointmentId,
           userId: doctor.userId,
           title: "Appointment Confirmed",
           body: `Your appointment with ${patient.fullName} has been confirmed for ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime}.`,
           type: "doctorAppointment",
           data: {
-            appointmentId: appointment._id,
+            appointmentId,
             patientUserId: patient.userId,
             patientName: patient.fullName,
             appointmentDate: appointment.appointmentDate,
@@ -1734,6 +1738,7 @@ export const confirmAppointmentByAdmin = async (req, res) => {
 
         // Save notification for patient
         Notification.create({
+          appointmentId,
           userId: patient.userId.toString(),
           type: "patientAppointment",
           title: "Appointment Confirmed",
@@ -1744,6 +1749,7 @@ export const confirmAppointmentByAdmin = async (req, res) => {
 
         // Save notification for doctor
         Notification.create({
+          appointmentId,
           userId: doctor.userId.toString(),
           type: "doctorAppointment",
           title: "Appointment Confirmed",
@@ -1861,7 +1867,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
 
     // Fetch patient & doctor
     const [patient, doctor] = await Promise.all([User.findOne({ userId: appointment.userId }).lean(), User.findOne({ userId: appointment.doctorUserId }).lean()]);
-
+    const appointmentId = appointment._id.toString();
     if (patient && doctor) {
       await Promise.all([
         sendNotificationToUser({
@@ -1869,6 +1875,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
           title: "Appointment Cancelled",
           body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
           type: "doctorAppointment",
+          appointmentId,
           data: {
             appointmentId: appointment._id,
             doctorUserId: doctor.userId,
@@ -1882,6 +1889,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
 
         sendNotificationToUser({
           userId: doctor.userId,
+          appointmentId,
           title: "Appointment Cancelled",
           body: `The appointment with ${patient.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
           type: "patientAppointment",
@@ -1900,6 +1908,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
         Notification.create({
           userId: patient.userId.toString(),
           type: "doctorAppointment",
+          appointmentId,
           title: "Appointment Cancelled",
           body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
         }),
@@ -1908,6 +1917,7 @@ export const cancelAppointmentByAdmin = async (req, res) => {
         Notification.create({
           userId: doctor.userId.toString(),
           type: "patientAppointment",
+          appointmentId,
           title: "Appointment Cancelled",
           body: `The appointment with ${patient.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
         }),

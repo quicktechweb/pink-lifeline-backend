@@ -81,19 +81,9 @@ export const getPeriodBasicInsightsService = async (userId) => {
 
     const latestSixPeriods = allPeriodDocs.slice(0, 6);
 
-    const expandedPeriods =
-      latestSixPeriods.flatMap(expandPeriodAcrossMonths);
+    const expandedPeriods = latestSixPeriods.flatMap(expandPeriodAcrossMonths);
 
-result.sixMonthCycleHistory = attachSelfTestsToPeriods(
-  expandedPeriods,
-  selfTests
-)
-  .sort(
-    (a, b) =>
-      MONTH_ORDER.indexOf(a.monthName) -
-      MONTH_ORDER.indexOf(b.monthName)
-  )
-  .slice(0, 6);
+result.sixMonthCycleHistory = attachSelfTestsToPeriods(expandedPeriods,selfTests).sort((a, b) =>MONTH_ORDER.indexOf(a.monthName) -MONTH_ORDER.indexOf(b.monthName)).slice(0, 6);
 
 // Get current month in Bangladesh
 const currentMonth = new Date(getBDCurrentDate()).toLocaleString("en-US", {

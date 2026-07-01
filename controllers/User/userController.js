@@ -504,6 +504,7 @@ export const editAppointment = async (req, res) => {
     if (endTime) updates.endTime = resolvedEnd;
 
     const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: updates }, { new: true, runValidators: true });
+    console.log("🚀 ~ userController.js:507 ~ editAppointment ~ updated:", updated._id)
 
     // For the User
     const notificationToUser = await sendNotificationToUser({
@@ -511,6 +512,7 @@ export const editAppointment = async (req, res) => {
       title: "Appointment Rescheduled",
       body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
       type: "patientAppointment",
+      appointmentId: updated._id.toString(),
     });
 
     const noti1 = await saveNotificationToDB({
@@ -518,6 +520,7 @@ export const editAppointment = async (req, res) => {
       title: "Appointment Rescheduled",
       body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
       type: "patientAppointment",
+      appointmentId: updated._id.toString(),
       autoReminderLimit: 1,
       notificationSendTime: BD_CURRENT_TIME,
       notificationSendDate: BD_CURRENT_DATE,
@@ -529,6 +532,7 @@ export const editAppointment = async (req, res) => {
       title: "Appointment Rescheduled",
       body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
       type: "doctorAppointment",
+      appointmentId: updated._id.toString(),
     });
 
     const noti2 = await saveNotificationToDB({
@@ -536,6 +540,7 @@ export const editAppointment = async (req, res) => {
       title: "Appointment Rescheduled",
       body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
       type: "doctorAppointment",
+      appointmentId: updated._id.toString(),
       autoReminderLimit: 1,
       notificationSendTime: BD_CURRENT_TIME,
       notificationSendDate: BD_CURRENT_DATE,
@@ -1034,6 +1039,7 @@ export const cancelAppointmentByUser = async (req, res) => {
       title: "Appointment Cancelled",
       body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
       type: "patientAppointment",
+      appointmentId: appointment._id.toString(),
     });
 
     // Notify doctor
@@ -1042,6 +1048,7 @@ export const cancelAppointmentByUser = async (req, res) => {
       title: "Appointment Cancelled",
       body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
       type: "doctorAppointment",
+      appointmentId: appointment._id.toString(),
     });
 
     // ── Cancel matching pending reminder notifications ───────────────────────
@@ -1112,7 +1119,7 @@ export const rateDoctorByUser = async (req, res) => {
       userId,
       doctorUserId: appointment.doctorUserId,
       rating,
-      appointmentId: appointment._id,
+      appointmentId: appointment._id.toString(),
     });
 
     const ratingStats = await DoctorRatingModel.aggregate([
