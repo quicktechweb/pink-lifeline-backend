@@ -709,6 +709,40 @@
           "response": []
         },
         {
+          "name": "get-period-basics-insights v2",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/period/v2/get-period-basics-insights/:userId",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "period",
+                "v2",
+                "get-period-basics-insights",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USR-CHJNB1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "previous-period-history",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
@@ -1160,7 +1194,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"email\":\"teamquicktech2@gmail.com\"\r\n}",
+                  "raw": "{\r\n    \"email\":\"123aanother@example.com\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1181,7 +1215,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-V1CSBA"
+                      "value": "USR-EEI-EL"
                     }
                   ]
                 }
@@ -1715,7 +1749,7 @@
                   "variable": [
                     {
                       "key": "userId",
-                      "value": "USR-CHJNB1"
+                      "value": "USR-MGSNVB"
                     }
                   ]
                 }
@@ -2184,6 +2218,45 @@
                     {
                       "key": "userId",
                       "value": "USR-7KM7Y3"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "rate-doctor-by-user Copy",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseurl}}/api/user/v1/get-doctor-appointment-details/:appointmentId",
+                  "host": [
+                    "{{baseurl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "user",
+                    "v1",
+                    "get-doctor-appointment-details",
+                    ":appointmentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "appointmentId",
+                      "value": "6a40e55d9884068a6574f3db"
                     }
                   ]
                 }
@@ -3325,7 +3398,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n  \"currentDate\": \"2026-06-22T00:00:00.000Z\",\r\n  \"score\": 2\r\n}",
+                      "raw": "{\r\n  \"currentDate\": \"2026-07-30T00:00:00.000Z\",\r\n  \"score\": 2\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -3347,7 +3420,7 @@
                       "variable": [
                         {
                           "key": "userId",
-                          "value": "USR-X6YVWO"
+                          "value": "USR-V1CSBA"
                         }
                       ]
                     }
@@ -5004,7 +5077,7 @@
               "variable": [
                 {
                   "key": "userId",
-                  "value": "USR-X6YVWO"
+                  "value": "USR-V1CSBA"
                 }
               ]
             }
@@ -5141,7 +5214,7 @@
               "variable": [
                 {
                   "key": "collectionName",
-                  "value": "userselftests"
+                  "value": "notifications"
                 }
               ]
             }
@@ -5208,7 +5281,7 @@
               "variable": [
                 {
                   "key": "keyword",
-                  "value": "nusrat"
+                  "value": "USR-MGSNVB"
                 }
               ]
             }

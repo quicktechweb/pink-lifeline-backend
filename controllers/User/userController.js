@@ -193,6 +193,22 @@ export const getUserDoctorWishList = async (req, res) => {
     somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getAllDoctors = async (req, res) => {
   try {
     const doctors = await User.find({
@@ -214,6 +230,18 @@ export const getAllDoctors = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to get doctors.", "Get all doctors error");
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const userBookingAppointment = (req, res) => {
   try {

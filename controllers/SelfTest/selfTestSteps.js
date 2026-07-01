@@ -810,23 +810,12 @@ export const getRecommendedDoctors = async (req, res) => {
         $gte: min,
         $lte: max,
       },
+      $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
     })
-      .select({
-        specialties: 1,
-        location: 1,
-        qualifications: 1,
-        currentDesignation: 1,
-        currentWorkplace: 1,
-        profilePhoto: 1,
-        fullName: 1,
-        userId: 1,
-        doctorIdCard: 1,
-        doctorRegistrationNumber: 1,
-        _id: 0,
-      })
+      .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
       .sort({ score: -1 });
 
-    return successResponse(res, "Recommended doctors fetched successfully.", doctors);
+    return successResponse(res,doctors, "Recommended doctors fetched successfully.","Get all doctors successful.");
   } catch (error) {
     console.error(error);
 
