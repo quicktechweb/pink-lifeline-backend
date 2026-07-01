@@ -37,6 +37,8 @@ app.use(express.json());
 //   })
 // );
 // http://192.168.0.130:5173
+
+
 app.use(
   cors({
     origin: [
@@ -47,6 +49,10 @@ app.use(
     credentials: true,
   })
 );
+
+
+// app.use(cors());
+
 
 app.use(apiLogger);
 // MongoDB Connection
@@ -78,6 +84,7 @@ app.use("/api/dashboard-stats",dashboardStatsRoutes)
 
 
 app.get("/api/user/me", verifyToken, async (req, res) => {
+  // app.get("/api/user/me",  async (req, res) => {
   try {
     const userDoc = await User.findOne({ userId: req.user.userId }).select("_id userId email type role").lean(); 
 

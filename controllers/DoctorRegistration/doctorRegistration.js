@@ -2,7 +2,7 @@ import User from "../../models/DoctorRegistration/DoctorRegistration.js";
 import { nanoid } from "nanoid";
 import axios from "axios";
 import { generateToken } from "../../utils/token.js";
-import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, formatQuantityNumber, getBDCurrentDate, getBDCurrentTime, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
+import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, formatQuantityNumber, getBDCurrentDate, getBDCurrentTime, isOverlapping, isValid24h, normalizeDate, notFoundResponse, paginatedSuccessResponse, saveNotificationToDB, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
 import { DayMap, ENV, MonthMap, STATIC_TIME_FOR_SEND_NOTI_AT_TODAY } from "../../constant/constant.js";
 import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
@@ -1689,7 +1689,6 @@ export const confirmAppointmentByAdmin = async (req, res) => {
       },
     );
 
-
     if (!appointment) {
       return res.status(400).json({
         success: false,
@@ -1903,26 +1902,38 @@ export const cancelAppointmentByAdmin = async (req, res) => {
             note: note || "",
           },
         }),
-
-        // Save notification for patient
-        Notification.create({
-          userId: patient.userId.toString(),
-          type: "doctorAppointment",
-          appointmentId,
-          title: "Appointment Cancelled",
-          body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
-        }),
-
-        // Save notification for doctor
-        Notification.create({
-          userId: doctor.userId.toString(),
-          type: "patientAppointment",
-          appointmentId,
-          title: "Appointment Cancelled",
-          body: `The appointment with ${patient.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
-        }),
       ]);
     }
+
+    const noti1 = await saveNotificationToDB({
+      userId: patient.userId.toString(),
+      type: "patientAppointment",
+      appointmentId,
+      notificationSendTime: new Date().toISOString(),
+      notificationSendDate: new Date().toISOString(),
+      title: "Appointment Cancelled",
+      body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
+    });
+
+    console.log("🚀 ~ doctorRegistration.js:1845 ~ cancelAppointmentByAdmin ~ noti1:", noti1);
+
+    const noti2 = await saveNotificationToDB({
+      userId: doctor.userId.toString(),
+      type: "doctorAppointment",
+      appointmentId,
+      notificationSendTime: new Date().toISOString(),
+      notificationSendDate: new Date().toISOString(),
+      title: "Appointment Cancelled",
+      body: `The appointment with ${patient.fullName} on ${appointment.appointmentDate} from ${appointment.startTime} to ${appointment.endTime} has been cancelled by the administrator.${note ? ` Reason: ${note}` : ""}`,
+    });
+
+    console.log("🚀 ~ doctorRegistration.js:1855 ~ cancelAppointmentByAdmin ~ noti2:", noti2);
+
+    // Save notification for patient
+    // Notification.create(),
+
+    // Save notification for doctor
+    // Notification.create(),
 
     return successResponse(res, appointment, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
   } catch (error) {
@@ -2320,13 +2331,14 @@ export const getAllNotificationsToAll = async (req, res) => {
       notificationTypes = ["patientAppointment", "post"];
     } else if (user.type === 1) {
       // Doctor
-      notificationTypes = ["post", "doctorAppointment", "accountVerified"];
+      notificationTypes = ["doctorAppointment", "post", "accountVerified"];
     }
 
     const notifications = await Notification.find({
       userId,
       type: { $in: notificationTypes },
     }).sort({ createdAt: -1 });
+    console.log("🚀 ~ doctorRegistration.js:2398 ~ getAllNotificationsToAll ~ notifications:", notifications);
 
     return successResponse(res, notifications, "Notifications fetched successfully", "Notifications fetched successfully");
   } catch (error) {

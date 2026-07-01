@@ -1,14 +1,54 @@
+import { ENV } from "../constant/constant.js";
 import { Bleeding } from "../models/Dropdowns/bleedingDropdownModel.js";
 import { Spotting } from "../models/Dropdowns/spottingDropdownModel.js";
 import { Symptom } from "../models/Dropdowns/symptomsDropdownModel.js";
 import Notification from "../models/Notification/NotificationModel.js";
+import logger from "./loggerReport.js";
 
 // Helper to generate a standardized, readable timestamp string
 const getTimestamp = () => `[${new Date().toLocaleString()}]`;
+const env = ENV;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const notFoundResponse = (res, message, logMessage) => {
   if (logMessage) {
-    console.error(getTimestamp(), "ERROR::", logMessage);
+    logger.error(logMessage, {
+      statusCode: 404,
+      responseMessage: message,
+    });
   }
 
   return res.status(404).json({
@@ -19,7 +59,10 @@ export const notFoundResponse = (res, message, logMessage) => {
 
 export const badRequestResponse = (res, message, logMessage) => {
   if (logMessage) {
-    console.error(getTimestamp(), "BAD REQUEST:", logMessage);
+    logger.warn(logMessage, {
+      statusCode: 400,
+      responseMessage: message,
+    });
   }
 
   return res.status(400).json({
@@ -28,33 +71,66 @@ export const badRequestResponse = (res, message, logMessage) => {
   });
 };
 
-export const somethingWentWrong = (res, data, message, logMessage) => {
-  console.error(getTimestamp(), "SERVER CRASH DATA:", data, "| LOG:", logMessage);
+export const somethingWentWrong = (
+  res,
+  data,
+  message,
+  logMessage
+) => {
+  logger.error(logMessage || "Unhandled server error.", {
+    statusCode: 503,
+    responseMessage: message,
+    error: data,
+  });
+
   return res.status(503).json({
     success: false,
-    message: message,
-  });
-};
-
-export const successResponse = (res, data, message, logMessage, total) => {
-  if (logMessage) {
-    console.log(getTimestamp(), "SUCCESS:", logMessage);
-  }
-
-  const isArray = Array.isArray(data);
-
-  return res.status(200).json({
-    success: true,
-    length: isArray ? data.length : undefined,
-    data,
-    total: total,
     message,
   });
 };
 
-export const paginatedSuccessResponse = (res, data, page, limit, total, message, logMessage, hasMore) => {
+export const successResponse = (
+  res,
+  data,
+  message,
+  logMessage,
+  total
+) => {
   if (logMessage) {
-    console.log(getTimestamp(), "SUCCESS:", logMessage);
+    logger.info(logMessage, {
+      statusCode: 200,
+      total,
+      length: Array.isArray(data) ? data.length : undefined,
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    length: Array.isArray(data) ? data.length : undefined,
+    data,
+    total,
+    message,
+  });
+};
+
+export const paginatedSuccessResponse = (
+  res,
+  data,
+  page,
+  limit,
+  total,
+  message,
+  logMessage,
+  hasMore
+) => {
+  if (logMessage) {
+    logger.info(logMessage, {
+      statusCode: 200,
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      hasMore: !!hasMore,
+    });
   }
 
   return res.status(200).json({
@@ -67,15 +143,24 @@ export const paginatedSuccessResponse = (res, data, page, limit, total, message,
       totalPages: Math.ceil(total / limit),
       hasNextPage: page * limit < total,
       hasPrevPage: page > 1,
-      hasMore: hasMore ? true : false,
+      hasMore: !!hasMore,
     },
     message,
   });
 };
 
-export const alreadyExistResponse = (res, data, message, logMessage) => {
+export const alreadyExistResponse = (
+  res,
+  data,
+  message,
+  logMessage
+) => {
   if (logMessage) {
-    console.error(getTimestamp(), "CONFLICT:", logMessage);
+    logger.warn(logMessage, {
+      statusCode: 409,
+      responseMessage: message,
+      data,
+    });
   }
 
   return res.status(409).json({
@@ -84,6 +169,42 @@ export const alreadyExistResponse = (res, data, message, logMessage) => {
     message,
   });
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const checkValidGapBetweenPeriods = (previousDate, currentDate) => {
   const gapInDays = Math.floor((currentDate - previousDate) / (1000 * 60 * 60 * 24));
@@ -235,8 +356,6 @@ export const BD_CURRENT_DATE = new Intl.DateTimeFormat("en-CA", {
   day: "2-digit",
 }).format(new Date());
 
-
-
 export const getBDCurrentTime = () =>
   new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Dhaka",
@@ -255,3 +374,22 @@ export const getBDCurrentDate = () =>
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
+
+export const getCurrentTimestampLogger = () => {
+  const now = new Date();
+
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = Object.fromEntries(formatter.formatToParts(now).map(({ type, value }) => [type, value]));
+
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+};

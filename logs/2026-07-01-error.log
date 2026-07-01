@@ -1,0 +1,68 @@
+[2026-07-01 16:02:51] [ERROR] Unhandled server error.
+{
+  "statusCode": 503,
+  "responseMessage": "Something went wrong.",
+  "error": {
+    "errors": {
+      "notificationSendDate": {
+        "name": "ValidatorError",
+        "message": "Path `notificationSendDate` is required.",
+        "properties": {
+          "message": "Path `notificationSendDate` is required.",
+          "type": "required",
+          "path": "notificationSendDate"
+        },
+        "kind": "required",
+        "path": "notificationSendDate"
+      },
+      "notificationSendTime": {
+        "name": "ValidatorError",
+        "message": "Path `notificationSendTime` is required.",
+        "properties": {
+          "message": "Path `notificationSendTime` is required.",
+          "type": "required",
+          "path": "notificationSendTime"
+        },
+        "kind": "required",
+        "path": "notificationSendTime"
+      }
+    },
+    "_message": "Notification validation failed",
+    "name": "ValidationError",
+    "message": "Notification validation failed: notificationSendDate: Path `notificationSendDate` is required., notificationSendTime: Path `notificationSendTime` is required."
+  }
+}
+[2026-07-01 16:13:08] [ERROR] Unhandled server error.
+{
+  "statusCode": 503,
+  "responseMessage": "Something went wrong.",
+  "error": {
+    "errors": {
+      "notificationSendDate": {
+        "name": "ValidatorError",
+        "message": "Path `notificationSendDate` is required.",
+        "properties": {
+          "message": "Path `notificationSendDate` is required.",
+          "type": "required",
+          "path": "notificationSendDate"
+        },
+        "kind": "required",
+        "path": "notificationSendDate"
+      },
+      "notificationSendTime": {
+        "name": "ValidatorError",
+        "message": "Path `notificationSendTime` is required.",
+        "properties": {
+          "message": "Path `notificationSendTime` is required.",
+          "type": "required",
+          "path": "notificationSendTime"
+        },
+        "kind": "required",
+        "path": "notificationSendTime"
+      }
+    },
+    "_message": "Notification validation failed",
+    "name": "ValidationError",
+    "message": "Notification validation failed: notificationSendDate: Path `notificationSendDate` is required., notificationSendTime: Path `notificationSendTime` is required."
+  }
+}

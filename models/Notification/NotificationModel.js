@@ -30,17 +30,7 @@ const notificationSchema = new mongoose.Schema(
       type: String,
     },
 
-    notificationSendTime: {
-      type: String,
-      required: true,
-      index: true,
-    },
 
-    notificationSendDate: {
-      type: String,
-      required: true,
-      index: true,
-    },
 
     body: {
       type: String,
@@ -80,6 +70,18 @@ const notificationSchema = new mongoose.Schema(
     isRead: {
       type: Boolean,
       default: false,
+    },
+
+    notificationSendTime: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
+    notificationSendDate: {
+      type: String,
+      required: true,
+      index: true,
     },
 
     autoReminderLimit: {
