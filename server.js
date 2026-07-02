@@ -42,9 +42,9 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "https://pinklifelinebackend.shiftingglobal.com",
+      "https://chimerical-cocada-1ab025.netlify.app",
+      // "https://pinklifelinebackend.shiftingglobal.com",
       "http://localhost:5173",
-      "https://chimerical-cocada-1ab025.netlify.app"
     ],
     credentials: true,
   })

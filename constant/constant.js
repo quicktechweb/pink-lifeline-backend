@@ -42,7 +42,7 @@ export const MONTH_ORDER = [
 
 export const AVERAGE_PERIOD_DURATION = 5;
 export const POST_MENSTRUAL_INTERVAL=10
-export const ENV = "dev" 
-// export const ENV = "prod" 
+// export const ENV = "dev" 
+export const ENV = "prod" 
 
 export const STATIC_TIME_FOR_SEND_NOTI_AT_TODAY = "06:00"
