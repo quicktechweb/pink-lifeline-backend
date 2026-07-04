@@ -1994,7 +1994,7 @@ export const loginByAdmin = async (req, res) => {
       .cookie("accessToken", token, {
         httpOnly: true,
         secure: ENV === "prod" ? true : false,
-        // sameSite: "lax", // or "lax"
+        sameSite:ENV === "prod" ? "none" : "lax", // or "lax"
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       })
       .status(200)
