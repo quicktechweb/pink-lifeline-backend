@@ -22,12 +22,10 @@ import verifyToken from "./middleware/jwt.js";
 import User from "./models/DoctorRegistration/DoctorRegistration.js";
 
 
-dns.setServers(["8.8.8.8", "8.8.4.4"]);
+// dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 dotenv.config();
 const app = express();
-app.use(cookieParser());
-
 // app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 // app.use(
@@ -45,13 +43,15 @@ app.use(
       "https://chimerical-cocada-1ab025.netlify.app",
       // "https://pinklifelinebackend.shiftingglobal.com",
       "http://localhost:5173",
-      "https://chimerical-cocada-1ab025.netlify.app/"
+      "https://chimerical-cocada-1ab025.netlify.app/",
+      "https://reliable-macaron-47a272.netlify.app/"
       
     ],
     credentials: true,
   })
 );
 
+app.use(cookieParser());
 
 // app.use(cors());
 
