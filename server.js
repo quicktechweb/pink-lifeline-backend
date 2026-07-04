@@ -43,8 +43,8 @@ app.use(
       "https://chimerical-cocada-1ab025.netlify.app",
       // "https://pinklifelinebackend.shiftingglobal.com",
       "http://localhost:5173",
-      "https://chimerical-cocada-1ab025.netlify.app/",
-      "https://reliable-macaron-47a272.netlify.app/"
+      "https://chimerical-cocada-1ab025.netlify.app",
+      "https://reliable-macaron-47a272.netlify.app"
       
     ],
     credentials: true,
