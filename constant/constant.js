@@ -1,5 +1,5 @@
-export const ENV = "dev" 
-// export const ENV = "prod" 
+// export const ENV = "dev" 
+export const ENV = "prod" 
 
 export const DayMap = {
   1: "mon",
