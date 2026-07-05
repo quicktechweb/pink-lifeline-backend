@@ -1017,12 +1017,23 @@ export const completeAppointmentByUser = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
 export const cancelAppointmentByUser = async (req, res) => {
   const { userId } = req.params;
   const { appointmentId } = req.body;
+  console.log("🚀 ~ userController.js:888 ~ cancelAppointmentByUser ~ userId:", req.body)
+  console.log("🚀 ~ userController.js:888 ~ cancelAppointmentByUser ~ userId:", req.params)
 
   try {
     const appointment = await Appointment.findById(appointmentId);
+
 
     if (!appointment || appointment.isDeleted) {
       return res.status(400).json({
@@ -1110,6 +1121,13 @@ export const cancelAppointmentByUser = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
+
+
+
+
+
+
+
 
 export const rateDoctorByUser = async (req, res) => {
   const { userId } = req.params;
