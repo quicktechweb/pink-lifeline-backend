@@ -2403,49 +2403,134 @@ export const markNotificationAsRead = async (req, res) => {
   }
 };
 
+// export const getDoctorUpcomingAppointments = async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+
+//     const { date, page = 1, limit = 10, search = "" } = req.body;
+
+//     const parsedPage = Math.max(parseInt(page), 1);
+//     const parsedLimit = Math.max(parseInt(limit), 1);
+
+//     // Base filter
+//     const appointmentFilter = {
+//       doctorUserId: userId,
+//       appointmentDate: date,
+//       isDeleted: false,
+//       status: "confirmed",
+//     };
+
+//     // Fetch all appointments for that date
+//     const appointments = await Appointment.find(appointmentFilter).lean();
+
+//     if (!appointments.length) {
+//       return successResponse(
+//         res,
+//         {
+//           appointments: [],
+//           pagination: {
+//             page: parsedPage,
+//             limit: parsedLimit,
+//             totalAppointments: 0,
+//             totalPages: 0,
+//             hasNextPage: false,
+//             hasPreviousPage: false,
+//           },
+//         },
+//         "No appointments found.",
+//         "Appointments fetched successfully.",
+//       );
+//     }
+
+//     // Collect all patient ids
+//     const patientIds = [...new Set(appointments.map((a) => a.userId))];
+
+//     // Fetch all patients in one query
+//     const users = await User.find({
+//       userId: { $in: patientIds },
+//     }).lean();
+
+//     const userMap = {};
+
+//     users.forEach((user) => {
+//       userMap[user.userId] = user;
+//     });
+
+//     // Attach patient info
+//     let mergedAppointments = appointments.map((appointment) => ({
+//       ...appointment,
+//       patient: userMap[appointment.userId] || null,
+//     }));
+
+//     // Search
+//     if (search.trim()) {
+//       const keyword = search.toLowerCase();
+
+//       mergedAppointments = mergedAppointments.filter((item) => {
+//         const patient = item.patient;
+
+//         if (!patient) return false;
+
+//         return patient.fullName?.toLowerCase().includes(keyword) || patient.email?.toLowerCase().includes(keyword) || patient.phoneNumber?.toLowerCase().includes(keyword) || patient.userId?.toLowerCase().includes(keyword);
+//       });
+//     }
+
+//     // Sort by start time
+//     mergedAppointments.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+//     // Pagination
+//     const totalAppointments = mergedAppointments.length;
+
+//     const paginatedAppointments = mergedAppointments.slice((parsedPage - 1) * parsedLimit, parsedPage * parsedLimit);
+
+//     return successResponse(
+//       res,
+//       {
+//         appointments: paginatedAppointments,
+//         pagination: {
+//           page: parsedPage,
+//           limit: parsedLimit,
+//           totalAppointments,
+//           totalPages: Math.ceil(totalAppointments / parsedLimit),
+//           hasNextPage: parsedPage * parsedLimit < totalAppointments,
+//           hasPreviousPage: parsedPage > 1,
+//         },
+//       },
+//       "Appointments fetched successfully.",
+//       "Appointments fetched successfully.",
+//     );
+//   } catch (error) {
+//     console.error(error);
+
+//     return somethingWentWrong(res, error, "Failed to fetch appointments", "Failed to fetch appointments");
+//   }
+// };
+
+
+
 export const getDoctorUpcomingAppointments = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const { date, page = 1, limit = 10, search = "" } = req.body;
-
-    const parsedPage = Math.max(parseInt(page), 1);
-    const parsedLimit = Math.max(parseInt(limit), 1);
-
-    // Base filter
-    const appointmentFilter = {
+    const appointments = await Appointment.find({
       doctorUserId: userId,
-      appointmentDate: date,
       isDeleted: false,
       status: "confirmed",
-    };
-
-    // Fetch all appointments for that date
-    const appointments = await Appointment.find(appointmentFilter).lean();
+    })
+      .sort({ appointmentDate: 1, startTime: 1 })
+      .lean();
 
     if (!appointments.length) {
       return successResponse(
         res,
-        {
-          appointments: [],
-          pagination: {
-            page: parsedPage,
-            limit: parsedLimit,
-            totalAppointments: 0,
-            totalPages: 0,
-            hasNextPage: false,
-            hasPreviousPage: false,
-          },
-        },
+        [],
         "No appointments found.",
         "Appointments fetched successfully.",
       );
     }
 
-    // Collect all patient ids
     const patientIds = [...new Set(appointments.map((a) => a.userId))];
 
-    // Fetch all patients in one query
     const users = await User.find({
       userId: { $in: patientIds },
     }).lean();
@@ -2456,52 +2541,25 @@ export const getDoctorUpcomingAppointments = async (req, res) => {
       userMap[user.userId] = user;
     });
 
-    // Attach patient info
-    let mergedAppointments = appointments.map((appointment) => ({
+    const mergedAppointments = appointments.map((appointment) => ({
       ...appointment,
       patient: userMap[appointment.userId] || null,
     }));
 
-    // Search
-    if (search.trim()) {
-      const keyword = search.toLowerCase();
-
-      mergedAppointments = mergedAppointments.filter((item) => {
-        const patient = item.patient;
-
-        if (!patient) return false;
-
-        return patient.fullName?.toLowerCase().includes(keyword) || patient.email?.toLowerCase().includes(keyword) || patient.phoneNumber?.toLowerCase().includes(keyword) || patient.userId?.toLowerCase().includes(keyword);
-      });
-    }
-
-    // Sort by start time
-    mergedAppointments.sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-    // Pagination
-    const totalAppointments = mergedAppointments.length;
-
-    const paginatedAppointments = mergedAppointments.slice((parsedPage - 1) * parsedLimit, parsedPage * parsedLimit);
-
     return successResponse(
       res,
-      {
-        appointments: paginatedAppointments,
-        pagination: {
-          page: parsedPage,
-          limit: parsedLimit,
-          totalAppointments,
-          totalPages: Math.ceil(totalAppointments / parsedLimit),
-          hasNextPage: parsedPage * parsedLimit < totalAppointments,
-          hasPreviousPage: parsedPage > 1,
-        },
-      },
+      mergedAppointments,
       "Appointments fetched successfully.",
       "Appointments fetched successfully.",
     );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Failed to fetch appointments", "Failed to fetch appointments");
+    return somethingWentWrong(
+      res,
+      error,
+      "Failed to fetch appointments",
+      "Failed to fetch appointments",
+    );
   }
 };
