@@ -194,21 +194,6 @@ export const getUserDoctorWishList = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getAllDoctors = async (req, res) => {
   try {
     const doctors = await User.find({
@@ -230,18 +215,6 @@ export const getAllDoctors = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to get doctors.", "Get all doctors error");
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const userBookingAppointment = (req, res) => {
   try {
@@ -532,7 +505,7 @@ export const editAppointment = async (req, res) => {
     if (endTime) updates.endTime = resolvedEnd;
 
     const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: updates }, { new: true, runValidators: true });
-    console.log("🚀 ~ userController.js:507 ~ editAppointment ~ updated:", updated._id)
+    console.log("🚀 ~ userController.js:507 ~ editAppointment ~ updated:", updated._id);
 
     // For the User
     const notificationToUser = await sendNotificationToUser({
@@ -1017,23 +990,23 @@ export const completeAppointmentByUser = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
 export const cancelAppointmentByUser = async (req, res) => {
-  const { userId } = req.params;
-  const { appointmentId } = req.body;
-  console.log("🚀 ~ userController.js:888 ~ cancelAppointmentByUser ~ userId:", req.body)
-  console.log("🚀 ~ userController.js:888 ~ cancelAppointmentByUser ~ userId:", req.params)
+  // Accept values from params, body or query
+  const requestData = {
+    userId: req.params.userId ?? req.body.userId ?? req.query.userId,
 
+    appointmentId: req.body.appointmentId ?? req.params.appointmentId ?? req.query.appointmentId,
+  };
+
+  const { userId, appointmentId } = requestData;
+
+  console.log("🚀 requestData:", requestData);
+  console.log("🚀 body:", req.body);
+  console.log("🚀 params:", req.params);
+  console.log("🚀 query:", req.query);
+  
   try {
     const appointment = await Appointment.findById(appointmentId);
-
 
     if (!appointment || appointment.isDeleted) {
       return res.status(400).json({
@@ -1121,13 +1094,6 @@ export const cancelAppointmentByUser = async (req, res) => {
     return somethingWentWrong(res, error, "Something went wrong.");
   }
 };
-
-
-
-
-
-
-
 
 export const rateDoctorByUser = async (req, res) => {
   const { userId } = req.params;
@@ -1351,7 +1317,7 @@ export const getUserInspectsDetails = async (req, res) => {
       return notFoundResponse(res, "User not found.", "User not found.");
     }
 
-    const [voteStats, totalComments, totalReplies, periodInsights,periodSixMonthInsights, previousPeriods] = await Promise.all([
+    const [voteStats, totalComments, totalReplies, periodInsights, periodSixMonthInsights, previousPeriods] = await Promise.all([
       Vote.aggregate([
         {
           $match: {
@@ -1582,12 +1548,9 @@ export const getUserSpecificAllAppointments = async (req, res) => {
   }
 };
 
-
-
-
 export const getUserSpecificAppointmentDetailsByPatient = async (req, res) => {
   try {
-    const {  appointmentId } = req.params;
+    const { appointmentId } = req.params;
     const appointment = await Appointment.findById(appointmentId).lean();
     if (!appointment) {
       return notFoundResponse(res, "Appointment not found.", "Appointment not found.");
@@ -1603,15 +1566,13 @@ export const getUserSpecificAppointmentDetailsByPatient = async (req, res) => {
         doctor,
       },
       "User appointment details fetched successfully.",
-      "User appointment details fetched successfully."
+      "User appointment details fetched successfully.",
     );
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error);
     return somethingWentWrong(res, error, "Something went wrong.");
   }
-}
-
+};
 
 export const getUserSpecificAppointmentsByAdmin = async (req, res) => {
   try {
