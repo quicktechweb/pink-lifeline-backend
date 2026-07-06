@@ -46,6 +46,16 @@ const appointmentSchema = new mongoose.Schema(
       max: 5,
     },
 
+    isRated: {
+      type: Boolean,
+      default: false,
+    },
+
+    review: {
+      type: String,
+      default: "",
+    },
+
     cancelledBy: {
       type: String,
       enum: ["user", "doctor", "admin", null],

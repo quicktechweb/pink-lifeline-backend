@@ -13,7 +13,7 @@ router.post("/login", loginUser);
 
 
 
-router.post("/save-fcm-token/:userId",saveFCMToken)
+router.post("/save-fcm-token/:userId",isUserExist,saveFCMToken)
 
 
 router.post("/update-profile/:userId",uploadImage.fields([{ name: "doctorIdCard", maxCount: 1 },{ name: "profilePhoto", maxCount: 1 },]),isUserExist,updateProfile);

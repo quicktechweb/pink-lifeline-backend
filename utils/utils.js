@@ -335,7 +335,6 @@ export const generateToken = (user) => {
 export const saveNotificationToDB = async (notification) => {
   const newNotification = new Notification(notification);
   const response = await newNotification.save();
-  console.log("🚀 ~ utils.js:222 ~ saveNotificationToDB ~ respone:", response);
   return response;
 };
 

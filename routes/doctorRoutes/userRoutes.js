@@ -24,7 +24,7 @@ router.post("/v2/get-user-appointments/:userId", isUserExist, getUserAppointment
 router.post("/v1/get-daily-schedule-by-user/:doctorUserid", getDailyScheduleByUser);
 
 
-router.post("/v1/complete-appointment-by-user/:appointmentId",completeAppointmentByUser);
+router.post("/v1/complete-appointment-by-user/:userId",isUserExist,completeAppointmentByUser);
 // router.post("/v1/cancel-appointment-by-user/:appointmentId", deleteAppointment);
 router.post("/v1/rate-doctor-by-user/:userId", isUserExist, rateDoctorByUser);
 
@@ -40,5 +40,6 @@ router.post("/v1/get-user-specific-appointments-by-admin/:userId",isUserExist,ge
 router.get("/v1/get-user-booked-appointments-by-admin/:userId",isUserExist,getUserSpecificAppointmentsByAdmin)
 
 router.get("/v1/get-doctor-appointment-details/:appointmentId",getUserSpecificAppointmentDetailsByPatient)
+router.post("/v1/complete-appointment-by-admin/:userId",isUserExist,completeAppointmentByUser);
 
 export default router;

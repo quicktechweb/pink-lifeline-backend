@@ -2338,7 +2338,7 @@ export const getAllNotificationsToAll = async (req, res) => {
       userId,
       type: { $in: notificationTypes },
     }).sort({ createdAt: -1 });
-    console.log("🚀 ~ doctorRegistration.js:2398 ~ getAllNotificationsToAll ~ notifications:", notifications);
+    // console.log("🚀 ~ doctorRegistration.js:2398 ~ getAllNotificationsToAll ~ notifications:", notifications);
 
     return successResponse(res, notifications, "Notifications fetched successfully", "Notifications fetched successfully");
   } catch (error) {

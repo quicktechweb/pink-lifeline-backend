@@ -993,9 +993,9 @@ export const completeAppointmentByUser = async (req, res) => {
 export const cancelAppointmentByUser = async (req, res) => {
   // Accept values from params, body or query
   const requestData = {
-    userId: req.params.userId ?? req.body.userId ?? req.query.userId,
+    userId: req.params.userId,
 
-    appointmentId: req.body.appointmentId ?? req.params.appointmentId ?? req.query.appointmentId,
+    appointmentId: req.body.appointmentId,
   };
 
   const { userId, appointmentId } = requestData;
@@ -1004,7 +1004,9 @@ export const cancelAppointmentByUser = async (req, res) => {
   console.log("🚀 body:", req.body);
   console.log("🚀 params:", req.params);
   console.log("🚀 query:", req.query);
-  
+
+  // process.exit(0);
+
   try {
     const appointment = await Appointment.findById(appointmentId);
 
@@ -1113,6 +1115,8 @@ export const rateDoctorByUser = async (req, res) => {
       {
         $set: {
           rating: rating,
+          review: review || "",
+          isRated: true,
         },
       },
       {
@@ -1155,7 +1159,7 @@ export const rateDoctorByUser = async (req, res) => {
         },
       },
     ]);
-    console.log("🚀 ~ userController.js:994 ~ rateDoctorByUser ~ ratingStats:", ratingStats);
+    // console.log("🚀 ~ userController.js:994 ~ rateDoctorByUser ~ ratingStats:", ratingStats);
 
     const user = await User.findOne({ userId });
 
@@ -1178,7 +1182,8 @@ export const rateDoctorByUser = async (req, res) => {
           doctorName: doctor.fullName,
           doctorProfilePhoto: doctor.profilePhoto,
           userId,
-          review: review,
+          isRated: true,
+          review: review || "",
           hospitalName: doctor.currentWorkplace,
           doctorLocation: doctor.location,
           appointmentId: appointment._id,

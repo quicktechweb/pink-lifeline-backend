@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { uploadToImageBB } from "../../config/uploadToImageBB.js";
 import { Post } from "../../models/Community/PostModel.js";
-import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, notFoundResponse, paginatedSuccessResponse, saveNotificationToDB, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, getBDCurrentDate, getBDCurrentTime, notFoundResponse, paginatedSuccessResponse, saveNotificationToDB, somethingWentWrong, successResponse } from "../../utils/utils.js";
 import User from "./../../models/DoctorRegistration/DoctorRegistration.js";
 import { Vote } from "../../models/Community/VoteModel.js";
 import { Comment } from "../../models/Community/CommentModel.js";
@@ -675,6 +675,10 @@ export const postComment = async (req, res) => {
   }
 };
 
+
+
+
+
 export const getSinglePost = async (req, res) => {
   const { userId } = req.params;
   const { postId } = req.body;
@@ -769,6 +773,9 @@ export const getSinglePost = async (req, res) => {
     return somethingWentWrong(res, error, "Unable to fetch post.", "Unable to fetch post.");
   }
 };
+
+
+
 
 export const commentDownVote = async (req, res) => {
   const userId = req.params.userId;
@@ -1410,6 +1417,65 @@ export const deletePost = async (req, res) => {
     return somethingWentWrong(res, error, "Failed to delete post.", "Delete post error");
   }
 };
+
+export const deletePostByAdmin = async (req, res) => {
+  const { userId, postId } = req.params;
+
+  try {
+    if (!postId) {
+      return badRequestResponse(res, "Post not found.", "Post id is missing.");
+    }
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return notFoundResponse(res, "Post not found.", `No post found with id: ${postId}`);
+    }
+
+    if (String(post.userId) !== String(userId)) {
+      return badRequestResponse(res, "Unauthorized action.", `User ${userId} does not own post ${postId}`);
+    }
+
+    const deletedPost = await Post.findByIdAndDelete(postId);
+
+    if (!deletedPost) {
+      return notFoundResponse(res, "Post not found.", `No post found with id: ${postId}`);
+    }else{
+      const notification = await sendNotificationToUser({
+        userId: post.userId,
+        type: "post",
+        data: postId,
+        postId: postId,
+        title: "Your post has been deleted by admin.",
+        body: `Your post '${post.title}' has been deleted by admin. Please contact support for more information.`,
+      })
+      console.log("🚀 ~ community.js:1445 ~ deletePostByAdmin ~ notification:", notification)
+
+      if(notification.success) {
+        await saveNotificationToDB({
+          userId: post.userId,
+          type: "post",
+          data: postId,
+          postId: postId,
+          title: "Your post has been deleted by admin.",
+          body: `Your post '${post.title}' has been deleted by admin. Please contact support for more information.`,
+          notificationSendTime: getBDCurrentTime(),
+          notificationSendDate: getBDCurrentDate(),
+        })      
+      }else{
+        console.log("Failed to send notification to user:", post.userId);
+      }
+
+    }
+
+    return successResponse(res, deletedPost, "Post deleted successfully.", `Deleted post id: ${postId}`);
+  } catch (error) {
+    console.error(error);
+
+    return somethingWentWrong(res, error, "Failed to delete post.", "Delete post error");
+  }
+};
+
 
 export const getSearchedResults = async (req, res) => {
   const { query } = req.params;
