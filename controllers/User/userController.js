@@ -20,6 +20,19 @@ export const updateUserProfile = async (req, res) => {
     const { userId } = req.params;
 
     const { fullName, notificationPreferenceDate, email, phoneNumber, autoReminderLimit, notificationPreferenceTime, dateOfBirth } = req.body;
+    console.log("🚀 ~ userController.js:23 ~ updateUserProfile ~ dateOfBirth:", dateOfBirth)
+    console.log("🚀 ~ userController.js:23 ~ updateUserProfile ~ autoReminderLimit:", autoReminderLimit)
+    console.log("🚀 ~ userController.js:23 ~ updateUserProfile ~ notificationPreferenceTime:", notificationPreferenceTime)
+
+    const bdTime = new Date(notificationPreferenceTime).toLocaleTimeString("en-BD", {
+      timeZone: "Asia/Dhaka",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // Set to true if you want AM/PM
+    });
+
+    console.log(bdTime); // 13:00:00
+
 
     const updateData = {};
 
@@ -39,10 +52,39 @@ export const updateUserProfile = async (req, res) => {
       updateData.autoReminderLimit = autoReminderLimit;
     }
 
-    if (notificationPreferenceTime !== undefined) {
-      const date = new Date(notificationPreferenceTime);
-      updateData.notificationPreferenceTime = date.toISOString().substring(11, 16);
+if (notificationPreferenceTime !== undefined) {
+  const date = new Date(notificationPreferenceTime);
+
+  const bdTime = date.toLocaleTimeString("en-BD", {
+    timeZone: "Asia/Dhaka",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+
+  updateData.notificationPreferenceTime = bdTime;
+
+  await Notification.updateMany(
+    {
+      userId,
+      type: {
+        $in: [
+          "periodDateStart",
+          "periodDateEnd",
+          "missedSelfTest",
+          "accountVerified",
+        ],
+      },
+    },
+    {
+      $set: {
+        notificationSendTime: bdTime,
+      },
     }
+  );
+
+
+}
 
     if (dateOfBirth !== undefined) {
       updateData.dateOfBirth = dateOfBirth;
