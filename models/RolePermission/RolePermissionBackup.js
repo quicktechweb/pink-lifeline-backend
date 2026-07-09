@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const roleSchema = new mongoose.Schema(
   {
@@ -7,17 +7,17 @@ const roleSchema = new mongoose.Schema(
       required: true,
       trim: true,
       enum: [
-        "superadmin",
-        "admin", 
-        "communitymodarator",
-        "appointmentmanager",
-        "doctormanager",
+        'superadmin',
+        'admin',
+        'communitymodarator',
+        'appointmentmanager',
+        'doctormanager',
       ],
     },
     routeJSON: {
       type: String,
       required: true,
-      default: "[]",
+      default: '[]',
     },
   },
   {
@@ -25,6 +25,6 @@ const roleSchema = new mongoose.Schema(
   }
 );
 
-const RoleBackup = mongoose.model("RoleBackup", roleSchema);
+const RoleBackup = mongoose.model('RoleBackup', roleSchema);
 
 export default RoleBackup;
