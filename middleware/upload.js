@@ -28,7 +28,6 @@
 //   });
 //   export default uploadVideo;
 
-
 //   export const uploadImage = multer({
 //   storage,
 
@@ -51,33 +50,6 @@
 //     }
 //   },
 // });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import axios from "axios";
 // import FormData from "form-data";
@@ -124,23 +96,10 @@
 //   }
 // };
 
+import multer from 'multer';
 
-
-
-
-
-
-
-
-
-
-
-import multer from "multer";
-
-
-
-import cloudinary from "./../config/cloudinary.js";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from './../config/cloudinary.js';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
 /**
  * Memory storage for image uploads
@@ -151,40 +110,31 @@ const storage = multer.memoryStorage();
  * Image upload middleware
  */
 
+export const uploadImage = multer({
+  storage,
 
-    export const uploadImage = multer({
-      storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
 
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
+  fileFilter: (req, file, cb) => {
+    const allowed = [
+      'image/jpeg',
+      'image/png',
+      'image/jpg',
+      'image/webp',
+      'application/octet-stream',
+      'image/heic',
+      'image/heif',
+    ];
 
-      fileFilter: (req, file, cb) => {
-        const allowed = [
-          "image/jpeg",
-          "image/png",
-          "image/jpg",
-          "image/webp",
-          "application/octet-stream",
-          "image/heic",
-          "image/heif",
-        ];
-
-        if (allowed.includes(file.mimetype)) {
-          cb(null, true);
-        } else {
-          cb(new Error("Invalid image type"));
-        }
-
-      },
-    });
-
-
-
-
-
-
-
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid image type'));
+    }
+  },
+});
 
 /**
  * Cloudinary video storage
@@ -193,13 +143,10 @@ const videoStorage = new CloudinaryStorage({
   cloudinary,
 
   params: {
-    folder: "self-test-videos",
-    resource_type: "video",
+    folder: 'self-test-videos',
+    resource_type: 'video',
   },
 });
-
-
-
 
 /**
  * Video upload middleware

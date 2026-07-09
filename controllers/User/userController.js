@@ -1,38 +1,75 @@
-import mongoose from "mongoose";
-import { uploadToImageBB } from "../../config/uploadToImageBB.js";
-import { DayMap, ENV } from "../../constant/constant.js";
-import { Comment } from "../../models/Community/CommentModel.js";
-import { Post } from "../../models/Community/PostModel.js";
-import User from "../../models/DoctorRegistration/DoctorRegistration.js";
-import DoctorRatingModel from "../../models/Rating/DoctorRatingModel.js";
-import { ExceptionalDays, WeeklyDays } from "../../models/Schedule/doctorSchedule.js";
-import { Appointment } from "../../models/Schedule/userBooking.js";
-import { sendNotificationToUser } from "../../services/notificationService.js";
-import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, convertTo24Hour, formatQuantityNumber, isValid24h, notFoundResponse, saveNotificationToDB, somethingWentWrong, successResponse, toMinutes } from "../../utils/utils.js";
-import { Vote } from "../../models/Community/VoteModel.js";
-import { getPeriodBasicInsightsService, getPeriodBasicInsightsServiceV2 } from "../../services/periodTrackService.js";
-import { previousPeriodsInfoService } from "../Period/trackPeriod/trackPeriod.js";
-import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
-import Notification from "../../models/Notification/NotificationModel.js";
+import mongoose from 'mongoose';
+import { uploadToImageBB } from '../../config/uploadToImageBB.js';
+import { DayMap, ENV } from '../../constant/constant.js';
+import { Comment } from '../../models/Community/CommentModel.js';
+import { Post } from '../../models/Community/PostModel.js';
+import User from '../../models/DoctorRegistration/DoctorRegistration.js';
+import DoctorRatingModel from '../../models/Rating/DoctorRatingModel.js';
+import {
+  ExceptionalDays,
+  WeeklyDays,
+} from '../../models/Schedule/doctorSchedule.js';
+import { Appointment } from '../../models/Schedule/userBooking.js';
+import { sendNotificationToUser } from '../../services/notificationService.js';
+import {
+  badRequestResponse,
+  BD_CURRENT_DATE,
+  BD_CURRENT_TIME,
+  convertTo24Hour,
+  formatQuantityNumber,
+  isValid24h,
+  notFoundResponse,
+  saveNotificationToDB,
+  somethingWentWrong,
+  successResponse,
+  toMinutes,
+} from '../../utils/utils.js';
+import { Vote } from '../../models/Community/VoteModel.js';
+import {
+  getPeriodBasicInsightsService,
+  getPeriodBasicInsightsServiceV2,
+} from '../../services/periodTrackService.js';
+import { previousPeriodsInfoService } from '../Period/trackPeriod/trackPeriod.js';
+import { UserSelfTest } from '../../models/SelfTest/selfTestUserMode.js';
+import Notification from '../../models/Notification/NotificationModel.js';
 
 export const updateUserProfile = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const { fullName, notificationPreferenceDate, email, phoneNumber, autoReminderLimit, notificationPreferenceTime, dateOfBirth } = req.body;
-    console.log("🚀 ~ userController.js:23 ~ updateUserProfile ~ dateOfBirth:", dateOfBirth)
-    console.log("🚀 ~ userController.js:23 ~ updateUserProfile ~ autoReminderLimit:", autoReminderLimit)
-    console.log("🚀 ~ userController.js:23 ~ updateUserProfile ~ notificationPreferenceTime:", notificationPreferenceTime)
+    const {
+      fullName,
+      notificationPreferenceDate,
+      email,
+      phoneNumber,
+      autoReminderLimit,
+      notificationPreferenceTime,
+      dateOfBirth,
+    } = req.body;
+    console.log(
+      '🚀 ~ userController.js:23 ~ updateUserProfile ~ dateOfBirth:',
+      dateOfBirth
+    );
+    console.log(
+      '🚀 ~ userController.js:23 ~ updateUserProfile ~ autoReminderLimit:',
+      autoReminderLimit
+    );
+    console.log(
+      '🚀 ~ userController.js:23 ~ updateUserProfile ~ notificationPreferenceTime:',
+      notificationPreferenceTime
+    );
 
-    const bdTime = new Date(notificationPreferenceTime).toLocaleTimeString("en-BD", {
-      timeZone: "Asia/Dhaka",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false, // Set to true if you want AM/PM
-    });
+    const bdTime = new Date(notificationPreferenceTime).toLocaleTimeString(
+      'en-BD',
+      {
+        timeZone: 'Asia/Dhaka',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false, // Set to true if you want AM/PM
+      }
+    );
 
     console.log(bdTime); // 13:00:00
-
 
     const updateData = {};
 
@@ -52,39 +89,37 @@ export const updateUserProfile = async (req, res) => {
       updateData.autoReminderLimit = autoReminderLimit;
     }
 
-if (notificationPreferenceTime !== undefined) {
-  const date = new Date(notificationPreferenceTime);
+    if (notificationPreferenceTime !== undefined) {
+      const date = new Date(notificationPreferenceTime);
 
-  const bdTime = date.toLocaleTimeString("en-BD", {
-    timeZone: "Asia/Dhaka",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  });
+      const bdTime = date.toLocaleTimeString('en-BD', {
+        timeZone: 'Asia/Dhaka',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
 
-  updateData.notificationPreferenceTime = bdTime;
+      updateData.notificationPreferenceTime = bdTime;
 
-  await Notification.updateMany(
-    {
-      userId,
-      type: {
-        $in: [
-          "periodDateStart",
-          "periodDateEnd",
-          "missedSelfTest",
-          "accountVerified",
-        ],
-      },
-    },
-    {
-      $set: {
-        notificationSendTime: bdTime,
-      },
+      await Notification.updateMany(
+        {
+          userId,
+          type: {
+            $in: [
+              'periodDateStart',
+              'periodDateEnd',
+              'missedSelfTest',
+              'accountVerified',
+            ],
+          },
+        },
+        {
+          $set: {
+            notificationSendTime: bdTime,
+          },
+        }
+      );
     }
-  );
-
-
-}
 
     if (dateOfBirth !== undefined) {
       updateData.dateOfBirth = dateOfBirth;
@@ -114,14 +149,19 @@ if (notificationPreferenceTime !== undefined) {
       {
         new: true,
         runValidators: true,
-      },
+      }
     );
 
-    return successResponse(res, updatedUser, "User profile updated successfully.", "User profile updated successfully.");
+    return successResponse(
+      res,
+      updatedUser,
+      'User profile updated successfully.',
+      'User profile updated successfully.'
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -137,7 +177,9 @@ export const addToWishList = async (req, res) => {
     });
 
     if (!isDoctorExist) {
-      return res.status(404).json({ success: false, message: "Doctor not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Doctor not found' });
     }
 
     const user = await User.findOne({
@@ -149,15 +191,25 @@ export const addToWishList = async (req, res) => {
     const exists = user.doctorWishList.includes(doctorUserId);
 
     if (exists) {
-      return successResponse(res, user, `Dr. ${isDoctorExist.fullName} is already in the wish list.`, `Dr. ${isDoctorExist.fullName} is already in the wish list.`);
+      return successResponse(
+        res,
+        user,
+        `Dr. ${isDoctorExist.fullName} is already in the wish list.`,
+        `Dr. ${isDoctorExist.fullName} is already in the wish list.`
+      );
     } else {
       user.doctorWishList.push(doctorUserId);
     }
 
     const updatedUser = await user.save();
-    return successResponse(res, updatedUser, "Wish list updated successfully.", "Wish list updated successfully.");
+    return successResponse(
+      res,
+      updatedUser,
+      'Wish list updated successfully.',
+      'Wish list updated successfully.'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -174,7 +226,9 @@ export const removeFromWishList = async (req, res) => {
     });
 
     if (!isDoctorExist) {
-      return res.status(404).json({ success: false, message: "Doctor not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Doctor not found' });
     }
 
     // 2. Find user
@@ -185,24 +239,37 @@ export const removeFromWishList = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
     }
 
     // 3. Check if doctor is in list
     const exists = user.doctorWishList.includes(doctorUserId);
     if (!exists) {
-      return badRequestResponse(res, `Dr. ${isDoctorExist.fullName} is not in your wish list.`, `Dr. ${isDoctorExist.fullName} is not in your wish list.`);
+      return badRequestResponse(
+        res,
+        `Dr. ${isDoctorExist.fullName} is not in your wish list.`,
+        `Dr. ${isDoctorExist.fullName} is not in your wish list.`
+      );
     }
 
     // 4. Remove from list
-    user.doctorWishList = user.doctorWishList.filter((id) => id !== doctorUserId);
+    user.doctorWishList = user.doctorWishList.filter(
+      (id) => id !== doctorUserId
+    );
 
     // 5. Save and return updated user
     const updatedUser = await user.save();
 
-    return successResponse(res, updatedUser, "Doctor removed from wish list successfully.", "Doctor removed from wish list successfully.");
+    return successResponse(
+      res,
+      updatedUser,
+      'Doctor removed from wish list successfully.',
+      'Doctor removed from wish list successfully.'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -213,12 +280,17 @@ export const getUserDoctorWishList = async (req, res) => {
     const user = await User.findOne({ userId, type: 0 }, { doctorWishList: 1 });
 
     if (!user) {
-      return notFoundResponse(res, "User not found.", "User not found.");
+      return notFoundResponse(res, 'User not found.', 'User not found.');
     }
 
     // If wishlist is empty
     if (!user.doctorWishList || user.doctorWishList.length === 0) {
-      return successResponse(res, [], "Wish list fetched successfully.", "Wish list fetched successfully.");
+      return successResponse(
+        res,
+        [],
+        'Wish list fetched successfully.',
+        'Wish list fetched successfully.'
+      );
     }
 
     const doctors = await User.find({
@@ -227,12 +299,19 @@ export const getUserDoctorWishList = async (req, res) => {
       isRemoved: false,
     })
       // .select("userId fullName email phoneNumber doctorRegistrationNumber currentWorkplace profilePhoto")
-      .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
+      .select(
+        'location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved'
+      )
       .lean();
 
-    return successResponse(res, doctors, "Wish list fetched successfully.", "Wish list fetched successfully.");
+    return successResponse(
+      res,
+      doctors,
+      'Wish list fetched successfully.',
+      'Wish list fetched successfully.'
+    );
   } catch (error) {
-    somethingWentWrong(res, error, "Something went wrong.");
+    somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -243,18 +322,34 @@ export const getAllDoctors = async (req, res) => {
       isVerified: true,
       $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
     })
-      .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
+      .select(
+        'location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved'
+      )
       .lean();
 
     if (!doctors.length) {
-      return notFoundResponse(res, "No doctors found.", "Get all doctors failed: empty result.");
+      return notFoundResponse(
+        res,
+        'No doctors found.',
+        'Get all doctors failed: empty result.'
+      );
     }
 
-    return successResponse(res, doctors, "Doctors retrieved successfully", "Get all doctors successful.");
+    return successResponse(
+      res,
+      doctors,
+      'Doctors retrieved successfully',
+      'Get all doctors successful.'
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Failed to get doctors.", "Get all doctors error");
+    return somethingWentWrong(
+      res,
+      error,
+      'Failed to get doctors.',
+      'Get all doctors error'
+    );
   }
 };
 
@@ -263,10 +358,15 @@ export const userBookingAppointment = (req, res) => {
     const { userId } = req.params;
     const payload = req.body;
 
-    return successResponse(res, payload, "Appointment created successfully.", "Appointment created successfully.");
+    return successResponse(
+      res,
+      payload,
+      'Appointment created successfully.',
+      'Appointment created successfully.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -286,7 +386,7 @@ export const getUserProfileInsights = async (req, res) => {
       {
         $group: {
           _id: null,
-          totalUpVotes: { $sum: "$upvote" },
+          totalUpVotes: { $sum: '$upvote' },
         },
       },
     ]);
@@ -301,22 +401,22 @@ export const getUserProfileInsights = async (req, res) => {
         totalComments,
         totalUpVotes,
       },
-      "User profile insights fetched successfully.",
-      "User profile insights fetched successfully.",
+      'User profile insights fetched successfully.',
+      'User profile insights fetched successfully.'
     );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, "Something went wrong.", error.message);
+    return somethingWentWrong(res, 'Something went wrong.', error.message);
   }
 };
 
 // controllers/appointmentController.js
 
 // ─── Helper: "YYYY-MM-DD" → "mon" | "tue" | ... ──────────────────────────────
-const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 function getDayKey(dateStr) {
-  const [year, month, day] = dateStr.split("-").map(Number);
+  const [year, month, day] = dateStr.split('-').map(Number);
   const d = new Date(Date.UTC(year, month - 1, day));
   return DAY_KEYS[d.getUTCDay()];
 }
@@ -325,25 +425,35 @@ function getDayKey(dateStr) {
 // Body: { userId, doctorUserId, appointmentDate, startTime, endTime, note? }
 export async function bookAppointment(req, res) {
   try {
-    let { userId, doctorUserId, appointmentDate, startTime, endTime, note } = req.body;
+    let { userId, doctorUserId, appointmentDate, startTime, endTime, note } =
+      req.body;
     startTime = convertTo24Hour(startTime);
     endTime = convertTo24Hour(endTime);
 
     // ── 1. Basic field check ──────────────────────────────────────────────────
-    if (!userId || !doctorUserId || !appointmentDate || !startTime || !endTime) {
+    if (
+      !userId ||
+      !doctorUserId ||
+      !appointmentDate ||
+      !startTime ||
+      !endTime
+    ) {
       return res.status(400).json({
         success: false,
-        message: ENV == "dev" ? "userId, doctorUserId, appointmentDate, startTime, endTime are required." : "Necessary fields are missing.",
+        message:
+          ENV == 'dev'
+            ? 'userId, doctorUserId, appointmentDate, startTime, endTime are required.'
+            : 'Necessary fields are missing.',
       });
     }
 
-    appointmentDate = new Date(appointmentDate).toISOString().split("T")[0];
+    appointmentDate = new Date(appointmentDate).toISOString().split('T')[0];
 
     // ── 2. Date format guard ──────────────────────────────────────────────────
     if (!/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
       return res.status(400).json({
         success: false,
-        message: "appointmentDate must be YYYY-MM-DD.",
+        message: 'appointmentDate must be YYYY-MM-DD.',
       });
     }
 
@@ -377,7 +487,7 @@ export async function bookAppointment(req, res) {
     if (!daySchedule || !daySchedule.isEnable) {
       return res.status(400).json({
         success: false,
-        message: "Doctor is not available on this date.",
+        message: 'Doctor is not available on this date.',
       });
     }
 
@@ -421,31 +531,39 @@ export async function bookAppointment(req, res) {
       appointmentDate,
       startTime,
       endTime,
-      status: { $in: ["pending", "confirmed"] },
+      status: { $in: ['pending', 'confirmed'] },
       isDeleted: false,
     }).lean();
 
     if (duplicate) {
       return res.status(409).json({
         success: false,
-        message: "You already have an active booking for this slot.",
+        message: 'You already have an active booking for this slot.',
       });
     }
 
-    const user = await User.findOne({ userId, type: 0, isRemoved: { $ne: true } });
-    console.log("🚀 ~ userController.js:439 ~ bookAppointment ~ user:", user);
+    const user = await User.findOne({
+      userId,
+      type: 0,
+      isRemoved: { $ne: true },
+    });
+    console.log('🚀 ~ userController.js:439 ~ bookAppointment ~ user:', user);
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found.",
+        message: 'User not found.',
       });
     }
 
-    const doctor = await User.findOne({ userId: doctorUserId, type: 1, isRemoved: { $ne: true } });
+    const doctor = await User.findOne({
+      userId: doctorUserId,
+      type: 1,
+      isRemoved: { $ne: true },
+    });
     if (!doctor) {
       return res.status(404).json({
         success: false,
-        message: "The doctor not found.",
+        message: 'The doctor not found.',
       });
     }
 
@@ -456,8 +574,8 @@ export async function bookAppointment(req, res) {
       appointmentDate,
       startTime,
       endTime,
-      note: note || "",
-      status: "pending",
+      note: note || '',
+      status: 'pending',
     });
 
     const response = {
@@ -468,14 +586,14 @@ export async function bookAppointment(req, res) {
 
     return res.status(201).json({
       success: true,
-      message: "Appointment booked successfully.",
+      message: 'Appointment booked successfully.',
       data: response,
     });
   } catch (err) {
-    console.error("[bookAppointment]", err);
+    console.error('[bookAppointment]', err);
     return res.status(500).json({
       success: false,
-      message: "Internal server error.",
+      message: 'Internal server error.',
     });
   }
 }
@@ -490,10 +608,19 @@ export const editAppointment = async (req, res) => {
       isDeleted: false,
     });
 
-    const doctor = await User.findOne({ userId: appointment.doctorUserId, type: 1, isRemoved: { $ne: true } });
+    const doctor = await User.findOne({
+      userId: appointment.doctorUserId,
+      type: 1,
+      isRemoved: { $ne: true },
+    });
 
     if (!doctor) {
-      return somethingWentWrong(res, null, "Unable to reschedule as doctor is no longer available now.", "Doctor not found in reschedule the user.");
+      return somethingWentWrong(
+        res,
+        null,
+        'Unable to reschedule as doctor is no longer available now.',
+        'Doctor not found in reschedule the user.'
+      );
     }
 
     const user = await User.findOne({
@@ -503,18 +630,22 @@ export const editAppointment = async (req, res) => {
     });
 
     if (!user) {
-      return badRequestResponse(res, "You are not authorized to reschedule the appointment.", "User not found in reschedule.");
+      return badRequestResponse(
+        res,
+        'You are not authorized to reschedule the appointment.',
+        'User not found in reschedule.'
+      );
     }
 
     if (!appointment) {
       return res.status(404).json({
         success: false,
-        message: "Appointment not found.",
+        message: 'Appointment not found.',
       });
     }
 
     // only pending appointments can be edited
-    if (appointment.status !== "pending") {
+    if (appointment.status !== 'pending') {
       return res.status(400).json({
         success: false,
         message: `Cannot edit a ${appointment.status} appointment.`,
@@ -529,13 +660,19 @@ export const editAppointment = async (req, res) => {
     //   return res.status(400).json({ success: false, message: "Invalid endTime format." });
     // }
 
-    const resolvedStart = isValid24h(startTime) ? startTime : isValid24h(endTime) ? startTime : convertTo24Hour(startTime) || convertTo24Hour(appointment.startTime);
-    const resolvedEnd = isValid24h(endTime) ? endTime : convertTo24Hour(endTime) || convertTo24Hour(appointment.endTime);
+    const resolvedStart = isValid24h(startTime)
+      ? startTime
+      : isValid24h(endTime)
+        ? startTime
+        : convertTo24Hour(startTime) || convertTo24Hour(appointment.startTime);
+    const resolvedEnd = isValid24h(endTime)
+      ? endTime
+      : convertTo24Hour(endTime) || convertTo24Hour(appointment.endTime);
 
     if (toMinutes(resolvedStart) >= toMinutes(resolvedEnd)) {
       return res.status(400).json({
         success: false,
-        message: "Start time must be before end time.",
+        message: 'Start time must be before end time.',
       });
     }
 
@@ -546,23 +683,30 @@ export const editAppointment = async (req, res) => {
     if (startTime) updates.startTime = resolvedStart;
     if (endTime) updates.endTime = resolvedEnd;
 
-    const updated = await Appointment.findByIdAndUpdate(appointmentId, { $set: updates }, { new: true, runValidators: true });
-    console.log("🚀 ~ userController.js:507 ~ editAppointment ~ updated:", updated._id);
+    const updated = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+    console.log(
+      '🚀 ~ userController.js:507 ~ editAppointment ~ updated:',
+      updated._id
+    );
 
     // For the User
     const notificationToUser = await sendNotificationToUser({
       userId: updated.userId,
-      title: "Appointment Rescheduled",
+      title: 'Appointment Rescheduled',
       body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-      type: "patientAppointment",
+      type: 'patientAppointment',
       appointmentId: updated._id.toString(),
     });
 
     const noti1 = await saveNotificationToDB({
       userId: updated.userId,
-      title: "Appointment Rescheduled",
+      title: 'Appointment Rescheduled',
       body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-      type: "patientAppointment",
+      type: 'patientAppointment',
       appointmentId: updated._id.toString(),
       autoReminderLimit: 1,
       notificationSendTime: BD_CURRENT_TIME,
@@ -572,27 +716,37 @@ export const editAppointment = async (req, res) => {
     // For the Doctor
     const notificationToDoctor = await sendNotificationToUser({
       userId: doctor.userId,
-      title: "Appointment Rescheduled",
+      title: 'Appointment Rescheduled',
       body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-      type: "doctorAppointment",
+      type: 'doctorAppointment',
       appointmentId: updated._id.toString(),
     });
 
     const noti2 = await saveNotificationToDB({
       userId: doctor.userId,
-      title: "Appointment Rescheduled",
+      title: 'Appointment Rescheduled',
       body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} has been rescheduled to ${updated.appointmentDate} at ${updated.startTime}.`,
-      type: "doctorAppointment",
+      type: 'doctorAppointment',
       appointmentId: updated._id.toString(),
       autoReminderLimit: 1,
       notificationSendTime: BD_CURRENT_TIME,
       notificationSendDate: BD_CURRENT_DATE,
     });
 
-    return successResponse(res, updated, "Appointment updated successfully.", "Appointment updated successfully.");
+    return successResponse(
+      res,
+      updated,
+      'Appointment updated successfully.',
+      'Appointment updated successfully.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.", "Something went wrong.");
+    return somethingWentWrong(
+      res,
+      error,
+      'Something went wrong.',
+      'Something went wrong.'
+    );
   }
 };
 
@@ -857,7 +1011,7 @@ export const getUserAppointments = async (req, res) => {
       if (!doctor) {
         return {
           ...appointment,
-          status: "cancelled",
+          status: 'cancelled',
           doctor: null,
         };
       }
@@ -868,10 +1022,15 @@ export const getUserAppointments = async (req, res) => {
       };
     });
 
-    return successResponse(res, enrichedAppointments, "Appointments retrieved successfully.", "Get appointments successful.");
+    return successResponse(
+      res,
+      enrichedAppointments,
+      'Appointments retrieved successfully.',
+      'Get appointments successful.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -916,7 +1075,7 @@ export const getUserAppointmentsByStatus = async (req, res) => {
       if (!doctor) {
         return {
           ...appointment,
-          status: "cancelled",
+          status: 'cancelled',
           doctor: null,
         };
       }
@@ -927,10 +1086,15 @@ export const getUserAppointmentsByStatus = async (req, res) => {
       };
     });
 
-    return successResponse(res, enrichedAppointments, "Appointments retrieved successfully.", "Get appointments successful.");
+    return successResponse(
+      res,
+      enrichedAppointments,
+      'Appointments retrieved successfully.',
+      'Get appointments successful.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -939,7 +1103,7 @@ export const getDailyScheduleByUser = async (req, res) => {
   const { date } = req.body;
   const day = new Date(date).getDay();
 
-  const dateStringWithoutTime = date.split("T")[0];
+  const dateStringWithoutTime = date.split('T')[0];
 
   try {
     const dayNumber = Number(day);
@@ -948,7 +1112,7 @@ export const getDailyScheduleByUser = async (req, res) => {
     if (!dayKey) {
       return res.status(400).json({
         success: false,
-        message: "Invalid day",
+        message: 'Invalid day',
       });
     }
 
@@ -957,7 +1121,7 @@ export const getDailyScheduleByUser = async (req, res) => {
     if (!isDoctorExist) {
       return res.status(404).json({
         success: false,
-        message: "Doctor not found.",
+        message: 'Doctor not found.',
       });
     }
 
@@ -967,33 +1131,43 @@ export const getDailyScheduleByUser = async (req, res) => {
     });
 
     if (dailySchedule) {
-      return successResponse(res, dailySchedule, "Schedule fetched successfully.", "Schedule fetched successfully.");
+      return successResponse(
+        res,
+        dailySchedule,
+        'Schedule fetched successfully.',
+        'Schedule fetched successfully.'
+      );
     }
 
     const weeklySchedule = await WeeklyDays.findOne(
       { doctorUserId: userId },
-      { [dayKey]: 1, doctorUserId: 1 }, // Projection: 1 means include, exclude everything else
+      { [dayKey]: 1, doctorUserId: 1 } // Projection: 1 means include, exclude everything else
     );
 
     if (!weeklySchedule) {
       return res.status(404).json({
         success: false,
-        message: "Schedule not found for this doctor on this day.",
+        message: 'Schedule not found for this doctor on this day.',
       });
     }
     const daySchedule = weeklySchedule[dayKey];
 
     if (daySchedule) {
-      return successResponse(res, daySchedule, "Schedule fetched successfully.", "Schedule fetched successfully.");
+      return successResponse(
+        res,
+        daySchedule,
+        'Schedule fetched successfully.',
+        'Schedule fetched successfully.'
+      );
     }
 
     return res.status(404).json({
       success: false,
-      message: "Schedule not found",
+      message: 'Schedule not found',
     });
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Failed to fetch schedule");
+    return somethingWentWrong(res, error, 'Failed to fetch schedule');
   }
 };
 
@@ -1006,29 +1180,34 @@ export const completeAppointmentByUser = async (req, res) => {
       {
         _id: appointmentId,
         isDeleted: false,
-        status: "confirmed",
+        status: 'confirmed',
       },
       {
         $set: {
-          status: "completed",
+          status: 'completed',
         },
       },
       {
         new: true,
-      },
+      }
     );
 
     if (!appointment) {
       return res.status(400).json({
         success: false,
-        message: "Appointment is not found.",
+        message: 'Appointment is not found.',
       });
     }
 
-    return successResponse(res, appointment, "Appointment completed successfully.", "Appointment completed successfully.");
+    return successResponse(
+      res,
+      appointment,
+      'Appointment completed successfully.',
+      'Appointment completed successfully.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1042,10 +1221,10 @@ export const cancelAppointmentByUser = async (req, res) => {
 
   const { userId, appointmentId } = requestData;
 
-  console.log("🚀 requestData:", requestData);
-  console.log("🚀 body:", req.body);
-  console.log("🚀 params:", req.params);
-  console.log("🚀 query:", req.query);
+  console.log('🚀 requestData:', requestData);
+  console.log('🚀 body:', req.body);
+  console.log('🚀 params:', req.params);
+  console.log('🚀 query:', req.query);
 
   // process.exit(0);
 
@@ -1055,14 +1234,14 @@ export const cancelAppointmentByUser = async (req, res) => {
     if (!appointment || appointment.isDeleted) {
       return res.status(400).json({
         success: false,
-        message: "Appointment is not found.",
+        message: 'Appointment is not found.',
       });
     }
 
-    if (!["pending", "confirmed"].includes(appointment.status)) {
+    if (!['pending', 'confirmed'].includes(appointment.status)) {
       return res.status(400).json({
         success: false,
-        message: "Only pending or confirmed appointments can be cancelled.",
+        message: 'Only pending or confirmed appointments can be cancelled.',
       });
     }
 
@@ -1070,11 +1249,11 @@ export const cancelAppointmentByUser = async (req, res) => {
       appointmentId,
       {
         $set: {
-          status: "cancelled",
-          cancelledBy: "user",
+          status: 'cancelled',
+          cancelledBy: 'user',
         },
       },
-      { new: true },
+      { new: true }
     );
 
     const user = await User.findOne({
@@ -1092,29 +1271,31 @@ export const cancelAppointmentByUser = async (req, res) => {
     // Notify user
     await sendNotificationToUser({
       userId: user.userId,
-      title: "Appointment Cancelled",
+      title: 'Appointment Cancelled',
       body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
-      type: "patientAppointment",
+      type: 'patientAppointment',
       appointmentId: appointment._id.toString(),
     });
 
     // Notify doctor
     await sendNotificationToUser({
       userId: doctor.userId,
-      title: "Appointment Cancelled",
+      title: 'Appointment Cancelled',
       body: `Your appointment with ${user.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
-      type: "doctorAppointment",
+      type: 'doctorAppointment',
       appointmentId: appointment._id.toString(),
     });
 
     // ── Cancel matching pending reminder notifications ───────────────────────
-    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    const matchRegex = new RegExp(`${escapeRegex(doctor.fullName)}.*${escapeRegex(appointment.startTime)}.*${escapeRegex(appointment.endTime)}`);
+    const matchRegex = new RegExp(
+      `${escapeRegex(doctor.fullName)}.*${escapeRegex(appointment.startTime)}.*${escapeRegex(appointment.endTime)}`
+    );
 
     const pendingReminders = await Notification.find({
       userId: user.userId,
-      type: "patientAppointment",
+      type: 'patientAppointment',
       isSent: false,
       body: matchRegex,
     });
@@ -1125,17 +1306,22 @@ export const cancelAppointmentByUser = async (req, res) => {
         {
           $set: {
             isSent: true,
-            title: "Appointment Cancelled",
+            title: 'Appointment Cancelled',
             body: `Your appointment with Dr. ${doctor.fullName} on ${appointment.appointmentDate} at ${appointment.startTime} has been cancelled.`,
           },
-        },
+        }
       );
     }
 
-    return successResponse(res, appointment, "Appointment cancelled successfully.", "Appointment cancelled successfully.");
+    return successResponse(
+      res,
+      appointment,
+      'Appointment cancelled successfully.',
+      'Appointment cancelled successfully.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1144,7 +1330,11 @@ export const rateDoctorByUser = async (req, res) => {
   const { appointmentId, rating, review } = req.body;
 
   if (rating > 5 && rating <= 0) {
-    return badRequestResponse(res, "Bad rating request.", `Rating must be between 1 and 5 but the user's rating is ${rating}.`);
+    return badRequestResponse(
+      res,
+      'Bad rating request.',
+      `Rating must be between 1 and 5 but the user's rating is ${rating}.`
+    );
   }
 
   try {
@@ -1152,24 +1342,24 @@ export const rateDoctorByUser = async (req, res) => {
       {
         _id: new mongoose.Types.ObjectId(appointmentId),
         isDeleted: false,
-        status: "completed",
+        status: 'completed',
       },
       {
         $set: {
           rating: rating,
-          review: review || "",
+          review: review || '',
           isRated: true,
         },
       },
       {
         new: true,
-      },
+      }
     );
 
     if (!appointment) {
       return res.status(400).json({
         success: false,
-        message: "Appointment is not found.",
+        message: 'Appointment is not found.',
       });
     }
 
@@ -1189,14 +1379,14 @@ export const rateDoctorByUser = async (req, res) => {
       {
         $group: {
           _id: null,
-          averageRating: { $avg: "$rating" },
+          averageRating: { $avg: '$rating' },
           totalRatings: { $sum: 1 },
         },
       },
       {
         $project: {
           _id: 0,
-          averageRating: { $round: ["$averageRating", 1] },
+          averageRating: { $round: ['$averageRating', 1] },
           totalRatings: 1,
         },
       },
@@ -1206,13 +1396,18 @@ export const rateDoctorByUser = async (req, res) => {
     const user = await User.findOne({ userId });
 
     const doctor = await User.findOneAndUpdate(
-      { userId: appointment.doctorUserId, type: 1, isVerified: true, isRemoved: false },
+      {
+        userId: appointment.doctorUserId,
+        type: 1,
+        isVerified: true,
+        isRemoved: false,
+      },
       {
         $set: {
           rating: ratingStats[0].averageRating,
           totalRatings: ratingStats[0].totalRatings,
         },
-      },
+      }
     );
 
     const finalResponse = await DoctorRatingModel.findOneAndUpdate(
@@ -1225,7 +1420,7 @@ export const rateDoctorByUser = async (req, res) => {
           doctorProfilePhoto: doctor.profilePhoto,
           userId,
           isRated: true,
-          review: review || "",
+          review: review || '',
           hospitalName: doctor.currentWorkplace,
           doctorLocation: doctor.location,
           appointmentId: appointment._id,
@@ -1236,13 +1431,18 @@ export const rateDoctorByUser = async (req, res) => {
       },
       {
         new: true,
-      },
+      }
     );
 
-    return successResponse(res, finalResponse, "Thank you for your rating.", "Rating completed successfully.");
+    return successResponse(
+      res,
+      finalResponse,
+      'Thank you for your rating.',
+      'Rating completed successfully.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1251,9 +1451,9 @@ export const getAllUserInspectListByAdmin = async (req, res) => {
     const {
       page = 1,
       limit = 10,
-      search = "",
-      sortBy = "fullName", // fullName | userId | createdAt
-      sortOrder = "asc", // asc | desc
+      search = '',
+      sortBy = 'fullName', // fullName | userId | createdAt
+      sortOrder = 'asc', // asc | desc
     } = req.body;
 
     const pageNumber = Math.max(1, Number(page));
@@ -1275,35 +1475,36 @@ export const getAllUserInspectListByAdmin = async (req, res) => {
         {
           fullName: {
             $regex: keyword,
-            $options: "i",
+            $options: 'i',
           },
         },
         {
           userId: {
             $regex: keyword,
-            $options: "i",
+            $options: 'i',
           },
         },
         {
           email: {
             $regex: keyword,
-            $options: "i",
+            $options: 'i',
           },
         },
         {
           phoneNumber: {
             $regex: keyword,
-            $options: "i",
+            $options: 'i',
           },
         },
       ];
     }
 
     // Allowed sort fields
-    const allowedSortFields = ["fullName", "userId", "createdAt"];
+    const allowedSortFields = ['fullName', 'userId', 'createdAt'];
 
     const sort = {
-      [allowedSortFields.includes(sortBy) ? sortBy : "fullName"]: sortOrder === "desc" ? -1 : 1,
+      [allowedSortFields.includes(sortBy) ? sortBy : 'fullName']:
+        sortOrder === 'desc' ? -1 : 1,
     };
 
     const [users, totalCount] = await Promise.all([
@@ -1341,12 +1542,12 @@ export const getAllUserInspectListByAdmin = async (req, res) => {
           totalPages: Math.ceil(totalCount / limitNumber),
         },
       },
-      "User list fetched successfully.",
-      "User list fetched successfully.",
+      'User list fetched successfully.',
+      'User list fetched successfully.'
     );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1361,10 +1562,17 @@ export const getUserInspectsDetails = async (req, res) => {
     });
 
     if (!user) {
-      return notFoundResponse(res, "User not found.", "User not found.");
+      return notFoundResponse(res, 'User not found.', 'User not found.');
     }
 
-    const [voteStats, totalComments, totalReplies, periodInsights, periodSixMonthInsights, previousPeriods] = await Promise.all([
+    const [
+      voteStats,
+      totalComments,
+      totalReplies,
+      periodInsights,
+      periodSixMonthInsights,
+      previousPeriods,
+    ] = await Promise.all([
       Vote.aggregate([
         {
           $match: {
@@ -1377,12 +1585,12 @@ export const getUserInspectsDetails = async (req, res) => {
             totalVotes: { $sum: 1 },
             totalUpvotes: {
               $sum: {
-                $cond: [{ $eq: ["$type", "upvote"] }, 1, 0],
+                $cond: [{ $eq: ['$type', 'upvote'] }, 1, 0],
               },
             },
             totalDownvotes: {
               $sum: {
-                $cond: [{ $eq: ["$type", "downvote"] }, 1, 0],
+                $cond: [{ $eq: ['$type', 'downvote'] }, 1, 0],
               },
             },
           },
@@ -1421,12 +1629,12 @@ export const getUserInspectsDetails = async (req, res) => {
         periodSixMonthInsights: periodSixMonthInsights.data,
         previousPeriods: previousPeriods,
       },
-      "User details fetched successfully.",
-      "User details fetched successfully.",
+      'User details fetched successfully.',
+      'User details fetched successfully.'
     );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1437,13 +1645,22 @@ export const getUserSpecificSelfTest = async (req, res) => {
     const userSelfTest = await UserSelfTest.find({ userId });
 
     if (!userSelfTest) {
-      return notFoundResponse(res, "User self test not found.", "User self test not found.");
+      return notFoundResponse(
+        res,
+        'User self test not found.',
+        'User self test not found.'
+      );
     }
 
-    return successResponse(res, userSelfTest, "User self test details fetched successfully.", "User self test details fetched successfully.");
+    return successResponse(
+      res,
+      userSelfTest,
+      'User self test details fetched successfully.',
+      'User self test details fetched successfully.'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1451,7 +1668,14 @@ export const getUserSpecificAllAppointments = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const { page = 1, limit = 10, search = "", status, sortBy = "appointmentDate", sortOrder = "desc" } = req.body;
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      status,
+      sortBy = 'appointmentDate',
+      sortOrder = 'desc',
+    } = req.body;
 
     const pageNumber = Math.max(1, Number(page));
     const limitNumber = Math.max(1, Number(limit));
@@ -1463,7 +1687,7 @@ export const getUserSpecificAllAppointments = async (req, res) => {
     };
 
     // Filter by appointment status
-    if (status && status !== "all") {
+    if (status && status !== 'all') {
       match.status = status;
     }
 
@@ -1475,16 +1699,16 @@ export const getUserSpecificAllAppointments = async (req, res) => {
       // Join doctor
       {
         $lookup: {
-          from: "doctors", // collection name of Doctor model
-          localField: "doctorUserId",
-          foreignField: "userId",
-          as: "doctor",
+          from: 'doctors', // collection name of Doctor model
+          localField: 'doctorUserId',
+          foreignField: 'userId',
+          as: 'doctor',
         },
       },
 
       {
         $unwind: {
-          path: "$doctor",
+          path: '$doctor',
           preserveNullAndEmptyArrays: true,
         },
       },
@@ -1496,27 +1720,27 @@ export const getUserSpecificAllAppointments = async (req, res) => {
         $match: {
           $or: [
             {
-              "doctor.fullName": {
+              'doctor.fullName': {
                 $regex: search.trim(),
-                $options: "i",
+                $options: 'i',
               },
             },
             {
-              "doctor.email": {
+              'doctor.email': {
                 $regex: search.trim(),
-                $options: "i",
+                $options: 'i',
               },
             },
             {
-              "doctor.phoneNumber": {
+              'doctor.phoneNumber': {
                 $regex: search.trim(),
-                $options: "i",
+                $options: 'i',
               },
             },
             {
               doctorUserId: {
                 $regex: search.trim(),
-                $options: "i",
+                $options: 'i',
               },
             },
           ],
@@ -1524,11 +1748,18 @@ export const getUserSpecificAllAppointments = async (req, res) => {
       });
     }
 
-    const allowedSortFields = ["appointmentDate", "startTime", "endTime", "status", "createdAt"];
+    const allowedSortFields = [
+      'appointmentDate',
+      'startTime',
+      'endTime',
+      'status',
+      'createdAt',
+    ];
 
     pipeline.push({
       $sort: {
-        [allowedSortFields.includes(sortBy) ? sortBy : "appointmentDate"]: sortOrder === "asc" ? 1 : -1,
+        [allowedSortFields.includes(sortBy) ? sortBy : 'appointmentDate']:
+          sortOrder === 'asc' ? 1 : -1,
       },
     });
 
@@ -1541,16 +1772,16 @@ export const getUserSpecificAllAppointments = async (req, res) => {
           {
             $project: {
               doctor: {
-                userId: "$doctor.userId",
-                fullName: "$doctor.fullName",
-                profilePhoto: "$doctor.profilePhoto",
-                email: "$doctor.email",
-                phoneNumber: "$doctor.phoneNumber",
-                currentDesignation: "$doctor.currentDesignation",
-                currentWorkplace: "$doctor.currentWorkplace",
-                specialties: "$doctor.specialties",
-                rating: "$doctor.rating",
-                totalRateCount: "$doctor.totalRateCount",
+                userId: '$doctor.userId',
+                fullName: '$doctor.fullName',
+                profilePhoto: '$doctor.profilePhoto',
+                email: '$doctor.email',
+                phoneNumber: '$doctor.phoneNumber',
+                currentDesignation: '$doctor.currentDesignation',
+                currentWorkplace: '$doctor.currentWorkplace',
+                specialties: '$doctor.specialties',
+                rating: '$doctor.rating',
+                totalRateCount: '$doctor.totalRateCount',
               },
 
               appointmentDate: 1,
@@ -1566,7 +1797,7 @@ export const getUserSpecificAllAppointments = async (req, res) => {
           },
         ],
 
-        totalCount: [{ $count: "count" }],
+        totalCount: [{ $count: 'count' }],
       },
     });
 
@@ -1586,12 +1817,12 @@ export const getUserSpecificAllAppointments = async (req, res) => {
           totalPages: Math.ceil(total / limitNumber),
         },
       },
-      "User appointments fetched successfully.",
-      "User appointments fetched successfully.",
+      'User appointments fetched successfully.',
+      'User appointments fetched successfully.'
     );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1600,10 +1831,20 @@ export const getUserSpecificAppointmentDetailsByPatient = async (req, res) => {
     const { appointmentId } = req.params;
     const appointment = await Appointment.findById(appointmentId).lean();
     if (!appointment) {
-      return notFoundResponse(res, "Appointment not found.", "Appointment not found.");
+      return notFoundResponse(
+        res,
+        'Appointment not found.',
+        'Appointment not found.'
+      );
     }
-    const user = await User.findOne({ userId: appointment.userId, type: 0 }).lean();
-    const doctor = await User.findOne({ userId: appointment.doctorUserId, type: 1 }).lean();
+    const user = await User.findOne({
+      userId: appointment.userId,
+      type: 0,
+    }).lean();
+    const doctor = await User.findOne({
+      userId: appointment.doctorUserId,
+      type: 1,
+    }).lean();
 
     return successResponse(
       res,
@@ -1612,12 +1853,12 @@ export const getUserSpecificAppointmentDetailsByPatient = async (req, res) => {
         user,
         doctor,
       },
-      "User appointment details fetched successfully.",
-      "User appointment details fetched successfully.",
+      'User appointment details fetched successfully.',
+      'User appointment details fetched successfully.'
     );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1657,16 +1898,16 @@ export const getUserSpecificAppointmentsByAdmin = async (req, res) => {
 
         {
           $lookup: {
-            from: "doctors", // collection name
-            localField: "doctorUserId",
-            foreignField: "userId",
-            as: "doctor",
+            from: 'doctors', // collection name
+            localField: 'doctorUserId',
+            foreignField: 'userId',
+            as: 'doctor',
           },
         },
 
         {
           $unwind: {
-            path: "$doctor",
+            path: '$doctor',
             preserveNullAndEmptyArrays: true,
           },
         },
@@ -1685,16 +1926,16 @@ export const getUserSpecificAppointmentsByAdmin = async (req, res) => {
             createdAt: 1,
 
             doctor: {
-              userId: "$doctor.userId",
-              fullName: "$doctor.fullName",
-              profilePhoto: "$doctor.profilePhoto",
-              rating: "$doctor.rating",
-              totalRateCount: "$doctor.totalRateCount",
-              specialties: "$doctor.specialties",
-              currentDesignation: "$doctor.currentDesignation",
-              currentWorkplace: "$doctor.currentWorkplace",
-              location: "$doctor.location",
-              qualifications: "$doctor.qualifications",
+              userId: '$doctor.userId',
+              fullName: '$doctor.fullName',
+              profilePhoto: '$doctor.profilePhoto',
+              rating: '$doctor.rating',
+              totalRateCount: '$doctor.totalRateCount',
+              specialties: '$doctor.specialties',
+              currentDesignation: '$doctor.currentDesignation',
+              currentWorkplace: '$doctor.currentWorkplace',
+              location: '$doctor.location',
+              qualifications: '$doctor.qualifications',
             },
           },
         },
@@ -1718,7 +1959,7 @@ export const getUserSpecificAppointmentsByAdmin = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Something went wrong.",
+      message: 'Something went wrong.',
     });
   }
 };

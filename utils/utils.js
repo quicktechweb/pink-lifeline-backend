@@ -1,47 +1,13 @@
-import { ENV } from "../constant/constant.js";
-import { Bleeding } from "../models/Dropdowns/bleedingDropdownModel.js";
-import { Spotting } from "../models/Dropdowns/spottingDropdownModel.js";
-import { Symptom } from "../models/Dropdowns/symptomsDropdownModel.js";
-import Notification from "../models/Notification/NotificationModel.js";
-import logger from "./loggerReport.js";
+import { ENV } from '../constant/constant.js';
+import { Bleeding } from '../models/Dropdowns/bleedingDropdownModel.js';
+import { Spotting } from '../models/Dropdowns/spottingDropdownModel.js';
+import { Symptom } from '../models/Dropdowns/symptomsDropdownModel.js';
+import Notification from '../models/Notification/NotificationModel.js';
+import logger from './loggerReport.js';
 
 // Helper to generate a standardized, readable timestamp string
 const getTimestamp = () => `[${new Date().toLocaleString()}]`;
 const env = ENV;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const notFoundResponse = (res, message, logMessage) => {
   if (logMessage) {
@@ -71,13 +37,8 @@ export const badRequestResponse = (res, message, logMessage) => {
   });
 };
 
-export const somethingWentWrong = (
-  res,
-  data,
-  message,
-  logMessage
-) => {
-  logger.error(logMessage || "Unhandled server error.", {
+export const somethingWentWrong = (res, data, message, logMessage) => {
+  logger.error(logMessage || 'Unhandled server error.', {
     statusCode: 503,
     responseMessage: message,
     error: data,
@@ -89,13 +50,7 @@ export const somethingWentWrong = (
   });
 };
 
-export const successResponse = (
-  res,
-  data,
-  message,
-  logMessage,
-  total
-) => {
+export const successResponse = (res, data, message, logMessage, total) => {
   if (logMessage) {
     logger.info(logMessage, {
       statusCode: 200,
@@ -149,12 +104,7 @@ export const paginatedSuccessResponse = (
   });
 };
 
-export const alreadyExistResponse = (
-  res,
-  data,
-  message,
-  logMessage
-) => {
+export const alreadyExistResponse = (res, data, message, logMessage) => {
   if (logMessage) {
     logger.warn(logMessage, {
       statusCode: 409,
@@ -170,44 +120,10 @@ export const alreadyExistResponse = (
   });
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const checkValidGapBetweenPeriods = (previousDate, currentDate) => {
-  const gapInDays = Math.floor((currentDate - previousDate) / (1000 * 60 * 60 * 24));
+  const gapInDays = Math.floor(
+    (currentDate - previousDate) / (1000 * 60 * 60 * 24)
+  );
   const expectedGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
 
   const isValidGap = gapInDays === expectedGap;
@@ -216,13 +132,17 @@ export const checkValidGapBetweenPeriods = (previousDate, currentDate) => {
 };
 
 export const isWithinSamePeriod = (lastEntryDate, currentDate) => {
-  const gapInDays = Math.floor((currentDate - lastEntryDate) / (1000 * 60 * 60 * 24));
+  const gapInDays = Math.floor(
+    (currentDate - lastEntryDate) / (1000 * 60 * 60 * 24)
+  );
   const maxGap = Number(process.env.MAX_INTRA_PERIOD_GAP) || 7;
   return gapInDays >= 0 && gapInDays <= maxGap;
 };
 
 export const isValidNewPeriodGap = (referenceDate, currentDate) => {
-  const gapInDays = Math.floor((currentDate - referenceDate) / (1000 * 60 * 60 * 24));
+  const gapInDays = Math.floor(
+    (currentDate - referenceDate) / (1000 * 60 * 60 * 24)
+  );
   const minGap = Number(process.env.POST_MENSTRUAL_INTERVAL) || 10;
   return gapInDays >= minGap;
 };
@@ -244,11 +164,11 @@ export const getSpottingTitle = async (id) => {
 
 export const formatQuantityNumber = (num) => {
   if (num >= 1_000_000) {
-    return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }
 
   if (num >= 1_000) {
-    return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
   }
 
   return num.toString();
@@ -267,11 +187,11 @@ export const isOverlapping = (newStart, newEnd, existingSlots) => {
 
 export const toMinutes = (timeStr) => {
   const str = timeStr.trim().toLowerCase();
-  const isPM = str.endsWith("pm");
-  const isAM = str.endsWith("am");
+  const isPM = str.endsWith('pm');
+  const isAM = str.endsWith('am');
 
-  const clean = str.replace("am", "").replace("pm", "").trim();
-  const [hStr, mStr] = clean.split(":");
+  const clean = str.replace('am', '').replace('pm', '').trim();
+  const [hStr, mStr] = clean.split(':');
   let h = parseInt(hStr, 10);
   const m = parseInt(mStr, 10);
 
@@ -282,28 +202,29 @@ export const toMinutes = (timeStr) => {
 };
 
 // Validates strict 24h format "HH:MM"
-export const isValid24h = (timeStr) => /^([01]\d|2[0-3]):[0-5]\d$/.test(timeStr);
+export const isValid24h = (timeStr) =>
+  /^([01]\d|2[0-3]):[0-5]\d$/.test(timeStr);
 
 export function convertTo24Hour(timeStr) {
   const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
 
   if (!match) {
-    throw new Error("Invalid time format");
+    throw new Error('Invalid time format');
   }
 
   let [, hours, minutes, period] = match;
 
   hours = parseInt(hours, 10);
 
-  if (period.toUpperCase() === "PM" && hours !== 12) {
+  if (period.toUpperCase() === 'PM' && hours !== 12) {
     hours += 12;
   }
 
-  if (period.toUpperCase() === "AM" && hours === 12) {
+  if (period.toUpperCase() === 'AM' && hours === 12) {
     hours = 0;
   }
 
-  return `${String(hours).padStart(2, "0")}:${minutes}`;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
 }
 
 export function normalizeDate(date) {
@@ -315,7 +236,7 @@ export function normalizeDate(date) {
     return null;
   }
 
-  return parsedDate.toISOString().split("T")[0];
+  return parsedDate.toISOString().split('T')[0];
 }
 
 export const generateToken = (user) => {
@@ -327,8 +248,8 @@ export const generateToken = (user) => {
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: "7d",
-    },
+      expiresIn: '7d',
+    }
   );
 };
 
@@ -338,57 +259,59 @@ export const saveNotificationToDB = async (notification) => {
   return response;
 };
 
-export const BD_CURRENT_TIME = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Dhaka",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
+export const BD_CURRENT_TIME = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Dhaka',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
   hour12: false,
 }).format(new Date());
 
-export const BD_CURRENT_DATE = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Dhaka",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
+export const BD_CURRENT_DATE = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Dhaka',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
 }).format(new Date());
 
 export const getBDCurrentTime = () =>
-  new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Dhaka",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Dhaka',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
     hour12: false,
   }).format(new Date());
 
 export const getBDCurrentDate = () =>
-  new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Dhaka",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Dhaka',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
   }).format(new Date());
 
 export const getCurrentTimestampLogger = () => {
   const now = new Date();
 
-  const formatter = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Dhaka",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Dhaka',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
     hour12: false,
   });
 
-  const parts = Object.fromEntries(formatter.formatToParts(now).map(({ type, value }) => [type, value]));
+  const parts = Object.fromEntries(
+    formatter.formatToParts(now).map(({ type, value }) => [type, value])
+  );
 
   return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
 };

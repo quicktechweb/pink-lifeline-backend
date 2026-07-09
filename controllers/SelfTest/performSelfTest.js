@@ -1,18 +1,14 @@
-import { SelfTestStep } from "../../models/SelfTest/selfTestModel.js";
-import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
-import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
-
-
-
-
-
-
+import { SelfTestStep } from '../../models/SelfTest/selfTestModel.js';
+import { UserSelfTest } from '../../models/SelfTest/selfTestUserMode.js';
+import {
+  badRequestResponse,
+  somethingWentWrong,
+  successResponse,
+} from '../../utils/utils.js';
 
 export const performSelfTest = async (req, res) => {
-
   try {
-
-        const { userId } = req.params;
+    const { userId } = req.params;
 
     const { currentDate, selfTest } = req.body;
 
@@ -21,18 +17,14 @@ export const performSelfTest = async (req, res) => {
     ========================= */
 
     if (!userId) {
-      return badRequestResponse(
-        res,
-        "User not found",
-        "User not found"
-      );
+      return badRequestResponse(res, 'User not found', 'User not found');
     }
 
     if (!Array.isArray(selfTest) || selfTest.length === 0) {
       return badRequestResponse(
         res,
-        "Self test data is required",
-        "Self test data is required"
+        'Self test data is required',
+        'Self test data is required'
       );
     }
 
@@ -59,16 +51,16 @@ export const performSelfTest = async (req, res) => {
     return successResponse(
       res,
       userSelfTest,
-      "User self test added successfully",
-      "User self test added successfully"
+      'User self test added successfully',
+      'User self test added successfully'
     );
   } catch (error) {
-    console.error("addUserSelfTest error:", error);
+    console.error('addUserSelfTest error:', error);
 
     return somethingWentWrong(
       res,
       error.message,
-      "Failed to add user self test",
+      'Failed to add user self test',
       error.message
     );
   }

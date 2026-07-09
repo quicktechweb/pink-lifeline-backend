@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 // const connectDB = async () => {
 //   try {
@@ -17,12 +17,15 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect("mongodb+srv://pink-lifeline:8NYqhngUb2NbzcxS@cluster0.kcgeync.mongodb.net/?appName=Cluster0", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const conn = await mongoose.connect(
+      'mongodb+srv://pink-lifeline:8NYqhngUb2NbzcxS@cluster0.kcgeync.mongodb.net/?appName=Cluster0',
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }
+    );
     console.log(`💿 MongoDB Connection State: ${conn.connection.readyState}`);
-    return conn.connection.readyState
+    return conn.connection.readyState;
   } catch (error) {
     console.error(`❌ MongoDB Connection Error: ${error.message}`);
     return 0;

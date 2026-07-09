@@ -1,39 +1,33 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const timeSlotSchema = new mongoose.Schema(
-  {
+const timeSlotSchema = new mongoose.Schema({
+  startTime: {
+    type: String,
+    required: true,
+  },
 
+  endTime: {
+    type: String,
+    required: true,
+  },
+  maxAppointments: {
+    type: Number,
+    required: true,
+    default: 20,
+  },
+});
 
-    startTime: {
-      type: String,
-      required: true,
-    },
+const daySchema = new mongoose.Schema({
+  isEnable: {
+    type: Boolean,
+    default: false,
+  },
 
-    endTime: {
-      type: String,
-      required: true,
-    },
-    maxAppointments: {
-      type: Number,
-      required: true,
-      default: 20,
-    },
-  }
-);
-
-const daySchema = new mongoose.Schema(
-  {
-    isEnable: {
-      type: Boolean,
-      default: false,
-    },
-
-    time: {
-      type: [timeSlotSchema],
-      default: [],
-    },
-  }
-);
+  time: {
+    type: [timeSlotSchema],
+    default: [],
+  },
+});
 
 const weeklyDaysSchema = new mongoose.Schema(
   {
@@ -78,13 +72,10 @@ const weeklyDaysSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-export const WeeklyDays = mongoose.model("WeeklyDays", weeklyDaysSchema);
-
-
-
+export const WeeklyDays = mongoose.model('WeeklyDays', weeklyDaysSchema);
 
 const exceptionalDaySchema = new mongoose.Schema(
   {
@@ -109,7 +100,10 @@ const exceptionalDaySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-export const ExceptionalDays = mongoose.model("ExceptionalDays", exceptionalDaySchema);
+export const ExceptionalDays = mongoose.model(
+  'ExceptionalDays',
+  exceptionalDaySchema
+);

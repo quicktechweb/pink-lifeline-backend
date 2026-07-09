@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 /* =========================
    SELF TEST ANSWER LOG
@@ -9,7 +9,7 @@ const selfTestItemSchema = new mongoose.Schema(
     questionId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "SelfTestQuestion",
+      ref: 'SelfTestQuestion',
     },
     answerId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +20,7 @@ const selfTestItemSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { _id: false },
+  { _id: false }
 );
 
 /* =========================
@@ -40,10 +40,10 @@ const userSelfTestSchema = new mongoose.Schema(
       default: Date.now,
     },
 
-    score:{
+    score: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
 
     // selfTest: {
     //   type: [selfTestItemSchema],
@@ -52,7 +52,7 @@ const userSelfTestSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-export const UserSelfTest = mongoose.model("UserSelfTest", userSelfTestSchema);
+export const UserSelfTest = mongoose.model('UserSelfTest', userSelfTestSchema);

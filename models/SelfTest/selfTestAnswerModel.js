@@ -2,7 +2,7 @@
    ANSWER SCHEMA
 ========================= */
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const selfTestAnswerSchema = new mongoose.Schema(
   {
@@ -13,7 +13,7 @@ const selfTestAnswerSchema = new mongoose.Schema(
 
     questionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SelfTestQuestion",
+      ref: 'SelfTestQuestion',
       required: true,
     },
 
@@ -25,7 +25,10 @@ const selfTestAnswerSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-export const SelfTestAnswer = mongoose.model("SelfTestAnswer", selfTestAnswerSchema);
+export const SelfTestAnswer = mongoose.model(
+  'SelfTestAnswer',
+  selfTestAnswerSchema
+);

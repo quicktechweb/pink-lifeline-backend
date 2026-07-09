@@ -1,27 +1,26 @@
-import axios from "axios";
-import FormData from "form-data";
+import axios from 'axios';
+import FormData from 'form-data';
 
 export const uploadToImageBB = async (file) => {
   try {
-
     /**
      * Safety check
      */
     if (!file || !file.buffer) {
-      throw new Error("File buffer missing");
+      throw new Error('File buffer missing');
     }
 
     /**
      * Convert image buffer -> base64
      */
-    const base64Image = file.buffer.toString("base64");
+    const base64Image = file.buffer.toString('base64');
 
     /**
      * Create form data
      */
     const formData = new FormData();
 
-    formData.append("image", base64Image);
+    formData.append('image', base64Image);
 
     /**
      * Upload request
@@ -34,19 +33,17 @@ export const uploadToImageBB = async (file) => {
       }
     );
 
-// IMAGE_BB_RESPONSE:
+    // IMAGE_BB_RESPONSE:
     /**
      * Return image URL
      */
     return response.data.data.url;
-
   } catch (error) {
-
     console.error(
-      "IMAGE_BB_UPLOAD_ERROR:",
+      'IMAGE_BB_UPLOAD_ERROR:',
       error.response?.data || error.message
     );
 
-    throw new Error("Failed to upload image");
+    throw new Error('Failed to upload image');
   }
 };

@@ -1,7 +1,11 @@
 // controllers/Degree/degreeController.js
 
-import Degree from "../../models/degree/degree.js";
-import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import Degree from '../../models/degree/degree.js';
+import {
+  badRequestResponse,
+  somethingWentWrong,
+  successResponse,
+} from '../../utils/utils.js';
 
 /* =========================
    ADD DEGREE
@@ -16,7 +20,11 @@ export const addDegree = async (req, res) => {
     ========================= */
 
     if (!degreeName) {
-      return badRequestResponse(res, "Degree name is required", "Degree name is required");
+      return badRequestResponse(
+        res,
+        'Degree name is required',
+        'Degree name is required'
+      );
     }
 
     /* =========================
@@ -35,16 +43,24 @@ export const addDegree = async (req, res) => {
         isDeleted: false,
       });
 
-      const existingDegreeNames = existingDegrees.map((item) => item.degreeName);
+      const existingDegreeNames = existingDegrees.map(
+        (item) => item.degreeName
+      );
 
       /* =========================
          REMOVE DUPLICATES
       ========================= */
 
-      const filteredDegrees = cleanedDegrees.filter((item) => !existingDegreeNames.includes(item));
+      const filteredDegrees = cleanedDegrees.filter(
+        (item) => !existingDegreeNames.includes(item)
+      );
 
       if (filteredDegrees.length === 0) {
-        return badRequestResponse(res, "All degrees already exist", "All degrees already exist");
+        return badRequestResponse(
+          res,
+          'All degrees already exist',
+          'All degrees already exist'
+        );
       }
 
       const formattedDegrees = filteredDegrees.map((item) => ({
@@ -53,7 +69,12 @@ export const addDegree = async (req, res) => {
 
       const insertedDegrees = await Degree.insertMany(formattedDegrees);
 
-      return successResponse(res, insertedDegrees, "Degrees added successfully", "Degrees added successfully");
+      return successResponse(
+        res,
+        insertedDegrees,
+        'Degrees added successfully',
+        'Degrees added successfully'
+      );
     }
 
     /* =========================
@@ -66,18 +87,32 @@ export const addDegree = async (req, res) => {
     });
 
     if (existingDegree) {
-      return badRequestResponse(res, "Degree already exists", "Degree already exists");
+      return badRequestResponse(
+        res,
+        'Degree already exists',
+        'Degree already exists'
+      );
     }
 
     const degree = await Degree.create({
       degreeName: degreeName.trim(),
     });
 
-    return successResponse(res, degree, "Degree added successfully", "Degree added successfully");
+    return successResponse(
+      res,
+      degree,
+      'Degree added successfully',
+      'Degree added successfully'
+    );
   } catch (error) {
     console.log(error);
 
-    return somethingWentWrong(res, error.message, "Failed to add degree", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to add degree',
+      error.message
+    );
   }
 };
 
@@ -92,12 +127,22 @@ export const getAllDegrees = async (req, res) => {
     }).sort({ createdAt: -1 });
 
     if (!degrees || degrees.length === 0) {
-      return badRequestResponse(res, "No degrees found", "No degrees found");
+      return badRequestResponse(res, 'No degrees found', 'No degrees found');
     }
 
-    return successResponse(res, degrees, "Degrees fetched successfully", "Degrees fetched successfully");
+    return successResponse(
+      res,
+      degrees,
+      'Degrees fetched successfully',
+      'Degrees fetched successfully'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error.message, "Failed to fetch degrees", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to fetch degrees',
+      error.message
+    );
   }
 };
 
@@ -115,7 +160,11 @@ export const updateDegree = async (req, res) => {
     ========================= */
 
     if (!degreeName) {
-      return badRequestResponse(res, "Degree name is required", "Degree name is required");
+      return badRequestResponse(
+        res,
+        'Degree name is required',
+        'Degree name is required'
+      );
     }
 
     /* =========================
@@ -128,7 +177,7 @@ export const updateDegree = async (req, res) => {
     });
 
     if (!degree) {
-      return badRequestResponse(res, "Degree not found", "Degree not found");
+      return badRequestResponse(res, 'Degree not found', 'Degree not found');
     }
 
     /* =========================
@@ -142,7 +191,11 @@ export const updateDegree = async (req, res) => {
     });
 
     if (existingDegree) {
-      return badRequestResponse(res, "Degree already exists", "Degree already exists");
+      return badRequestResponse(
+        res,
+        'Degree already exists',
+        'Degree already exists'
+      );
     }
 
     /* =========================
@@ -153,9 +206,19 @@ export const updateDegree = async (req, res) => {
 
     await degree.save();
 
-    return successResponse(res, degree, "Degree updated successfully", "Degree updated successfully");
+    return successResponse(
+      res,
+      degree,
+      'Degree updated successfully',
+      'Degree updated successfully'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error.message, "Failed to update degree", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to update degree',
+      error.message
+    );
   }
 };
 
@@ -177,7 +240,7 @@ export const deleteDegree = async (req, res) => {
     });
 
     if (!degree) {
-      return badRequestResponse(res, "Degree not found", "Degree not found");
+      return badRequestResponse(res, 'Degree not found', 'Degree not found');
     }
 
     /* =========================
@@ -188,8 +251,18 @@ export const deleteDegree = async (req, res) => {
 
     await degree.save();
 
-    return successResponse(res, degree, "Degree deleted successfully", "Degree deleted successfully");
+    return successResponse(
+      res,
+      degree,
+      'Degree deleted successfully',
+      'Degree deleted successfully'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error.message, "Failed to delete degree", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to delete degree',
+      error.message
+    );
   }
 };

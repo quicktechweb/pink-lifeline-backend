@@ -1,18 +1,29 @@
-import mongoose from "mongoose";
-import { uploadToImageBB } from "../../config/uploadToImageBB.js";
-import { Post } from "../../models/Community/PostModel.js";
-import { badRequestResponse, BD_CURRENT_DATE, BD_CURRENT_TIME, getBDCurrentDate, getBDCurrentTime, notFoundResponse, paginatedSuccessResponse, saveNotificationToDB, somethingWentWrong, successResponse } from "../../utils/utils.js";
-import User from "./../../models/DoctorRegistration/DoctorRegistration.js";
-import { Vote } from "../../models/Community/VoteModel.js";
-import { Comment } from "../../models/Community/CommentModel.js";
-import SavedPostModel from "../../models/Community/SavedPostModel.js";
-import { sendNotificationToUser } from "../../services/notificationService.js";
+import mongoose from 'mongoose';
+import { uploadToImageBB } from '../../config/uploadToImageBB.js';
+import { Post } from '../../models/Community/PostModel.js';
+import {
+  badRequestResponse,
+  BD_CURRENT_DATE,
+  BD_CURRENT_TIME,
+  getBDCurrentDate,
+  getBDCurrentTime,
+  notFoundResponse,
+  paginatedSuccessResponse,
+  saveNotificationToDB,
+  somethingWentWrong,
+  successResponse,
+} from '../../utils/utils.js';
+import User from './../../models/DoctorRegistration/DoctorRegistration.js';
+import { Vote } from '../../models/Community/VoteModel.js';
+import { Comment } from '../../models/Community/CommentModel.js';
+import SavedPostModel from '../../models/Community/SavedPostModel.js';
+import { sendNotificationToUser } from '../../services/notificationService.js';
 
 export const createPost = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const { title, description, hashtags = [] | "" } = req.body;
+    const { title, description, hashtags = [] | '' } = req.body;
 
     let normalizedHashtags;
 
@@ -21,7 +32,7 @@ export const createPost = async (req, res) => {
         .map((tag) => String(tag).trim())
         .filter((tag) => /^[a-zA-Z]+$/.test(tag))
         .map((tag) => `#${tag}`);
-    } else if (typeof hashtags === "string") {
+    } else if (typeof hashtags === 'string') {
       try {
         const parsed = JSON.parse(hashtags);
 
@@ -33,7 +44,7 @@ export const createPost = async (req, res) => {
         }
       } catch {
         normalizedHashtags = hashtags
-          .split(",")
+          .split(',')
           .map((tag) => tag.trim())
           .filter((tag) => /^[a-zA-Z]+$/.test(tag))
           .map((tag) => `#${tag}`);
@@ -43,14 +54,14 @@ export const createPost = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "userId is required",
+        message: 'userId is required',
       });
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      notFoundResponse(res, "User not found", "User not found.");
+      notFoundResponse(res, 'User not found', 'User not found.');
     }
 
     /**
@@ -73,23 +84,32 @@ export const createPost = async (req, res) => {
       type: isUserExist.type,
       description,
       hashtags: normalizedHashtags,
-      isVerified: isUserExist.type == 1 && isUserExist.isVerified == true ? true : false,
+      isVerified:
+        isUserExist.type == 1 && isUserExist.isVerified == true ? true : false,
       photo: uploadedPhoto,
     };
-    console.log("🚀 ~ community.js:52 ~ createPost ~ updatedData:", updatedData);
+    console.log(
+      '🚀 ~ community.js:52 ~ createPost ~ updatedData:',
+      updatedData
+    );
     const newPost = await Post.create(updatedData);
 
     /**
      * Response
      */
 
-    successResponse(res, newPost, "Post created successfully.", "Post created successfully");
+    successResponse(
+      res,
+      newPost,
+      'Post created successfully.',
+      'Post created successfully'
+    );
   } catch (error) {
-    console.error("CREATE_POST_ERROR:", error);
+    console.error('CREATE_POST_ERROR:', error);
 
     return res.status(500).json({
       success: false,
-      message: error.message || "Internal server error",
+      message: error.message || 'Internal server error',
     });
   }
 };
@@ -99,20 +119,20 @@ export const getAllPosts = async (req, res) => {
     const { userId } = req.params;
 
     if (!userId) {
-      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+      return badRequestResponse(res, 'Invalid userId.', 'Invalid userId.');
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      return notFoundResponse(res, "User not found.", "User not found.");
+      return notFoundResponse(res, 'User not found.', 'User not found.');
     }
 
     const allPosts = await Post.aggregate([
       {
         $addFields: {
           netvote: {
-            $subtract: ["$upvote", "$downvote"],
+            $subtract: ['$upvote', '$downvote'],
           },
         },
       },
@@ -134,9 +154,9 @@ export const getAllPosts = async (req, res) => {
 
       {
         $lookup: {
-          from: "votes",
+          from: 'votes',
           let: {
-            postId: "$_id",
+            postId: '$_id',
           },
           pipeline: [
             {
@@ -144,17 +164,17 @@ export const getAllPosts = async (req, res) => {
                 $expr: {
                   $and: [
                     {
-                      $eq: ["$postId", "$$postId"],
+                      $eq: ['$postId', '$$postId'],
                     },
                     {
-                      $eq: ["$userId", userId],
+                      $eq: ['$userId', userId],
                     },
                   ],
                 },
               },
             },
           ],
-          as: "userVote",
+          as: 'userVote',
         },
       },
 
@@ -164,9 +184,9 @@ export const getAllPosts = async (req, res) => {
 
       {
         $lookup: {
-          from: "savedposts",
+          from: 'savedposts',
           let: {
-            postId: "$_id",
+            postId: '$_id',
           },
           pipeline: [
             {
@@ -174,17 +194,17 @@ export const getAllPosts = async (req, res) => {
                 $expr: {
                   $and: [
                     {
-                      $eq: ["$postId", "$$postId"],
+                      $eq: ['$postId', '$$postId'],
                     },
                     {
-                      $eq: ["$userId", userId],
+                      $eq: ['$userId', userId],
                     },
                   ],
                 },
               },
             },
           ],
-          as: "savedPost",
+          as: 'savedPost',
         },
       },
 
@@ -201,10 +221,10 @@ export const getAllPosts = async (req, res) => {
                   {
                     $size: {
                       $filter: {
-                        input: "$userVote",
-                        as: "vote",
+                        input: '$userVote',
+                        as: 'vote',
                         cond: {
-                          $eq: ["$$vote.type", "upvote"],
+                          $eq: ['$$vote.type', 'upvote'],
                         },
                       },
                     },
@@ -224,10 +244,10 @@ export const getAllPosts = async (req, res) => {
                   {
                     $size: {
                       $filter: {
-                        input: "$userVote",
-                        as: "vote",
+                        input: '$userVote',
+                        as: 'vote',
                         cond: {
-                          $eq: ["$$vote.type", "downvote"],
+                          $eq: ['$$vote.type', 'downvote'],
                         },
                       },
                     },
@@ -249,7 +269,7 @@ export const getAllPosts = async (req, res) => {
               {
                 $gt: [
                   {
-                    $size: "$savedPost",
+                    $size: '$savedPost',
                   },
                   0,
                 ],
@@ -274,14 +294,24 @@ export const getAllPosts = async (req, res) => {
     ]);
 
     if (allPosts) {
-      successResponse(res, allPosts, "All post is fetched", "All posts is fetched.");
+      successResponse(
+        res,
+        allPosts,
+        'All post is fetched',
+        'All posts is fetched.'
+      );
     } else {
-      notFoundResponse(res, "Not Found", "Not found data.");
+      notFoundResponse(res, 'Not Found', 'Not found data.');
     }
   } catch (error) {
-    console.error("GET_ALL_POSTS_ERROR:", error);
+    console.error('GET_ALL_POSTS_ERROR:', error);
 
-    somethingWentWrong(res, null, "Unable to fetch the data.", "Unable to fetch the data.");
+    somethingWentWrong(
+      res,
+      null,
+      'Unable to fetch the data.',
+      'Unable to fetch the data.'
+    );
   }
 };
 
@@ -291,30 +321,34 @@ export const postUpVote = async (req, res) => {
 
   try {
     if (!userId) {
-      return badRequestResponse(res, "Invalid User.", "Invalid user.");
+      return badRequestResponse(res, 'Invalid User.', 'Invalid user.');
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      return notFoundResponse(res, "User is not registered.", "user is not register.");
+      return notFoundResponse(
+        res,
+        'User is not registered.',
+        'user is not register.'
+      );
     }
 
     if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
-      return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
+      return badRequestResponse(res, 'Invalid postId.', 'Invalid postId.');
     }
 
     const objectId = new mongoose.Types.ObjectId(postId);
     const post = await Post.findById(objectId);
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", "post not found.");
+      return notFoundResponse(res, 'Post not found.', 'post not found.');
     }
 
     const postOwner = await User.findOne({ userId: post.userId.toString() });
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", "post not found.");
+      return notFoundResponse(res, 'Post not found.', 'post not found.');
     }
 
     // 🔥 check existing vote
@@ -325,7 +359,7 @@ export const postUpVote = async (req, res) => {
       await Vote.create({
         userId,
         postId,
-        type: "upvote",
+        type: 'upvote',
         isUpvotedByUser: true,
         isDownvotedByUser: false,
       });
@@ -339,35 +373,35 @@ export const postUpVote = async (req, res) => {
       if (isUserExist.userId.toString() !== post.userId.toString()) {
         const notificationStatus = await sendNotificationToUser({
           userId: postOwner.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           body: `${isUserExist.fullName} upvoted your post.`,
-          title: "Yours post is upvoted.",
+          title: 'Yours post is upvoted.',
           postId: postId,
         });
       }
 
       const notiSave = await saveNotificationToDB({
         userId: postOwner.userId,
-        type: "post",
+        type: 'post',
         data: postId,
         postId: postId,
         body: `${isUserExist.fullName} upvoted your post.`,
-        title: "Yours post is upvoted.",
+        title: 'Yours post is upvoted.',
         autoReminderLimit: 1,
         notificationSendTime: BD_CURRENT_TIME,
         notificationSendDate: BD_CURRENT_DATE,
       });
 
-      console.log("🚀 ~ community.js:357 ~ postUpVote ~ notiSave:", notiSave);
+      console.log('🚀 ~ community.js:357 ~ postUpVote ~ notiSave:', notiSave);
 
       await post.save();
 
-      return successResponse(res, post, "Upvoted successfully", "post upvoted");
+      return successResponse(res, post, 'Upvoted successfully', 'post upvoted');
     }
 
     // CASE 2: already upvoted → remove upvote
-    if (existingVote.type === "upvote") {
+    if (existingVote.type === 'upvote') {
       await Vote.deleteOne({ _id: existingVote._id });
 
       if (post.userId.toString() === userId.toString()) {
@@ -378,12 +412,12 @@ export const postUpVote = async (req, res) => {
       post.upvote -= 1;
       await post.save();
 
-      return successResponse(res, post, "Upvote removed", "upvote removed");
+      return successResponse(res, post, 'Upvote removed', 'upvote removed');
     }
 
     // CASE 3: previously downvoted → switch to upvote
-    if (existingVote.type === "downvote") {
-      existingVote.type = "upvote";
+    if (existingVote.type === 'downvote') {
+      existingVote.type = 'upvote';
       await existingVote.save();
 
       if (post.userId.toString() === userId.toString()) {
@@ -397,20 +431,20 @@ export const postUpVote = async (req, res) => {
       if (isUserExist.userId.toString() !== post.userId.toString()) {
         const notificationStatus = await sendNotificationToUser({
           userId: postOwner.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           postId: postId,
           body: `${isUserExist.fullName} upvoted your post.`,
-          title: "Yours post is upvoted.",
+          title: 'Yours post is upvoted.',
         });
 
         const notiSave = await saveNotificationToDB({
           userId: postOwner.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           postId: postId,
           body: `${isUserExist.fullName} upvoted your post.`,
-          title: "Yours post is upvoted.",
+          title: 'Yours post is upvoted.',
           autoReminderLimit: 1,
           notificationSendTime: BD_CURRENT_TIME,
           notificationSendDate: BD_CURRENT_DATE,
@@ -419,13 +453,18 @@ export const postUpVote = async (req, res) => {
 
       await post.save();
 
-      return successResponse(res, post, "Switched to upvote", "switch vote to upvote");
+      return successResponse(
+        res,
+        post,
+        'Switched to upvote',
+        'switch vote to upvote'
+      );
     }
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: 'Internal server error',
     });
   }
 };
@@ -436,23 +475,27 @@ export const postDownVote = async (req, res) => {
 
   try {
     if (!userId) {
-      return badRequestResponse(res, "Invalid User.", "Invalid user.");
+      return badRequestResponse(res, 'Invalid User.', 'Invalid user.');
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      return notFoundResponse(res, "User is not registered.", "user is not register.");
+      return notFoundResponse(
+        res,
+        'User is not registered.',
+        'user is not register.'
+      );
     }
 
     if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
-      return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
+      return badRequestResponse(res, 'Invalid postId.', 'Invalid postId.');
     }
 
     const post = await Post.findById(postId);
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", "post not found.");
+      return notFoundResponse(res, 'Post not found.', 'post not found.');
     }
 
     const postOwner = await User.findOne({ userId: post.userId.toString() });
@@ -465,7 +508,7 @@ export const postDownVote = async (req, res) => {
       await Vote.create({
         userId,
         postId,
-        type: "downvote",
+        type: 'downvote',
         isUpvotedByUser: false,
         isDownvotedByUser: true,
       });
@@ -479,20 +522,20 @@ export const postDownVote = async (req, res) => {
       if (isUserExist.userId.toString() !== post.userId.toString()) {
         const notificationStatus = await sendNotificationToUser({
           userId: postOwner.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
-          title: "Yours post is downvoted.",
+          title: 'Yours post is downvoted.',
         });
 
         const notiSave = await saveNotificationToDB({
           userId: postOwner.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
-          title: "Yours post is downvoted.",
+          title: 'Yours post is downvoted.',
           autoReminderLimit: 1,
           notificationSendTime: BD_CURRENT_TIME,
           notificationSendDate: BD_CURRENT_DATE,
@@ -501,11 +544,16 @@ export const postDownVote = async (req, res) => {
 
       await post.save();
 
-      return successResponse(res, post, "Downvoted successfully", "post downvoted");
+      return successResponse(
+        res,
+        post,
+        'Downvoted successfully',
+        'post downvoted'
+      );
     }
 
     // CASE 2: already downvoted → remove downvote
-    if (existingVote.type === "downvote") {
+    if (existingVote.type === 'downvote') {
       await Vote.deleteOne({ _id: existingVote._id });
       if (post.userId.toString() === userId.toString()) {
         post.isUpvotedByUser = false;
@@ -514,12 +562,12 @@ export const postDownVote = async (req, res) => {
       post.downvote -= 1;
       await post.save();
 
-      return successResponse(res, post, "Downvote removed", "downvote removed");
+      return successResponse(res, post, 'Downvote removed', 'downvote removed');
     }
 
     // CASE 3: previously upvoted → switch to downvote
-    if (existingVote.type === "upvote") {
-      existingVote.type = "downvote";
+    if (existingVote.type === 'upvote') {
+      existingVote.type = 'downvote';
       await existingVote.save();
       if (post.userId.toString() === userId.toString()) {
         post.isUpvotedByUser = false;
@@ -531,20 +579,20 @@ export const postDownVote = async (req, res) => {
       if (isUserExist.userId.toString() !== post.userId.toString()) {
         const notificationStatus = await sendNotificationToUser({
           userId: postOwner.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
-          title: "Yours post is downvoted.",
+          title: 'Yours post is downvoted.',
         });
 
         const notiSave = await saveNotificationToDB({
           userId: postOwner.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           postId: postId,
           body: `${isUserExist.fullName} downvoted your post.`,
-          title: "Yours post is downvoted.",
+          title: 'Yours post is downvoted.',
           autoReminderLimit: 1,
           notificationSendTime: BD_CURRENT_TIME,
           notificationSendDate: BD_CURRENT_DATE,
@@ -553,13 +601,18 @@ export const postDownVote = async (req, res) => {
 
       await post.save();
 
-      return successResponse(res, post, "Switched to downvote", "switch vote to downvote");
+      return successResponse(
+        res,
+        post,
+        'Switched to downvote',
+        'switch vote to downvote'
+      );
     }
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: 'Internal server error',
     });
   }
 };
@@ -570,7 +623,11 @@ export const postComment = async (req, res) => {
   const isUserExist = await User.findOne({ userId });
 
   if (!isUserExist) {
-    return notFoundResponse(res, "User is not registered.", "User is not registered.");
+    return notFoundResponse(
+      res,
+      'User is not registered.',
+      'User is not registered.'
+    );
   }
 
   const isVerified = isUserExist.isVerified;
@@ -580,21 +637,21 @@ export const postComment = async (req, res) => {
 
   try {
     if (!userId) {
-      return badRequestResponse(res, "Invalid User.", "Invalid user.");
+      return badRequestResponse(res, 'Invalid User.', 'Invalid user.');
     }
 
-    if (!text || text.trim() === "") {
-      return badRequestResponse(res, "Invalid Comment.", "Invalid Comment.");
+    if (!text || text.trim() === '') {
+      return badRequestResponse(res, 'Invalid Comment.', 'Invalid Comment.');
     }
 
     if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
-      return badRequestResponse(res, "Invalid postId.", "Invalid postId.");
+      return badRequestResponse(res, 'Invalid postId.', 'Invalid postId.');
     }
 
     const post = await Post.findById(postId);
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", "Post not found.");
+      return notFoundResponse(res, 'Post not found.', 'Post not found.');
     }
 
     let parentComment = null;
@@ -602,17 +659,29 @@ export const postComment = async (req, res) => {
     if (parentId) {
       // validate parentId
       if (!mongoose.Types.ObjectId.isValid(parentId)) {
-        return badRequestResponse(res, "Invalid parent comment id.", "Invalid parent comment id.");
+        return badRequestResponse(
+          res,
+          'Invalid parent comment id.',
+          'Invalid parent comment id.'
+        );
       }
 
       parentComment = await Comment.findById(parentId);
 
       if (!parentComment) {
-        return notFoundResponse(res, "Parent comment not found.", "Parent comment not found.");
+        return notFoundResponse(
+          res,
+          'Parent comment not found.',
+          'Parent comment not found.'
+        );
       }
 
       if (parentComment.postId.toString() !== postId) {
-        return badRequestResponse(res, "Reply mismatch.", "Reply post mismatch.");
+        return badRequestResponse(
+          res,
+          'Reply mismatch.',
+          'Reply post mismatch.'
+        );
       }
     }
 
@@ -643,20 +712,28 @@ export const postComment = async (req, res) => {
     if (post.userId.toString() !== isUserExist.userId.toString()) {
       const notificationStatus = await sendNotificationToUser({
         userId: post.userId.toString(),
-        type: "post",
+        type: 'post',
         postId,
         data: postId,
-        title: parentId ? `${isUserExist.fullName} replied to your post.` : `${isUserExist.fullName} commented on your post.`,
-        body: parentId ? `${isUserExist.fullName} replied to your post.` : "Yours post is commented.",
+        title: parentId
+          ? `${isUserExist.fullName} replied to your post.`
+          : `${isUserExist.fullName} commented on your post.`,
+        body: parentId
+          ? `${isUserExist.fullName} replied to your post.`
+          : 'Yours post is commented.',
       });
 
       const notiSave = await saveNotificationToDB({
         userId: post.userId.toString(),
-        type: "post",
+        type: 'post',
         postId,
         data: postId,
-        title: parentId ? `${isUserExist.fullName} replied to your post.` : `${isUserExist.fullName} commented on your post.`,
-        body: parentId ? `${isUserExist.fullName} replied to your post.` : "Yours post is commented.",
+        title: parentId
+          ? `${isUserExist.fullName} replied to your post.`
+          : `${isUserExist.fullName} commented on your post.`,
+        body: parentId
+          ? `${isUserExist.fullName} replied to your post.`
+          : 'Yours post is commented.',
         autoReminderLimit: 1,
         notificationSendTime: BD_CURRENT_TIME,
         notificationSendDate: BD_CURRENT_DATE,
@@ -664,20 +741,32 @@ export const postComment = async (req, res) => {
     }
 
     if (uploadedComment) {
-      return successResponse(res, uploadedComment, parentId ? "Reply added successfully." : "Comment added successfully.", parentId ? "Reply published successfully." : "Comment published successfully.");
+      return successResponse(
+        res,
+        uploadedComment,
+        parentId ? 'Reply added successfully.' : 'Comment added successfully.',
+        parentId
+          ? 'Reply published successfully.'
+          : 'Comment published successfully.'
+      );
     }
 
-    return badRequestResponse(res, "Unable to comment.", "Comment publish failed.");
+    return badRequestResponse(
+      res,
+      'Unable to comment.',
+      'Comment publish failed.'
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Unable to comment.", "Unable to comment.");
+    return somethingWentWrong(
+      res,
+      error,
+      'Unable to comment.',
+      'Unable to comment.'
+    );
   }
 };
-
-
-
-
 
 export const getSinglePost = async (req, res) => {
   const { userId } = req.params;
@@ -689,7 +778,7 @@ export const getSinglePost = async (req, res) => {
     // =========================
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
-      return badRequestResponse(res, "Invalid post id.", "Invalid post id.");
+      return badRequestResponse(res, 'Invalid post id.', 'Invalid post id.');
     }
 
     // =========================
@@ -701,13 +790,13 @@ export const getSinglePost = async (req, res) => {
     const userVote = await Vote.findOne({ userId, postId });
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", "Post not found.");
+      return notFoundResponse(res, 'Post not found.', 'Post not found.');
     }
 
     if (userVote) {
-      if (userVote.type === "upvote") {
+      if (userVote.type === 'upvote') {
         post.isUpvotedByUser = true;
-      } else if (userVote.type === "downvote") {
+      } else if (userVote.type === 'downvote') {
         post.isDownvotedByUser = true;
       }
     }
@@ -764,18 +853,20 @@ export const getSinglePost = async (req, res) => {
         post,
         comments: rootComments,
       },
-      "Post fetched successfully.",
-      "Post fetched successfully.",
+      'Post fetched successfully.',
+      'Post fetched successfully.'
     );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Unable to fetch post.", "Unable to fetch post.");
+    return somethingWentWrong(
+      res,
+      error,
+      'Unable to fetch post.',
+      'Unable to fetch post.'
+    );
   }
 };
-
-
-
 
 export const commentDownVote = async (req, res) => {
   const userId = req.params.userId;
@@ -783,30 +874,40 @@ export const commentDownVote = async (req, res) => {
 
   try {
     if (!userId) {
-      return badRequestResponse(res, "Invalid User.", "Invalid user.");
+      return badRequestResponse(res, 'Invalid User.', 'Invalid user.');
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      return notFoundResponse(res, "User is not registered.", "user is not registered.");
+      return notFoundResponse(
+        res,
+        'User is not registered.',
+        'user is not registered.'
+      );
     }
 
     if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
-      return badRequestResponse(res, "Invalid commentId.", "Invalid commentId.");
+      return badRequestResponse(
+        res,
+        'Invalid commentId.',
+        'Invalid commentId.'
+      );
     }
 
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return notFoundResponse(res, "Comment not found.", "comment not found.");
+      return notFoundResponse(res, 'Comment not found.', 'comment not found.');
     }
 
     const post = await Post.findById(comment.postId);
 
     const postOwner = await User.findOne({ userId: post.userId.toString() });
 
-    const commentOwner = await User.findOne({ userId: comment.userId.toString() });
+    const commentOwner = await User.findOne({
+      userId: comment.userId.toString(),
+    });
 
     // 🔥 check existing vote
     const existingVote = await Vote.findOne({
@@ -819,7 +920,7 @@ export const commentDownVote = async (req, res) => {
       await Vote.create({
         userId,
         commentId,
-        type: "downvote",
+        type: 'downvote',
         isDownvotedByUser: true,
       });
 
@@ -830,20 +931,20 @@ export const commentDownVote = async (req, res) => {
       if (isUserExist.userId.toString() !== commentOwner.userId.toString()) {
         const notification = await sendNotificationToUser({
           userId: commentOwner.userId.toString(),
-          type: "post",
+          type: 'post',
           postId: post._id.toString(),
           data: post._id.toString(),
           title: `${isUserExist.fullName} has downvoted your comment.`,
-          body: "Someone downvoted your comment",
+          body: 'Someone downvoted your comment',
         });
 
         const notiSave = await saveNotificationToDB({
           userId: commentOwner.userId.toString(),
-          type: "post",
+          type: 'post',
           postId: post._id.toString(),
           data: post._id.toString(),
           title: `${isUserExist.fullName} has downvoted your comment.`,
-          body: "Someone downvoted your comment",
+          body: 'Someone downvoted your comment',
           autoReminderLimit: 1,
           notificationSendTime: BD_CURRENT_TIME,
           notificationSendDate: BD_CURRENT_DATE,
@@ -852,11 +953,16 @@ export const commentDownVote = async (req, res) => {
 
       await comment.save();
 
-      return successResponse(res, comment, "Comment downvoted successfully", "comment downvoted");
+      return successResponse(
+        res,
+        comment,
+        'Comment downvoted successfully',
+        'comment downvoted'
+      );
     }
 
     // CASE 2: already downvoted → remove downvote
-    if (existingVote.type === "downvote") {
+    if (existingVote.type === 'downvote') {
       await Vote.deleteOne({
         _id: existingVote._id,
       });
@@ -866,12 +972,17 @@ export const commentDownVote = async (req, res) => {
       comment.isUpvotedByUser = false;
       await comment.save();
 
-      return successResponse(res, comment, "Comment downvote removed", "comment downvote removed");
+      return successResponse(
+        res,
+        comment,
+        'Comment downvote removed',
+        'comment downvote removed'
+      );
     }
 
     // CASE 3: previously upvoted → switch to downvote
-    if (existingVote.type === "upvote") {
-      existingVote.type = "downvote";
+    if (existingVote.type === 'upvote') {
+      existingVote.type = 'downvote';
       existingVote.isUpvotedByUser = false;
       existingVote.isDownvotedByUser = true;
       await existingVote.save();
@@ -882,14 +993,19 @@ export const commentDownVote = async (req, res) => {
       comment.isUpvotedByUser = false;
       await comment.save();
 
-      return successResponse(res, comment, "Switched to comment downvote", "switch comment vote to downvote");
+      return successResponse(
+        res,
+        comment,
+        'Switched to comment downvote',
+        'switch comment vote to downvote'
+      );
     }
   } catch (error) {
     console.error(error);
 
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: 'Internal server error',
     });
   }
 };
@@ -900,30 +1016,40 @@ export const commentUpVote = async (req, res) => {
 
   try {
     if (!userId) {
-      return badRequestResponse(res, "Invalid User.", "Invalid user.");
+      return badRequestResponse(res, 'Invalid User.', 'Invalid user.');
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      return notFoundResponse(res, "User is not registered.", "user is not registered.");
+      return notFoundResponse(
+        res,
+        'User is not registered.',
+        'user is not registered.'
+      );
     }
 
     if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
-      return badRequestResponse(res, "Invalid commentId.", "Invalid commentId.");
+      return badRequestResponse(
+        res,
+        'Invalid commentId.',
+        'Invalid commentId.'
+      );
     }
 
     const comment = await Comment.findById(commentId);
 
     if (!comment) {
-      return notFoundResponse(res, "Comment not found.", "comment not found.");
+      return notFoundResponse(res, 'Comment not found.', 'comment not found.');
     }
 
     const post = await Post.findById(comment.postId);
 
     const postOwner = await User.findOne({ userId: post.userId.toString() });
 
-    const commentOwner = await User.findOne({ userId: comment.userId.toString() });
+    const commentOwner = await User.findOne({
+      userId: comment.userId.toString(),
+    });
 
     // 🔥 check existing vote
     const existingVote = await Vote.findOne({
@@ -936,7 +1062,7 @@ export const commentUpVote = async (req, res) => {
       await Vote.create({
         userId,
         commentId,
-        type: "upvote",
+        type: 'upvote',
         isUpvotedByUser: true,
       });
 
@@ -947,22 +1073,22 @@ export const commentUpVote = async (req, res) => {
       if (commentOwner.userId !== userId) {
         const obj = {
           userId: commentOwner.userId.toString(),
-          type: "post",
+          type: 'post',
           data: post._id.toString(),
           postId: post._id.toString(),
           title: `${isUserExist.fullName} has upvoted your comment.`,
-          body: "Someone upvoted your comment",
+          body: 'Someone upvoted your comment',
         };
 
         const notification = await sendNotificationToUser(obj);
 
         const notiSave = await saveNotificationToDB({
           userId: commentOwner.userId.toString(),
-          type: "post",
+          type: 'post',
           data: post._id.toString(),
           postId: post._id.toString(),
           title: `${isUserExist.fullName} has upvoted your comment.`,
-          body: "Someone upvoted your comment",
+          body: 'Someone upvoted your comment',
           notificationSendTime: BD_CURRENT_TIME,
           notificationSendDate: BD_CURRENT_DATE,
         });
@@ -970,11 +1096,16 @@ export const commentUpVote = async (req, res) => {
 
       await comment.save();
 
-      return successResponse(res, comment, "Comment upvoted successfully", "comment upvoted");
+      return successResponse(
+        res,
+        comment,
+        'Comment upvoted successfully',
+        'comment upvoted'
+      );
     }
 
     // CASE 2: already upvoted → remove upvote
-    if (existingVote.type === "upvote") {
+    if (existingVote.type === 'upvote') {
       await Vote.deleteOne({
         _id: existingVote._id,
       });
@@ -985,12 +1116,17 @@ export const commentUpVote = async (req, res) => {
 
       await comment.save();
 
-      return successResponse(res, comment, "Comment upvote removed", "comment upvote removed");
+      return successResponse(
+        res,
+        comment,
+        'Comment upvote removed',
+        'comment upvote removed'
+      );
     }
 
     // CASE 3: previously downvoted → switch to upvote
-    if (existingVote.type === "downvote") {
-      existingVote.type = "upvote";
+    if (existingVote.type === 'downvote') {
+      existingVote.type = 'upvote';
       await existingVote.save();
 
       comment.downvote -= 1;
@@ -999,40 +1135,81 @@ export const commentUpVote = async (req, res) => {
       comment.isDownvotedByUser = false;
       await comment.save();
 
-      return successResponse(res, comment, "Switched to comment upvote", "switch comment vote to upvote");
+      return successResponse(
+        res,
+        comment,
+        'Switched to comment upvote',
+        'switch comment vote to upvote'
+      );
     }
   } catch (error) {
     console.error(error);
 
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: 'Internal server error',
     });
   }
 };
 
 export const getUpvotedPosts = async (req, res) => {
   const userId = req.params.userId;
-  const posts = await Vote.find({ userId, type: "upvote", postId: { $exists: true } }).populate("postId");
-  successResponse(res, posts, "Upvoted posts fetched successfully.", "Upvoted posts fetched successfully.");
+  const posts = await Vote.find({
+    userId,
+    type: 'upvote',
+    postId: { $exists: true },
+  }).populate('postId');
+  successResponse(
+    res,
+    posts,
+    'Upvoted posts fetched successfully.',
+    'Upvoted posts fetched successfully.'
+  );
 };
 
 export const getDownvotedPosts = async (req, res) => {
   const userId = req.params.userId;
-  const posts = await Vote.find({ userId, type: "downvote", postId: { $exists: true } }).populate("postId");
-  successResponse(res, posts, "Downvoted posts fetched successfully.", "Downvoted posts fetched successfully.");
+  const posts = await Vote.find({
+    userId,
+    type: 'downvote',
+    postId: { $exists: true },
+  }).populate('postId');
+  successResponse(
+    res,
+    posts,
+    'Downvoted posts fetched successfully.',
+    'Downvoted posts fetched successfully.'
+  );
 };
 
 export const getUpvotedComments = async (req, res) => {
   const userId = req.params.userId;
-  const comments = await Vote.find({ userId, type: "upvote", commentId: { $exists: true } }).populate("commentId");
-  successResponse(res, comments, "Upvoted comments fetched successfully.", "Upvoted comments fetched successfully.");
+  const comments = await Vote.find({
+    userId,
+    type: 'upvote',
+    commentId: { $exists: true },
+  }).populate('commentId');
+  successResponse(
+    res,
+    comments,
+    'Upvoted comments fetched successfully.',
+    'Upvoted comments fetched successfully.'
+  );
 };
 
 export const getDownvotedComments = async (req, res) => {
   const userId = req.params.userId;
-  const comments = await Vote.find({ userId, type: "downvote", commentId: { $exists: true } }).populate("commentId");
-  successResponse(res, comments, "Downvoted comments fetched successfully.", "Downvoted comments fetched successfully.");
+  const comments = await Vote.find({
+    userId,
+    type: 'downvote',
+    commentId: { $exists: true },
+  }).populate('commentId');
+  successResponse(
+    res,
+    comments,
+    'Downvoted comments fetched successfully.',
+    'Downvoted comments fetched successfully.'
+  );
 };
 
 export const savePost = async (req, res) => {
@@ -1041,11 +1218,19 @@ export const savePost = async (req, res) => {
 
   try {
     if (!userId) {
-      return badRequestResponse(res, "User ID is required.", "User ID is missing.");
+      return badRequestResponse(
+        res,
+        'User ID is required.',
+        'User ID is missing.'
+      );
     }
 
     if (!postId) {
-      return badRequestResponse(res, "Post ID is required.", "Post ID is missing.");
+      return badRequestResponse(
+        res,
+        'Post ID is required.',
+        'Post ID is missing.'
+      );
     }
 
     const isPostExist = await Post.findById(postId);
@@ -1056,7 +1241,11 @@ export const savePost = async (req, res) => {
     }
 
     if (!isPostExist) {
-      return notFoundResponse(res, "Post not found.", "Requested post does not exist.");
+      return notFoundResponse(
+        res,
+        'Post not found.',
+        'Requested post does not exist.'
+      );
     }
 
     const existingSavedPost = await SavedPostModel.findOne({
@@ -1067,7 +1256,12 @@ export const savePost = async (req, res) => {
     if (existingSavedPost) {
       await SavedPostModel.findByIdAndDelete(existingSavedPost._id);
 
-      return successResponse(res, null, "Post unsaved successfully.", "Successfully removed saved post.");
+      return successResponse(
+        res,
+        null,
+        'Post unsaved successfully.',
+        'Successfully removed saved post.'
+      );
     }
 
     const savedPost = await SavedPostModel.create({
@@ -1077,11 +1271,21 @@ export const savePost = async (req, res) => {
       savedAt: new Date(),
     });
 
-    return successResponse(res, savedPost, "Post saved successfully.", "Successfully saved post.");
+    return successResponse(
+      res,
+      savedPost,
+      'Post saved successfully.',
+      'Successfully saved post.'
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Failed to save/unsave post.", "Save post operation failed.");
+    return somethingWentWrong(
+      res,
+      error,
+      'Failed to save/unsave post.',
+      'Save post operation failed.'
+    );
   }
 };
 
@@ -1090,20 +1294,20 @@ export const getAllSavedPosts = async (req, res) => {
     const { userId } = req.params;
 
     if (!userId) {
-      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+      return badRequestResponse(res, 'Invalid userId.', 'Invalid userId.');
     }
 
     const isUserExist = await User.findOne({ userId });
 
     if (!isUserExist) {
-      return notFoundResponse(res, "User not found.", "User not found.");
+      return notFoundResponse(res, 'User not found.', 'User not found.');
     }
 
     const allPosts = await Post.aggregate([
       {
         $addFields: {
           netvote: {
-            $subtract: ["$upvote", "$downvote"],
+            $subtract: ['$upvote', '$downvote'],
           },
         },
       },
@@ -1117,9 +1321,9 @@ export const getAllSavedPosts = async (req, res) => {
 
       {
         $lookup: {
-          from: "votes",
+          from: 'votes',
           let: {
-            postId: "$_id",
+            postId: '$_id',
           },
           pipeline: [
             {
@@ -1127,25 +1331,25 @@ export const getAllSavedPosts = async (req, res) => {
                 $expr: {
                   $and: [
                     {
-                      $eq: ["$postId", "$$postId"],
+                      $eq: ['$postId', '$$postId'],
                     },
                     {
-                      $eq: ["$userId", userId],
+                      $eq: ['$userId', userId],
                     },
                   ],
                 },
               },
             },
           ],
-          as: "userVote",
+          as: 'userVote',
         },
       },
 
       {
         $lookup: {
-          from: "savedposts",
+          from: 'savedposts',
           let: {
-            postId: "$_id",
+            postId: '$_id',
           },
           pipeline: [
             {
@@ -1153,23 +1357,23 @@ export const getAllSavedPosts = async (req, res) => {
                 $expr: {
                   $and: [
                     {
-                      $eq: ["$postId", "$$postId"],
+                      $eq: ['$postId', '$$postId'],
                     },
                     {
-                      $eq: ["$userId", userId],
+                      $eq: ['$userId', userId],
                     },
                   ],
                 },
               },
             },
           ],
-          as: "savedPostData",
+          as: 'savedPostData',
         },
       },
 
       {
         $match: {
-          "savedPostData.0": {
+          'savedPostData.0': {
             $exists: true,
           },
         },
@@ -1184,10 +1388,10 @@ export const getAllSavedPosts = async (req, res) => {
                   {
                     $size: {
                       $filter: {
-                        input: "$userVote",
-                        as: "vote",
+                        input: '$userVote',
+                        as: 'vote',
                         cond: {
-                          $eq: ["$$vote.type", "upvote"],
+                          $eq: ['$$vote.type', 'upvote'],
                         },
                       },
                     },
@@ -1207,10 +1411,10 @@ export const getAllSavedPosts = async (req, res) => {
                   {
                     $size: {
                       $filter: {
-                        input: "$userVote",
-                        as: "vote",
+                        input: '$userVote',
+                        as: 'vote',
                         cond: {
-                          $eq: ["$$vote.type", "downvote"],
+                          $eq: ['$$vote.type', 'downvote'],
                         },
                       },
                     },
@@ -1228,7 +1432,7 @@ export const getAllSavedPosts = async (req, res) => {
               {
                 $gt: [
                   {
-                    $size: "$savedPostData",
+                    $size: '$savedPostData',
                   },
                   0,
                 ],
@@ -1249,14 +1453,24 @@ export const getAllSavedPosts = async (req, res) => {
     ]);
 
     if (allPosts) {
-      successResponse(res, allPosts, "All saved posts are fetched", "All saved posts are fetched.");
+      successResponse(
+        res,
+        allPosts,
+        'All saved posts are fetched',
+        'All saved posts are fetched.'
+      );
     } else {
-      notFoundResponse(res, "Not Found", "Not found data.");
+      notFoundResponse(res, 'Not Found', 'Not found data.');
     }
   } catch (error) {
-    console.error("GET_ALL_POSTS_ERROR:", error);
+    console.error('GET_ALL_POSTS_ERROR:', error);
 
-    somethingWentWrong(res, null, "Unable to fetch the saved data.", "Unable to fetch the saved data.");
+    somethingWentWrong(
+      res,
+      null,
+      'Unable to fetch the saved data.',
+      'Unable to fetch the saved data.'
+    );
   }
 };
 
@@ -1264,20 +1478,34 @@ export const getAllUserPosts = async (req, res) => {
   try {
     const { userId } = req.params;
     if (!userId) {
-      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+      return badRequestResponse(res, 'Invalid userId.', 'Invalid userId.');
     }
 
     const allUserPosts = await Post.find({ userId: userId });
 
     if (allUserPosts.length === 0) {
-      return notFoundResponse(res, "No posts found.", "No posts found for the specified user.");
+      return notFoundResponse(
+        res,
+        'No posts found.',
+        'No posts found for the specified user.'
+      );
     }
 
-    return successResponse(res, allUserPosts, "All user posts are fetched", "All user posts are fetched.");
+    return successResponse(
+      res,
+      allUserPosts,
+      'All user posts are fetched',
+      'All user posts are fetched.'
+    );
   } catch (error) {
-    console.error("GET_ALL_USER_POSTS_ERROR:", error);
+    console.error('GET_ALL_USER_POSTS_ERROR:', error);
 
-    somethingWentWrong(res, null, "Unable to fetch the user posts.", "Unable to fetch the user posts.");
+    somethingWentWrong(
+      res,
+      null,
+      'Unable to fetch the user posts.',
+      'Unable to fetch the user posts.'
+    );
   }
 };
 
@@ -1289,10 +1517,25 @@ export const getAllPostOfUserAdmin = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const [posts, totalPosts] = await Promise.all([Post.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(), Post.countDocuments({ userId })]);
+    const [posts, totalPosts] = await Promise.all([
+      Post.find({ userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Post.countDocuments({ userId }),
+    ]);
 
     if (!posts.length) {
-      return paginatedSuccessResponse(res, [], page, limit, totalPosts, "No posts found.", "No posts found.");
+      return paginatedSuccessResponse(
+        res,
+        [],
+        page,
+        limit,
+        totalPosts,
+        'No posts found.',
+        'No posts found.'
+      );
     }
 
     const postIds = posts.map((post) => post._id);
@@ -1371,12 +1614,17 @@ export const getAllPostOfUserAdmin = async (req, res) => {
       limit,
       totalPosts,
       hasMore,
-      message: "Posts fetched successfully.",
+      message: 'Posts fetched successfully.',
     });
   } catch (error) {
-    console.error("GET_ALL_POSTS_ERROR:", error);
+    console.error('GET_ALL_POSTS_ERROR:', error);
 
-    return somethingWentWrong(res, null, "Unable to fetch the posts.", "Unable to fetch the posts.");
+    return somethingWentWrong(
+      res,
+      null,
+      'Unable to fetch the posts.',
+      'Unable to fetch the posts.'
+    );
   }
 };
 
@@ -1395,26 +1643,44 @@ export const deletePost = async (req, res) => {
 
   try {
     if (!postId) {
-      return badRequestResponse(res, "Post not found.", "Post id is missing.");
+      return badRequestResponse(res, 'Post not found.', 'Post id is missing.');
     }
 
     const post = await Post.findById(postId);
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", `No post found with id: ${postId}`);
+      return notFoundResponse(
+        res,
+        'Post not found.',
+        `No post found with id: ${postId}`
+      );
     }
 
     if (String(post.userId) !== String(userId)) {
-      return badRequestResponse(res, "Unauthorized action.", `User ${userId} does not own post ${postId}`);
+      return badRequestResponse(
+        res,
+        'Unauthorized action.',
+        `User ${userId} does not own post ${postId}`
+      );
     }
 
     const deletedPost = await Post.findByIdAndDelete(postId);
 
-    return successResponse(res, deletedPost, "Post deleted successfully.", `Deleted post id: ${postId}`);
+    return successResponse(
+      res,
+      deletedPost,
+      'Post deleted successfully.',
+      `Deleted post id: ${postId}`
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Failed to delete post.", "Delete post error");
+    return somethingWentWrong(
+      res,
+      error,
+      'Failed to delete post.',
+      'Delete post error'
+    );
   }
 };
 
@@ -1423,65 +1689,88 @@ export const deletePostByAdmin = async (req, res) => {
 
   try {
     if (!postId) {
-      return badRequestResponse(res, "Post not found.", "Post id is missing.");
+      return badRequestResponse(res, 'Post not found.', 'Post id is missing.');
     }
 
     const post = await Post.findById(postId);
 
     if (!post) {
-      return notFoundResponse(res, "Post not found.", `No post found with id: ${postId}`);
+      return notFoundResponse(
+        res,
+        'Post not found.',
+        `No post found with id: ${postId}`
+      );
     }
 
     if (String(post.userId) !== String(userId)) {
-      return badRequestResponse(res, "Unauthorized action.", `User ${userId} does not own post ${postId}`);
+      return badRequestResponse(
+        res,
+        'Unauthorized action.',
+        `User ${userId} does not own post ${postId}`
+      );
     }
 
     const deletedPost = await Post.findByIdAndDelete(postId);
 
     if (!deletedPost) {
-      return notFoundResponse(res, "Post not found.", `No post found with id: ${postId}`);
-    }else{
+      return notFoundResponse(
+        res,
+        'Post not found.',
+        `No post found with id: ${postId}`
+      );
+    } else {
       const notification = await sendNotificationToUser({
         userId: post.userId,
-        type: "post",
+        type: 'post',
         data: postId,
         postId: postId,
-        title: "Your post has been deleted by admin.",
+        title: 'Your post has been deleted by admin.',
         body: `Your post '${post.title}' has been deleted by admin. Please contact support for more information.`,
-      })
-      console.log("🚀 ~ community.js:1445 ~ deletePostByAdmin ~ notification:", notification)
+      });
+      console.log(
+        '🚀 ~ community.js:1445 ~ deletePostByAdmin ~ notification:',
+        notification
+      );
 
-      if(notification.success) {
+      if (notification.success) {
         await saveNotificationToDB({
           userId: post.userId,
-          type: "post",
+          type: 'post',
           data: postId,
           postId: postId,
-          title: "Your post has been deleted by admin.",
+          title: 'Your post has been deleted by admin.',
           body: `Your post '${post.title}' has been deleted by admin. Please contact support for more information.`,
           notificationSendTime: getBDCurrentTime(),
           notificationSendDate: getBDCurrentDate(),
-        })      
-      }else{
-        console.log("Failed to send notification to user:", post.userId);
+        });
+      } else {
+        console.log('Failed to send notification to user:', post.userId);
       }
-
     }
 
-    return successResponse(res, deletedPost, "Post deleted successfully.", `Deleted post id: ${postId}`);
+    return successResponse(
+      res,
+      deletedPost,
+      'Post deleted successfully.',
+      `Deleted post id: ${postId}`
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Failed to delete post.", "Delete post error");
+    return somethingWentWrong(
+      res,
+      error,
+      'Failed to delete post.',
+      'Delete post error'
+    );
   }
 };
-
 
 export const getSearchedResults = async (req, res) => {
   const { query } = req.params;
 
   try {
-    if (!query || query.trim() === "") {
+    if (!query || query.trim() === '') {
       return res.send([]);
     }
 
@@ -1492,19 +1781,19 @@ export const getSearchedResults = async (req, res) => {
         {
           title: {
             $regex: searchTerm,
-            $options: "i",
+            $options: 'i',
           },
         },
         {
           description: {
             $regex: searchTerm,
-            $options: "i",
+            $options: 'i',
           },
         },
         {
           hashtags: {
             $regex: searchTerm,
-            $options: "i",
+            $options: 'i',
           },
         },
       ],
@@ -1512,21 +1801,43 @@ export const getSearchedResults = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    return successResponse(res, posts, "Search results fetched successfully.", "Search successful");
+    return successResponse(
+      res,
+      posts,
+      'Search results fetched successfully.',
+      'Search successful'
+    );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Failed to search posts.", "Search posts error");
+    return somethingWentWrong(
+      res,
+      error,
+      'Failed to search posts.',
+      'Search posts error'
+    );
   }
 };
 
 export const getAllUserComments = async (req, res) => {
   const { userId } = req.params;
   try {
-    const getAllUserComments = await Comment.find({ userId: userId, parentId: null });
-    return successResponse(res, getAllUserComments, "All user comments are fetched", "All user comments are fetched.");
+    const getAllUserComments = await Comment.find({
+      userId: userId,
+      parentId: null,
+    });
+    return successResponse(
+      res,
+      getAllUserComments,
+      'All user comments are fetched',
+      'All user comments are fetched.'
+    );
   } catch (error) {
-    console.error("GET_ALL_USER_COMMENTS_ERROR:", error);
-    somethingWentWrong(res, "Unable to fetch the user comments.", "Unable to fetch the user comments.");
+    console.error('GET_ALL_USER_COMMENTS_ERROR:', error);
+    somethingWentWrong(
+      res,
+      'Unable to fetch the user comments.',
+      'Unable to fetch the user comments.'
+    );
   }
 };
 
@@ -1537,35 +1848,35 @@ export const getAllPostsByAdmin = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // sortBy: "totalPosts" | "fullName" | "userCreatedAt"
-    const sortBy = req.query.sortBy || "totalPosts";
-    const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+    const sortBy = req.query.sortBy || 'totalPosts';
+    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
 
     const sortFieldMap = {
-      totalPosts: "totalPosts",
-      fullName: "user.fullName",
-      userCreatedAt: "user.createdAt",
+      totalPosts: 'totalPosts',
+      fullName: 'user.fullName',
+      userCreatedAt: 'user.createdAt',
     };
 
-    const sortField = sortFieldMap[sortBy] || "totalPosts";
+    const sortField = sortFieldMap[sortBy] || 'totalPosts';
 
     const basePipeline = [
       {
         $group: {
-          _id: "$userId",
+          _id: '$userId',
           totalPosts: { $sum: 1 },
         },
       },
       {
         $lookup: {
-          from: "doctors",
-          localField: "_id",
-          foreignField: "userId",
-          as: "user",
+          from: 'doctors',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'user',
         },
       },
       {
         $unwind: {
-          path: "$user",
+          path: '$user',
           preserveNullAndEmptyArrays: true,
         },
       },
@@ -1585,26 +1896,39 @@ export const getAllPostsByAdmin = async (req, res) => {
         {
           $project: {
             _id: 0,
-            userId: "$_id",
+            userId: '$_id',
             totalPosts: 1,
-            fullName: { $ifNull: ["$user.fullName", ""] },
-            profilePhoto: { $ifNull: ["$user.profilePhoto", ""] },
-            userCreatedAt: { $ifNull: ["$user.createdAt", null] },
+            fullName: { $ifNull: ['$user.fullName', ''] },
+            profilePhoto: { $ifNull: ['$user.profilePhoto', ''] },
+            userCreatedAt: { $ifNull: ['$user.createdAt', null] },
           },
         },
-      ]).collation({ locale: "en", strength: 2 }), // <-- the actual fix: case-insensitive string sort
+      ]).collation({ locale: 'en', strength: 2 }), // <-- the actual fix: case-insensitive string sort
 
-      Post.aggregate([{ $group: { _id: "$userId" } }, { $count: "total" }]),
+      Post.aggregate([{ $group: { _id: '$userId' } }, { $count: 'total' }]),
     ]);
 
     if (!groupedUsers.length) {
-      return notFoundResponse(res, "Not Found", "No posts found.");
+      return notFoundResponse(res, 'Not Found', 'No posts found.');
     }
 
-    return paginatedSuccessResponse(res, groupedUsers, page, limit, totalUsersResult[0]?.total || 0, "All users with total posts fetched successfully.", "All users with total posts fetched successfully.");
+    return paginatedSuccessResponse(
+      res,
+      groupedUsers,
+      page,
+      limit,
+      totalUsersResult[0]?.total || 0,
+      'All users with total posts fetched successfully.',
+      'All users with total posts fetched successfully.'
+    );
   } catch (error) {
-    console.error("GET_ALL_POSTS_ERROR:", error);
-    return somethingWentWrong(res, null, "Unable to fetch the data.", "Unable to fetch the data.");
+    console.error('GET_ALL_POSTS_ERROR:', error);
+    return somethingWentWrong(
+      res,
+      null,
+      'Unable to fetch the data.',
+      'Unable to fetch the data.'
+    );
   }
 };
 
@@ -1617,12 +1941,15 @@ export const getAllUserPosts2 = async (req, res) => {
     const skip = (page - 1) * limit;
 
     if (!userId) {
-      return badRequestResponse(res, "Invalid userId.", "Invalid userId.");
+      return badRequestResponse(res, 'Invalid userId.', 'Invalid userId.');
     }
 
     const totalPosts = await Post.countDocuments({ userId });
 
-    const allUserPosts = await Post.find({ userId }).sort({ createdAt: 1 }).skip(skip).limit(limit);
+    const allUserPosts = await Post.find({ userId })
+      .sort({ createdAt: 1 })
+      .skip(skip)
+      .limit(limit);
 
     return successResponse(
       res,
@@ -1634,29 +1961,48 @@ export const getAllUserPosts2 = async (req, res) => {
         totalPages: Math.ceil(totalPosts / limit),
         hasMore: page * limit < totalPosts,
       },
-      "All user posts are fetched.",
-      "All user posts are fetched.",
+      'All user posts are fetched.',
+      'All user posts are fetched.'
     );
   } catch (error) {
-    console.error("GET_ALL_USER_POSTS_ERROR:", error);
+    console.error('GET_ALL_USER_POSTS_ERROR:', error);
 
-    somethingWentWrong(res, null, "Unable to fetch the user posts.", "Unable to fetch the user posts.");
+    somethingWentWrong(
+      res,
+      null,
+      'Unable to fetch the user posts.',
+      'Unable to fetch the user posts.'
+    );
   }
 };
 
 export const getAllPostTitles = async (req, res) => {
   const { userId } = req.params;
   try {
-    const posts = await Post.find({ userId }).select("title description createdAt").sort({ createdAt: -1 });
+    const posts = await Post.find({ userId })
+      .select('title description createdAt')
+      .sort({ createdAt: -1 });
 
     const formattedPosts = posts.map((post) => ({
       ...post.toObject(),
-      description: post.description?.split(/\s+/).slice(0, 10).join(" ") + (post.description?.split(/\s+/).length > 10 ? "..." : ""),
+      description:
+        post.description?.split(/\s+/).slice(0, 10).join(' ') +
+        (post.description?.split(/\s+/).length > 10 ? '...' : ''),
     }));
 
-    return successResponse(res, formattedPosts, "All post titles are fetched.", "All post titles are fetched.");
+    return successResponse(
+      res,
+      formattedPosts,
+      'All post titles are fetched.',
+      'All post titles are fetched.'
+    );
   } catch (error) {
-    console.error("GET_ALL_POST_TITLES_ERROR:", error);
-    somethingWentWrong(res, null, "Unable to fetch the post titles.", "Unable to fetch the post titles.");
+    console.error('GET_ALL_POST_TITLES_ERROR:', error);
+    somethingWentWrong(
+      res,
+      null,
+      'Unable to fetch the post titles.',
+      'Unable to fetch the post titles.'
+    );
   }
 };

@@ -1,8 +1,16 @@
-import { MONTH_ORDER } from "../constant/constant.js";
-import { attachSelfTestsToPeriods, computeCycleInsights, expandPeriodAcrossMonths, getAverageCycleLength, getAveragePeriodDuration, getMonthsAgoStart, groupPeriodsIntoCycles } from "../controllers/Period/trackPeriod/trackPeriod.js";
-import { UserSelfTest } from "../models/SelfTest/selfTestUserMode.js";
-import { getBDCurrentDate } from "../utils/utils.js";
-import PeriodTracker from "./../models/Period/PeriodModel.js";
+import { MONTH_ORDER } from '../constant/constant.js';
+import {
+  attachSelfTestsToPeriods,
+  computeCycleInsights,
+  expandPeriodAcrossMonths,
+  getAverageCycleLength,
+  getAveragePeriodDuration,
+  getMonthsAgoStart,
+  groupPeriodsIntoCycles,
+} from '../controllers/Period/trackPeriod/trackPeriod.js';
+import { UserSelfTest } from '../models/SelfTest/selfTestUserMode.js';
+import { getBDCurrentDate } from '../utils/utils.js';
+import PeriodTracker from './../models/Period/PeriodModel.js';
 
 export const getPeriodBasicInsightsService = async (userId) => {
   // Branch A
@@ -12,7 +20,7 @@ export const getPeriodBasicInsightsService = async (userId) => {
       startDate: { $exists: true, $ne: null },
       endDate: { $exists: true, $ne: null },
     },
-    { period: 0 },
+    { period: 0 }
   ).sort({ startDate: -1 });
 
   if (allPeriodDocs.length > 0) {
@@ -31,7 +39,9 @@ export const getPeriodBasicInsightsService = async (userId) => {
     result.averageDaysOfPeriods = averageDaysOfPeriods;
 
     const estimatedNextPeriodDate = new Date(allPeriodDocs[0].startDate);
-    estimatedNextPeriodDate.setDate(estimatedNextPeriodDate.getDate() + averageCycleLength);
+    estimatedNextPeriodDate.setDate(
+      estimatedNextPeriodDate.getDate() + averageCycleLength
+    );
 
     result.estimatedNextPeriodDate = estimatedNextPeriodDate;
 
@@ -52,13 +62,13 @@ export const getPeriodBasicInsightsService = async (userId) => {
       },
       {
         $group: {
-          _id: "$currentDate",
-          doc: { $first: "$$ROOT" },
+          _id: '$currentDate',
+          doc: { $first: '$$ROOT' },
         },
       },
       {
         $replaceRoot: {
-          newRoot: "$doc",
+          newRoot: '$doc',
         },
       },
       {
@@ -77,30 +87,40 @@ export const getPeriodBasicInsightsService = async (userId) => {
 
     const expandedPeriods = latestSixPeriods.flatMap(expandPeriodAcrossMonths);
 
-    result.sixMonthCycleHistory = attachSelfTestsToPeriods(expandedPeriods, selfTests)
-      .sort((a, b) => MONTH_ORDER.indexOf(a.monthName) - MONTH_ORDER.indexOf(b.monthName))
+    result.sixMonthCycleHistory = attachSelfTestsToPeriods(
+      expandedPeriods,
+      selfTests
+    )
+      .sort(
+        (a, b) =>
+          MONTH_ORDER.indexOf(a.monthName) - MONTH_ORDER.indexOf(b.monthName)
+      )
       .slice(0, 6);
 
     // Get current month in Bangladesh
     const currentMonth = new Date(getBDCurrentDate())
-      .toLocaleString("en-US", {
-        month: "short",
-        timeZone: "Asia/Dhaka",
+      .toLocaleString('en-US', {
+        month: 'short',
+        timeZone: 'Asia/Dhaka',
       })
       .toUpperCase(); // JAN, FEB, MAR...
 
     // Check if current month's record has a self test
-    result.selfTestDone = result.sixMonthCycleHistory.some((item) => item.monthName === currentMonth && item.selfTestDate !== null);
+    result.selfTestDone = result.sixMonthCycleHistory.some(
+      (item) => item.monthName === currentMonth && item.selfTestDate !== null
+    );
 
     return {
       data: result,
-      message: "Period insights generated successfully.",
-      logMessage: "Successfully generated period insights.",
+      message: 'Period insights generated successfully.',
+      logMessage: 'Successfully generated period insights.',
     };
   }
 
   // Branch B
-  const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
+  const POST_MENSTRUAL_INTERVAL = Number(
+    process.env.POST_MENSTRUAL_INTERVAL || 10
+  );
 
   const periodDocs = await PeriodTracker.find({ userId }).sort({
     createdAt: 1,
@@ -117,8 +137,8 @@ export const getPeriodBasicInsightsService = async (userId) => {
   if (!allPeriods.length) {
     return {
       data: { cycles: [] },
-      message: "No period data found.",
-      logMessage: "Empty dataset.",
+      message: 'No period data found.',
+      logMessage: 'Empty dataset.',
     };
   }
 
@@ -131,14 +151,14 @@ export const getPeriodBasicInsightsService = async (userId) => {
       totalCycles: cycles.length,
       cycleInsights,
     },
-    message: "Cycle insights generated successfully.",
-    logMessage: "Insights computed successfully.",
+    message: 'Cycle insights generated successfully.',
+    logMessage: 'Insights computed successfully.',
   };
 };
 
 export const getPeriodBasicInsightsServiceV2 = async (userId) => {
   const currentDate = getBDCurrentDate();
-  const currentMonth = currentDate.split("-")[1];
+  const currentMonth = currentDate.split('-')[1];
 
   // Branch A
   const allPeriodDocs = await PeriodTracker.find({
@@ -163,7 +183,9 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
     result.averageDaysOfPeriods = averageDaysOfPeriods;
 
     const estimatedNextPeriodDate = new Date(allPeriodDocs[0].startDate);
-    estimatedNextPeriodDate.setDate(estimatedNextPeriodDate.getDate() + averageCycleLength);
+    estimatedNextPeriodDate.setDate(
+      estimatedNextPeriodDate.getDate() + averageCycleLength
+    );
 
     result.estimatedNextPeriodDate = estimatedNextPeriodDate;
 
@@ -178,7 +200,9 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
     });
 
     // Sort newest -> oldest
-    allPeriods.sort((a, b) => new Date(b.currentDate) - new Date(a.currentDate));
+    allPeriods.sort(
+      (a, b) => new Date(b.currentDate) - new Date(a.currentDate)
+    );
 
     // Current BD date
     const currentBDDate = new Date(getBDCurrentDate());
@@ -204,13 +228,26 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
 
     console.log(lastSixMonthPeriods);
 
-    const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const MONTHS = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
 
     // Create a map for quick lookup
     const periodMap = new Map();
 
     lastSixMonthPeriods.forEach((period) => {
-      const key = new Date(period.currentDate).toISOString().split("T")[0];
+      const key = new Date(period.currentDate).toISOString().split('T')[0];
       periodMap.set(key, period);
     });
 
@@ -234,13 +271,13 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
       {
         currentDate: 1,
         score: 1,
-      },
+      }
     ).lean();
 
     const selfTestMap = new Map();
 
     selfTests.forEach((item) => {
-      const key = new Date(item.currentDate).toISOString().split("T")[0];
+      const key = new Date(item.currentDate).toISOString().split('T')[0];
 
       selfTestMap.set(key, item);
     });
@@ -260,7 +297,7 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
       for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(Date.UTC(year, month, day));
 
-        const key = date.toISOString().split("T")[0];
+        const key = date.toISOString().split('T')[0];
 
         const period = periodMap.get(key);
 
@@ -287,7 +324,10 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
     for (const month of calendar) {
       for (const day of month.date) {
         if (day.isPeriod) {
-          if (!lastPeriodEntry || new Date(day.date) > new Date(lastPeriodEntry.date)) {
+          if (
+            !lastPeriodEntry ||
+            new Date(day.date) > new Date(lastPeriodEntry.date)
+          ) {
             lastPeriodEntry = day;
           }
         }
@@ -299,20 +339,24 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
     if (lastPeriodEntry) {
       const lastPeriodDate = new Date(lastPeriodEntry.date);
 
-      const hasSelfTestAfterLastPeriod = selfTests.some((test) => new Date(test.currentDate) > lastPeriodDate);
+      const hasSelfTestAfterLastPeriod = selfTests.some(
+        (test) => new Date(test.currentDate) > lastPeriodDate
+      );
 
       result.selfTestDone = hasSelfTestAfterLastPeriod;
     }
 
     return {
       data: result,
-      message: "Period insights generated successfully.",
-      logMessage: "Successfully generated period insights.",
+      message: 'Period insights generated successfully.',
+      logMessage: 'Successfully generated period insights.',
     };
   }
 
   // Branch B
-  const POST_MENSTRUAL_INTERVAL = Number(process.env.POST_MENSTRUAL_INTERVAL || 10);
+  const POST_MENSTRUAL_INTERVAL = Number(
+    process.env.POST_MENSTRUAL_INTERVAL || 10
+  );
 
   const periodDocs = await PeriodTracker.find({ userId }).sort({
     createdAt: 1,
@@ -329,8 +373,8 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
   if (!allPeriods.length) {
     return {
       data: { cycles: [] },
-      message: "No period data found.",
-      logMessage: "Empty dataset.",
+      message: 'No period data found.',
+      logMessage: 'Empty dataset.',
     };
   }
 
@@ -343,7 +387,7 @@ export const getPeriodBasicInsightsServiceV2 = async (userId) => {
       totalCycles: cycles.length,
       cycleInsights,
     },
-    message: "Cycle insights generated successfully.",
-    logMessage: "Insights computed successfully.",
+    message: 'Cycle insights generated successfully.',
+    logMessage: 'Insights computed successfully.',
   };
 };

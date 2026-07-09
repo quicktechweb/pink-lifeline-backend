@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import { bleedingSchema } from "../Dropdowns/bleedingDropdownModel.js";
-import { symptomSchema } from "../Dropdowns/symptomsDropdownModel.js";
-import { spottingSchema } from "../Dropdowns/spottingDropdownModel.js";
+import mongoose from 'mongoose';
+import { bleedingSchema } from '../Dropdowns/bleedingDropdownModel.js';
+import { symptomSchema } from '../Dropdowns/symptomsDropdownModel.js';
+import { spottingSchema } from '../Dropdowns/spottingDropdownModel.js';
 
 /* =========================================================
    🔹 Reusable Schemas
@@ -37,7 +37,7 @@ const periodSchema = new mongoose.Schema(
       required: false,
     },
   },
-  { _id: true },
+  { _id: true }
 );
 
 /* =========================================================
@@ -59,9 +59,9 @@ const periodTrackerSchema = new mongoose.Schema(
       type: Date,
     },
 
-    isEndedByUser:{
+    isEndedByUser: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     currentDate: {
@@ -78,10 +78,10 @@ const periodTrackerSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  },
+  }
 );
 
-periodTrackerSchema.virtual("periodDuration").get(function () {
+periodTrackerSchema.virtual('periodDuration').get(function () {
   if (!this.startDate || !this.endDate) {
     return undefined; // won't appear in JSON
   }
@@ -99,4 +99,4 @@ periodTrackerSchema.virtual("periodDuration").get(function () {
    🔹 Export Model
 ========================================================= */
 
-export default mongoose.model("PeriodTracker", periodTrackerSchema);
+export default mongoose.model('PeriodTracker', periodTrackerSchema);

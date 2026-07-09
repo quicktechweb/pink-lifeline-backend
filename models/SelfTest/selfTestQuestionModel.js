@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-
+import mongoose from 'mongoose';
 
 const selfTestQuestionSchema = new mongoose.Schema(
   {
@@ -10,7 +9,7 @@ const selfTestQuestionSchema = new mongoose.Schema(
 
     stepId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SelfTestStep",
+      ref: 'SelfTestStep',
       required: true,
     },
 
@@ -21,8 +20,10 @@ const selfTestQuestionSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-
-export const SelfTestQuestion = mongoose.model("SelfTestQuestion", selfTestQuestionSchema);
+export const SelfTestQuestion = mongoose.model(
+  'SelfTestQuestion',
+  selfTestQuestionSchema
+);

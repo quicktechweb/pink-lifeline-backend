@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const appointmentSchema = new mongoose.Schema(
   {
@@ -17,26 +17,26 @@ const appointmentSchema = new mongoose.Schema(
 
     // ── When ─────────────────────────────────────────────────────────────────
     appointmentDate: {
-      type: String,           // "YYYY-MM-DD"  e.g. "2026-06-15"
+      type: String, // "YYYY-MM-DD"  e.g. "2026-06-15"
       required: true,
       index: true,
     },
 
     startTime: {
-      type: String,           // "HH:MM"  e.g. "09:00"
+      type: String, // "HH:MM"  e.g. "09:00"
       required: true,
     },
 
     endTime: {
-      type: String,           // "HH:MM"  e.g. "10:00"
+      type: String, // "HH:MM"  e.g. "10:00"
       required: true,
     },
 
     // ── Status ───────────────────────────────────────────────────────────────
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled", "completed","missed"],
-      default: "pending",
+      enum: ['pending', 'confirmed', 'cancelled', 'completed', 'missed'],
+      default: 'pending',
       index: true,
     },
 
@@ -53,19 +53,19 @@ const appointmentSchema = new mongoose.Schema(
 
     review: {
       type: String,
-      default: "",
+      default: '',
     },
 
     cancelledBy: {
       type: String,
-      enum: ["user", "doctor", "admin", null],
+      enum: ['user', 'doctor', 'admin', null],
       default: null,
     },
 
     // ── Extra ─────────────────────────────────────────────────────────────────
     note: {
       type: String,
-      default: "",
+      default: '',
     },
 
     isDeleted: {
@@ -76,12 +76,11 @@ const appointmentSchema = new mongoose.Schema(
 
   {
     timestamps: true,
-  },
+  }
 );
 
 // ── Compound indexes ──────────────────────────────────────────────────────────
 appointmentSchema.index({ doctorUserId: 1, appointmentDate: 1 });
 appointmentSchema.index({ userId: 1, appointmentDate: 1 });
 
-export const 
-Appointment = mongoose.model("Appointment", appointmentSchema);
+export const Appointment = mongoose.model('Appointment', appointmentSchema);

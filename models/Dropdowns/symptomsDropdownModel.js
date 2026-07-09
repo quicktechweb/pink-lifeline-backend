@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 // 🔹 Symptoms Schema
 export const symptomSchema = new mongoose.Schema(
@@ -16,7 +16,7 @@ export const symptomSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { _id: true },
+  { _id: true }
 );
 
-export const Symptom = mongoose.model("Symptom", symptomSchema);
+export const Symptom = mongoose.model('Symptom', symptomSchema);

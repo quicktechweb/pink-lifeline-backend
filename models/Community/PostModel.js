@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const postSchema = new mongoose.Schema(
   {
@@ -76,7 +76,6 @@ const postSchema = new mongoose.Schema(
       default: false,
     },
 
-
     totalComments: {
       type: Number,
       default: 0,
@@ -84,14 +83,14 @@ const postSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-postSchema.virtual("netvote").get(function () {
+postSchema.virtual('netvote').get(function () {
   return this.upvote - this.downvote;
 });
 
-postSchema.set("toJSON", { virtuals: true });
-postSchema.set("toObject", { virtuals: true });
+postSchema.set('toJSON', { virtuals: true });
+postSchema.set('toObject', { virtuals: true });
 
-export const Post = mongoose.model("Post", postSchema);
+export const Post = mongoose.model('Post', postSchema);

@@ -1,24 +1,29 @@
-import fs from "fs";
-import path from "path";
-import { badRequestResponse, notFoundResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import fs from 'fs';
+import path from 'path';
+import {
+  badRequestResponse,
+  notFoundResponse,
+  somethingWentWrong,
+  successResponse,
+} from '../../utils/utils.js';
 // import { SelfTestStep } from "../../models/SelfTest/selfTestStepsModel.js";
-import { SelfTestStep } from "../../models/SelfTest/selfTestModel.js";
-import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
-import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
-import { UserSelfTest } from "../../models/SelfTest/selfTestUserMode.js";
-import User from "../../models/DoctorRegistration/DoctorRegistration.js";
+import { SelfTestStep } from '../../models/SelfTest/selfTestModel.js';
+import { SelfTestQuestion } from '../../models/SelfTest/selfTestQuestionModel.js';
+import { SelfTestAnswer } from '../../models/SelfTest/selfTestAnswerModel.js';
+import { UserSelfTest } from '../../models/SelfTest/selfTestUserMode.js';
+import User from '../../models/DoctorRegistration/DoctorRegistration.js';
 
 export const getVideoStream = async (req, res) => {
   try {
     const videoName = req.params.videoId;
 
-    const videoPath = path.join(process.cwd(), "uploads", videoName);
+    const videoPath = path.join(process.cwd(), 'uploads', videoName);
 
     // 🔹 Check file exists
     if (!fs.existsSync(videoPath)) {
       return res.status(404).json({
         success: false,
-        message: "Video not found",
+        message: 'Video not found',
       });
     }
 
@@ -31,8 +36,8 @@ export const getVideoStream = async (req, res) => {
     // 🔹 Normal request (without range)
     if (!range) {
       const headers = {
-        "Content-Length": videoSize,
-        "Content-Type": "video/mp4",
+        'Content-Length': videoSize,
+        'Content-Type': 'video/mp4',
       };
 
       res.writeHead(200, headers);
@@ -45,17 +50,17 @@ export const getVideoStream = async (req, res) => {
     // 🔹 Streaming request
     const chunkSize = 10 ** 6;
 
-    const start = Number(range.replace(/bytes=/, "").split("-")[0]);
+    const start = Number(range.replace(/bytes=/, '').split('-')[0]);
 
     const end = Math.min(start + chunkSize - 1, videoSize - 1);
 
     const contentLength = end - start + 1;
 
     const headers = {
-      "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": contentLength,
-      "Content-Type": "video/mp4",
+      'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': contentLength,
+      'Content-Type': 'video/mp4',
     };
 
     res.writeHead(206, headers);
@@ -79,10 +84,20 @@ export const getVideoStream = async (req, res) => {
 export const getAllSteps = async (req, res) => {
   try {
     const getAllSteps = await SelfTestStep.find().sort({ stepNo: 1 });
-    successResponse(res, getAllSteps, "All is fetched.", "All steps is fetched successfully.");
+    successResponse(
+      res,
+      getAllSteps,
+      'All is fetched.',
+      'All steps is fetched successfully.'
+    );
   } catch (error) {
     console.error(error);
-    somethingWentWrong(res, undefined, "Unable to get all steps.", "Unable to get all the steps.");
+    somethingWentWrong(
+      res,
+      undefined,
+      'Unable to get all steps.',
+      'Unable to get all the steps.'
+    );
   }
 };
 
@@ -103,7 +118,7 @@ export const updateSteps = async (req, res) => {
     const existingStep = await SelfTestStep.findById(stepId);
 
     if (!existingStep) {
-      return badRequestResponse(res, "Step not found.", "Step not found.");
+      return badRequestResponse(res, 'Step not found.', 'Step not found.');
     }
 
     // =========================
@@ -172,17 +187,17 @@ export const updateSteps = async (req, res) => {
 
       if (existingStep.videoURL) {
         try {
-          const parts = existingStep.videoURL.split("/");
+          const parts = existingStep.videoURL.split('/');
 
           const file = parts[parts.length - 1];
 
-          const publicId = "self-test-videos/" + file.split(".")[0];
+          const publicId = 'self-test-videos/' + file.split('.')[0];
 
           await cloudinary.uploader.destroy(publicId, {
-            resource_type: "video",
+            resource_type: 'video',
           });
         } catch (err) {
-          console.error("Cloudinary delete failed", err.message);
+          console.error('Cloudinary delete failed', err.message);
         }
       }
 
@@ -195,11 +210,21 @@ export const updateSteps = async (req, res) => {
 
     await existingStep.save();
 
-    return successResponse(res, existingStep, "Step updated successfully.", "Step updated successfully.");
+    return successResponse(
+      res,
+      existingStep,
+      'Step updated successfully.',
+      'Step updated successfully.'
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error.message, "Step update failed.", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Step update failed.',
+      error.message
+    );
   }
 };
 
@@ -220,15 +245,23 @@ export const addSelfTestStep = async (req, res) => {
     // =========================
 
     if (!stepNo) {
-      return badRequestResponse(res, "Step No. not found.", "Step no is not found.");
+      return badRequestResponse(
+        res,
+        'Step No. not found.',
+        'Step no is not found.'
+      );
     }
 
     if (!title) {
-      return badRequestResponse(res, "Title not found.", "Title is not found.");
+      return badRequestResponse(res, 'Title not found.', 'Title is not found.');
     }
 
     if (!videoURL) {
-      return badRequestResponse(res, "Video not uploaded.", "Video not uploaded.");
+      return badRequestResponse(
+        res,
+        'Video not uploaded.',
+        'Video not uploaded.'
+      );
     }
 
     // =========================
@@ -239,7 +272,7 @@ export const addSelfTestStep = async (req, res) => {
       stepNo: stepNo,
     });
 
-    let responseMessage = "Self test step created successfully.";
+    let responseMessage = 'Self test step created successfully.';
 
     if (isStepExist) {
       const existingSteps = await SelfTestStep.find({
@@ -266,7 +299,12 @@ export const addSelfTestStep = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error, "Unable to save step.", error.message);
+    return somethingWentWrong(
+      res,
+      error,
+      'Unable to save step.',
+      error.message
+    );
   }
 };
 
@@ -281,7 +319,7 @@ export const deleteStep = async (req, res) => {
     const step = await SelfTestStep.findById(stepId);
 
     if (!step) {
-      return badRequestResponse(res, "Step not found.", "Step not found.");
+      return badRequestResponse(res, 'Step not found.', 'Step not found.');
     }
 
     const deletedStepNo = step.stepNo;
@@ -292,15 +330,15 @@ export const deleteStep = async (req, res) => {
 
     if (step.videoURL) {
       try {
-        const parts = step.videoURL.split("/");
+        const parts = step.videoURL.split('/');
         const file = parts[parts.length - 1];
-        const publicId = "self-test-videos/" + file.split(".")[0];
+        const publicId = 'self-test-videos/' + file.split('.')[0];
 
         await cloudinary.uploader.destroy(publicId, {
-          resource_type: "video",
+          resource_type: 'video',
         });
       } catch (err) {
-        console.error("Cloudinary delete failed:", err.message);
+        console.error('Cloudinary delete failed:', err.message);
       }
     }
 
@@ -321,18 +359,28 @@ export const deleteStep = async (req, res) => {
       },
       {
         $inc: { stepNo: -1 },
-      },
+      }
     );
 
     // =========================
     // Response
     // =========================
 
-    return successResponse(res, null, "Step deleted successfully.", "Step deleted successfully.");
+    return successResponse(
+      res,
+      null,
+      'Step deleted successfully.',
+      'Step deleted successfully.'
+    );
   } catch (error) {
     console.error(error);
 
-    return somethingWentWrong(res, error.message, "Step deletion failed.", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Step deletion failed.',
+      error.message
+    );
   }
 };
 
@@ -417,7 +465,7 @@ export const getAllStepsQuestionsAnswers = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch data",
+      message: 'Failed to fetch data',
       error: error.message,
     });
   }
@@ -427,13 +475,22 @@ export const getAllTestSteps2 = async (req, res) => {
   try {
     const steps = await SelfTestStep.find().sort({ stepNo: 1 });
     if (!steps || steps == null || steps == undefined) {
-      return badRequestResponse(res, "No steps found.", "No steps found.");
+      return badRequestResponse(res, 'No steps found.', 'No steps found.');
     }
 
-    return successResponse(res, steps, "All test steps fetched successfully.", "All test steps fetched successfully.");
+    return successResponse(
+      res,
+      steps,
+      'All test steps fetched successfully.',
+      'All test steps fetched successfully.'
+    );
   } catch (error) {
     console.error(error);
-    return badRequestResponse(res, "Unable to fetch all steps.", "Unable to fetch all the steps.");
+    return badRequestResponse(
+      res,
+      'Unable to fetch all steps.',
+      'Unable to fetch all the steps.'
+    );
   }
 };
 
@@ -448,13 +505,18 @@ export const updateSteps2 = async (req, res) => {
     step.title = title ? title : step.title;
     step.videoURL = videoURL ? videoURL : step.videoURL;
     await step.save();
-    return successResponse(res, step, "Step updated successfully.", "Step updated successfully.");
+    return successResponse(
+      res,
+      step,
+      'Step updated successfully.',
+      'Step updated successfully.'
+    );
   } else {
-    return badRequestResponse(res, "Step not found.", "Step not found.");
+    return badRequestResponse(res, 'Step not found.', 'Step not found.');
   }
 
   if (!stepId) {
-    return badRequestResponse(res, "Bad Request.", "stepId not found.");
+    return badRequestResponse(res, 'Bad Request.', 'stepId not found.');
   }
 };
 
@@ -469,25 +531,38 @@ export const addSelfTestStepV2 = async (req, res) => {
     ========================= */
 
     if (!stepNo) {
-      return badRequestResponse(res, "Step No. not found.", "Step no is not found.");
+      return badRequestResponse(
+        res,
+        'Step No. not found.',
+        'Step no is not found.'
+      );
     }
 
     if (!title) {
-      return badRequestResponse(res, "Title not found.", "Title is not found.");
+      return badRequestResponse(res, 'Title not found.', 'Title is not found.');
     }
 
-    if (!videoURL || typeof videoURL !== "string") {
-      return badRequestResponse(res, "Video URL is required.", "Video URL must be a valid string.");
+    if (!videoURL || typeof videoURL !== 'string') {
+      return badRequestResponse(
+        res,
+        'Video URL is required.',
+        'Video URL must be a valid string.'
+      );
     }
 
     /* =========================
        OPTIONAL: YOUTUBE VALIDATION
     ========================= */
 
-    const isValidYouTube = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(videoURL);
+    const isValidYouTube =
+      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(videoURL);
 
     if (!isValidYouTube) {
-      return badRequestResponse(res, "Invalid YouTube URL.", "Only YouTube links are allowed.");
+      return badRequestResponse(
+        res,
+        'Invalid YouTube URL.',
+        'Only YouTube links are allowed.'
+      );
     }
 
     /* =========================
@@ -496,7 +571,7 @@ export const addSelfTestStepV2 = async (req, res) => {
 
     const isStepExist = await SelfTestStep.findOne({ stepNo });
 
-    let responseMessage = "Self test step created successfully.";
+    let responseMessage = 'Self test step created successfully.';
 
     if (isStepExist) {
       const existingSteps = await SelfTestStep.find({
@@ -513,7 +588,7 @@ export const addSelfTestStepV2 = async (req, res) => {
        PARSE QUESTIONS
     ========================= */
 
-    if (typeof questions === "string") {
+    if (typeof questions === 'string') {
       questions = JSON.parse(questions);
     }
 
@@ -541,7 +616,12 @@ export const addSelfTestStepV2 = async (req, res) => {
     return successResponse(res, newStep, responseMessage, responseMessage);
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Unable to save step.", error.message);
+    return somethingWentWrong(
+      res,
+      error,
+      'Unable to save step.',
+      error.message
+    );
   }
 };
 
@@ -550,15 +630,33 @@ export const deleteSelfTestId = async (req, res) => {
   try {
     const deletedStep = await SelfTestStep.findById({ _id: stepId });
     if (deleteStep == null) {
-      notFoundResponse(res, "Data not found", `Delete happens successfully Id: ${stepId}`);
+      notFoundResponse(
+        res,
+        'Data not found',
+        `Delete happens successfully Id: ${stepId}`
+      );
     } else {
       const deleteStep = await SelfTestStep.findByIdAndDelete({ _id: stepId });
-      deleteStep && successResponse(res, deleteStep, "Data deleted successfully.", `Deleted data is id:${stepId}`);
-      notFoundResponse(res, "Data not found", `Delete happens successfully Id: ${stepId}`);
+      deleteStep &&
+        successResponse(
+          res,
+          deleteStep,
+          'Data deleted successfully.',
+          `Deleted data is id:${stepId}`
+        );
+      notFoundResponse(
+        res,
+        'Data not found',
+        `Delete happens successfully Id: ${stepId}`
+      );
     }
   } catch (error) {
     console.error(error);
-    badRequestResponse(res, "Unable to delete this step.", `Unable to delete this step id:${stepId}`);
+    badRequestResponse(
+      res,
+      'Unable to delete this step.',
+      `Unable to delete this step id:${stepId}`
+    );
   }
 };
 
@@ -569,7 +667,11 @@ export const updateSelfTestQuestion2 = async (req, res) => {
   try {
     const step = await SelfTestStep.findById(stepId);
     if (!step) {
-      return notFoundResponse(res, "Step not found.", `Step not found. Id: ${stepId}`);
+      return notFoundResponse(
+        res,
+        'Step not found.',
+        `Step not found. Id: ${stepId}`
+      );
     }
 
     // Edit existing question
@@ -577,21 +679,35 @@ export const updateSelfTestQuestion2 = async (req, res) => {
       const question = step.questions.id(payload.questionId);
 
       if (!question) {
-        return notFoundResponse(res, "Question not found.", `Question not found. Id: ${payload.questionId}`);
+        return notFoundResponse(
+          res,
+          'Question not found.',
+          `Question not found. Id: ${payload.questionId}`
+        );
       }
 
       const newTitle = payload.title.trim();
 
       // Same title, no update needed
       if (question.title === newTitle) {
-        return successResponse(res, question, "No changes detected.", `Question title unchanged. Id: ${payload.questionId}`);
+        return successResponse(
+          res,
+          question,
+          'No changes detected.',
+          `Question title unchanged. Id: ${payload.questionId}`
+        );
       }
 
       question.title = newTitle;
 
       await step.save();
 
-      return successResponse(res, question, "Question updated successfully.", `Updated question id: ${payload.questionId}`);
+      return successResponse(
+        res,
+        question,
+        'Question updated successfully.',
+        `Updated question id: ${payload.questionId}`
+      );
     }
 
     if (!payload.questionId && payload.title) {
@@ -603,14 +719,23 @@ export const updateSelfTestQuestion2 = async (req, res) => {
 
       await step.save();
 
-      return successResponse(res, step.questions[step.questions.length - 1], "Question added successfully.", `Question added to step id: ${stepId}`);
+      return successResponse(
+        res,
+        step.questions[step.questions.length - 1],
+        'Question added successfully.',
+        `Question added to step id: ${stepId}`
+      );
     }
 
-    return badRequestResponse(res, "Invalid request.", "Missing required fields.");
+    return badRequestResponse(
+      res,
+      'Invalid request.',
+      'Missing required fields.'
+    );
   } catch (error) {
     console.error(error);
 
-    return badRequestResponse(res, "Unable to update question.", error.message);
+    return badRequestResponse(res, 'Unable to update question.', error.message);
   }
 };
 
@@ -621,47 +746,75 @@ export const deleteSelfTestQuestionById2 = async (req, res) => {
     const step = await SelfTestStep.findById(stepId);
 
     if (!step) {
-      return notFoundResponse(res, "Step not found.", `Step not found. Id: ${stepId}`);
+      return notFoundResponse(
+        res,
+        'Step not found.',
+        `Step not found. Id: ${stepId}`
+      );
     }
 
     const question = step.questions.id(questionId);
 
     if (!question) {
-      return notFoundResponse(res, "Question not found.", `Question not found. Id: ${questionId}`);
+      return notFoundResponse(
+        res,
+        'Question not found.',
+        `Question not found. Id: ${questionId}`
+      );
     }
 
     step.questions.pull({ _id: questionId });
 
     await step.save();
 
-    return successResponse(res, question, "Question deleted successfully.", `Deleted question id: ${questionId}`);
+    return successResponse(
+      res,
+      question,
+      'Question deleted successfully.',
+      `Deleted question id: ${questionId}`
+    );
   } catch (error) {
     console.error(error);
 
-    return badRequestResponse(res, "Unable to delete question.", error.message);
+    return badRequestResponse(res, 'Unable to delete question.', error.message);
   }
 };
 
 export const updateSelfTestAnswerV2 = async (req, res) => {
   const params = req.params;
   const { questionId, title, score } = req.body;
-  console.log("🚀 ~ selfTestSteps.js:653 ~ updateSelfTestAnswerV2 ~ req.body:", req.body);
+  console.log(
+    '🚀 ~ selfTestSteps.js:653 ~ updateSelfTestAnswerV2 ~ req.body:',
+    req.body
+  );
 
   try {
     const step = await SelfTestStep.findById(params.stepId);
 
     if (!step) {
-      return notFoundResponse(res, "Step not found.", `Step not found. Id: ${params.stepId}`);
+      return notFoundResponse(
+        res,
+        'Step not found.',
+        `Step not found. Id: ${params.stepId}`
+      );
     }
 
     if (!questionId) {
-      return badRequestResponse(res, "Question ID is required.", "questionId is missing.");
+      return badRequestResponse(
+        res,
+        'Question ID is required.',
+        'questionId is missing.'
+      );
     }
 
     const question = step.questions.id(questionId);
 
     if (!question) {
-      return notFoundResponse(res, "Question not found.", `Question not found. Id: ${questionId}`);
+      return notFoundResponse(
+        res,
+        'Question not found.',
+        `Question not found. Id: ${questionId}`
+      );
     }
 
     // UPDATE FLOW (PRIMARY)
@@ -669,7 +822,11 @@ export const updateSelfTestAnswerV2 = async (req, res) => {
       const answer = question.answers.id(params.answerId);
 
       if (!answer) {
-        return notFoundResponse(res, "Answer not found.", `Answer not found. Id: ${params.answerId}`);
+        return notFoundResponse(
+          res,
+          'Answer not found.',
+          `Answer not found. Id: ${params.answerId}`
+        );
       }
 
       if (title !== undefined) {
@@ -682,7 +839,12 @@ export const updateSelfTestAnswerV2 = async (req, res) => {
 
       await step.save();
 
-      return successResponse(res, answer, "Answer updated successfully.", `Updated answer id: ${params.answerId}`);
+      return successResponse(
+        res,
+        answer,
+        'Answer updated successfully.',
+        `Updated answer id: ${params.answerId}`
+      );
     }
 
     // CREATE FLOW (FALLBACK)
@@ -695,11 +857,20 @@ export const updateSelfTestAnswerV2 = async (req, res) => {
 
     const createdAnswer = question.answers[question.answers.length - 1];
 
-    return successResponse(res, createdAnswer, "Answer added successfully.", `Answer added to question id: ${questionId}`);
+    return successResponse(
+      res,
+      createdAnswer,
+      'Answer added successfully.',
+      `Answer added to question id: ${questionId}`
+    );
   } catch (error) {
     console.error(error);
     const answerId = params.answerId;
-    return badRequestResponse(res, answerId ? "Unable to update answer." : "Unable to add answer.", error.message);
+    return badRequestResponse(
+      res,
+      answerId ? 'Unable to update answer.' : 'Unable to add answer.',
+      error.message
+    );
   }
 };
 
@@ -708,7 +879,11 @@ export const addUserSelfTest = async (req, res) => {
 
   try {
     if (!userId) {
-      return badRequestResponse(res, "User ID is required.", "userId is missing.");
+      return badRequestResponse(
+        res,
+        'User ID is required.',
+        'userId is missing.'
+      );
     }
 
     // normalize date → same day range
@@ -746,11 +921,18 @@ export const addUserSelfTest = async (req, res) => {
       });
     }
 
-    return successResponse(res, result, existing ? "Self test updated successfully." : "Self test created successfully.", "Upsert operation completed.");
+    return successResponse(
+      res,
+      result,
+      existing
+        ? 'Self test updated successfully.'
+        : 'Self test created successfully.',
+      'Upsert operation completed.'
+    );
   } catch (error) {
     console.error(error);
 
-    return badRequestResponse(res, "Failed to save self test.", error.message);
+    return badRequestResponse(res, 'Failed to save self test.', error.message);
   }
 };
 
@@ -790,7 +972,7 @@ export const getRecommendedDoctors = async (req, res) => {
       {
         upsert: true,
         new: true,
-      },
+      }
     );
 
     const getScoreRange = (score) => {
@@ -812,13 +994,24 @@ export const getRecommendedDoctors = async (req, res) => {
       },
       $or: [{ isRemoved: false }, { isRemoved: { $exists: false } }],
     })
-      .select("location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved")
+      .select(
+        'location profilePhoto currentWorkplace specialties qualifications fullName currentDesignation doctorRegistrationNumber  email isVerified currentWorkplace userId createdAt updatedAt isRemoved'
+      )
       .sort({ score: -1 });
 
-    return successResponse(res,doctors, "Recommended doctors fetched successfully.","Get all doctors successful.");
+    return successResponse(
+      res,
+      doctors,
+      'Recommended doctors fetched successfully.',
+      'Get all doctors successful.'
+    );
   } catch (error) {
     console.error(error);
 
-    return badRequestResponse(res, "Failed to fetch recommended doctors.", error.message);
+    return badRequestResponse(
+      res,
+      'Failed to fetch recommended doctors.',
+      error.message
+    );
   }
 };

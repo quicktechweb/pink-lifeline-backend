@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const ratingSchema = new mongoose.Schema(
   {
@@ -37,7 +37,7 @@ const ratingSchema = new mongoose.Schema(
 
     review: {
       type: String,
-      default: "",
+      default: '',
     },
 
     userName: {
@@ -47,22 +47,22 @@ const ratingSchema = new mongoose.Schema(
 
     doctorProfilePhoto: {
       type: String,
-      default: "",
+      default: '',
     },
 
     userProfilePhoto: {
       type: String,
-      default: "",
+      default: '',
     },
 
     doctorLocation: {
       type: String,
-      default: "",
+      default: '',
     },
 
     hospitalName: {
       type: String,
-      default: "",
+      default: '',
     },
 
     rating: {
@@ -80,10 +80,10 @@ const ratingSchema = new mongoose.Schema(
   {
     versionKey: false,
     timestamps: true,
-  },
+  }
 );
 
 // Prevent the same user from rating the same doctor multiple times
 // ratingSchema.index({ doctorUserId: 1, userId: 1 }, { unique: true });
 
-export default mongoose.model("Rating", ratingSchema);
+export default mongoose.model('Rating', ratingSchema);

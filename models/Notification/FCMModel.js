@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userFCMTokenSchema = new mongoose.Schema(
   {
@@ -32,9 +32,9 @@ const userFCMTokenSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-const UserFCMToken = mongoose.model("UserFCMToken", userFCMTokenSchema);
+const UserFCMToken = mongoose.model('UserFCMToken', userFCMTokenSchema);
 
 export default UserFCMToken;

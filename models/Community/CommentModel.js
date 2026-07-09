@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const commentSchema = new mongoose.Schema(
   {
     postId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
+      ref: 'Post',
       required: true,
       index: true,
     },
@@ -63,7 +63,7 @@ const commentSchema = new mongoose.Schema(
      */
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
+      ref: 'Comment',
       default: null,
       index: true,
     },
@@ -93,14 +93,14 @@ const commentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-commentSchema.virtual("netvote").get(function () {
+commentSchema.virtual('netvote').get(function () {
   return this.upvote - this.downvote;
 });
 
-commentSchema.set("toJSON", { virtuals: true });
-commentSchema.set("toObject", { virtuals: true });
+commentSchema.set('toJSON', { virtuals: true });
+commentSchema.set('toObject', { virtuals: true });
 
-export const Comment = mongoose.model("Comment", commentSchema);
+export const Comment = mongoose.model('Comment', commentSchema);

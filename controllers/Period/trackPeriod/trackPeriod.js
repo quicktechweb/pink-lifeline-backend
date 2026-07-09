@@ -1,53 +1,102 @@
-import { badRequestResponse, isValidNewPeriodGap, isWithinSamePeriod, checkValidGapBetweenPeriods, notFoundResponse, somethingWentWrong, successResponse, getBleedingTitle, getSpottingTitle, getSymptomTitle } from "../../../utils/utils.js";
-import User from "../../../models/DoctorRegistration/DoctorRegistration.js";
-import PeriodTracker from "./../../../models/Period/PeriodModel.js";
-import PeriodDateNoteModel from "../../../models/Period/PeriodDateNoteModel.js";
-import { Bleeding } from "../../../models/Dropdowns/bleedingDropdownModel.js";
-import { Spotting } from "../../../models/Dropdowns/spottingDropdownModel.js";
-import { Symptom } from "../../../models/Dropdowns/symptomsDropdownModel.js";
-import { UserSelfTest } from "../../../models/SelfTest/selfTestUserMode.js";
-import { AVERAGE_PERIOD_DURATION, MONTH_ORDER, POST_MENSTRUAL_INTERVAL } from "../../../constant/constant.js";
-import { getPeriodBasicInsightsService, getPeriodBasicInsightsServiceV2 } from "../../../services/periodTrackService.js";
-import { Vote } from "../../../models/Community/VoteModel.js";
-import { Comment } from "../../../models/Community/CommentModel.js";
+import {
+  badRequestResponse,
+  isValidNewPeriodGap,
+  isWithinSamePeriod,
+  checkValidGapBetweenPeriods,
+  notFoundResponse,
+  somethingWentWrong,
+  successResponse,
+  getBleedingTitle,
+  getSpottingTitle,
+  getSymptomTitle,
+} from '../../../utils/utils.js';
+import User from '../../../models/DoctorRegistration/DoctorRegistration.js';
+import PeriodTracker from './../../../models/Period/PeriodModel.js';
+import PeriodDateNoteModel from '../../../models/Period/PeriodDateNoteModel.js';
+import { Bleeding } from '../../../models/Dropdowns/bleedingDropdownModel.js';
+import { Spotting } from '../../../models/Dropdowns/spottingDropdownModel.js';
+import { Symptom } from '../../../models/Dropdowns/symptomsDropdownModel.js';
+import { UserSelfTest } from '../../../models/SelfTest/selfTestUserMode.js';
+import {
+  AVERAGE_PERIOD_DURATION,
+  MONTH_ORDER,
+  POST_MENSTRUAL_INTERVAL,
+} from '../../../constant/constant.js';
+import {
+  getPeriodBasicInsightsService,
+  getPeriodBasicInsightsServiceV2,
+} from '../../../services/periodTrackService.js';
+import { Vote } from '../../../models/Community/VoteModel.js';
+import { Comment } from '../../../models/Community/CommentModel.js';
 
 export const recordPeriodLog = async (req, res) => {
   try {
     const payload = req.body;
 
     if (!payload.userId) {
-      return notFoundResponse(res, "User not found.", "User ID is missing.");
+      return notFoundResponse(res, 'User not found.', 'User ID is missing.');
     }
 
     const isUserExist = await User.findOne({ userId: payload.userId });
     if (!isUserExist) {
-      return notFoundResponse(res, "User not found.", "User is not registered.");
+      return notFoundResponse(
+        res,
+        'User not found.',
+        'User is not registered.'
+      );
     }
 
     if (!payload.currentDate) {
-      return badRequestResponse(res, "Bad request occurred.", "Current date is required.");
+      return badRequestResponse(
+        res,
+        'Bad request occurred.',
+        'Current date is required.'
+      );
     }
 
     const currentDate = new Date(payload.currentDate);
     if (Number.isNaN(currentDate.getTime())) {
-      return badRequestResponse(res, "Current date is invalid.", "Current date is invalid.");
+      return badRequestResponse(
+        res,
+        'Current date is invalid.',
+        'Current date is invalid.'
+      );
     }
 
     if (currentDate.getTime() > Date.now()) {
-      return badRequestResponse(res, "Current date cannot be in the future.", "Current date cannot be in the future.");
+      return badRequestResponse(
+        res,
+        'Current date cannot be in the future.',
+        'Current date cannot be in the future.'
+      );
     }
 
-    if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
-      return badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
+    if (
+      !payload.period?.bleeding &&
+      !payload.period?.spotting?.length &&
+      !payload.period?.symptoms?.length
+    ) {
+      return badRequestResponse(
+        res,
+        'Bad request occurred.',
+        'At least one of bleeding, spotting, or symptoms is required.'
+      );
     }
 
     if (payload.startDate && payload.endDate) {
-      return badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
+      return badRequestResponse(
+        res,
+        'Bad request occurred.',
+        'startDate and endDate cannot be provided together.'
+      );
     }
 
     let bleedingTitle;
 
-    if (!payload.period.bleeding.title || payload.period.bleeding.title == null) {
+    if (
+      !payload.period.bleeding.title ||
+      payload.period.bleeding.title == null
+    ) {
       bleedingTitle = await getBleedingTitle(payload.period.bleeding._id);
     } else {
       bleedingTitle = null;
@@ -57,14 +106,20 @@ export const recordPeriodLog = async (req, res) => {
       ? {
           id: payload.period.bleeding._id,
           title: bleedingTitle,
-          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel) ? payload.period.bleeding.flowLevel : 0,
+          flowLevel: [0, 1, 2, 3].includes(payload.period?.bleeding?.flowLevel)
+            ? payload.period.bleeding.flowLevel
+            : 0,
           hadFlow: (payload.period.bleeding.flowLevel ?? 0) !== 0,
         }
       : undefined;
 
     const rawFlow = payload.period?.bleeding?.flowLevel;
     if (rawFlow !== undefined && ![0, 1, 2, 3].includes(rawFlow)) {
-      return badRequestResponse(res, "Invalid flow level.", "flowLevel must be 0, 1, 2, or 3");
+      return badRequestResponse(
+        res,
+        'Invalid flow level.',
+        'flowLevel must be 0, 1, 2, or 3'
+      );
     }
 
     let symptoms = payload.period?.symptoms;
@@ -74,7 +129,7 @@ export const recordPeriodLog = async (req, res) => {
           symptoms.map(async (symptom) => ({
             ...symptom,
             title: symptom.title || (await getSymptomTitle(symptom._id)),
-          })),
+          }))
         );
       }
     }
@@ -85,7 +140,7 @@ export const recordPeriodLog = async (req, res) => {
         spotting.map(async (item) => ({
           ...item,
           title: item.title || (await getSpottingTitle(item._id)),
-        })),
+        }))
       );
     }
 
@@ -103,8 +158,15 @@ export const recordPeriodLog = async (req, res) => {
     const findSameDateIndex = (periodArray) => {
       return periodArray.findIndex((entry) => {
         const entryDate = new Date(entry.currentDate);
-        console.log("🚀 ~ trackPeriod.js:418 ~ findSameDateIndex ~ entry.currentDate:", entry.currentDate);
-        return entryDate.getFullYear() === currentDate.getFullYear() && entryDate.getMonth() === currentDate.getMonth() && entryDate.getDate() === currentDate.getDate();
+        console.log(
+          '🚀 ~ trackPeriod.js:418 ~ findSameDateIndex ~ entry.currentDate:',
+          entry.currentDate
+        );
+        return (
+          entryDate.getFullYear() === currentDate.getFullYear() &&
+          entryDate.getMonth() === currentDate.getMonth() &&
+          entryDate.getDate() === currentDate.getDate()
+        );
       });
     };
 
@@ -136,7 +198,9 @@ export const recordPeriodLog = async (req, res) => {
 
     // ─── 3. FETCH LATEST RECORD ──────────────────────────────────────────────
 
-    const latestPeriod = await PeriodTracker.findOne({ userId: payload.userId }).sort({
+    const latestPeriod = await PeriodTracker.findOne({
+      userId: payload.userId,
+    }).sort({
       createdAt: -1,
     });
 
@@ -144,27 +208,44 @@ export const recordPeriodLog = async (req, res) => {
 
     if (!latestPeriod) {
       if (payload.endDate) {
-        return badRequestResponse(res, "Bad request occurred.", "Cannot provide an end date when no period has been started.");
+        return badRequestResponse(
+          res,
+          'Bad request occurred.',
+          'Cannot provide an end date when no period has been started.'
+        );
       }
 
       const newRecord = await PeriodTracker.create({
         userId: payload.userId,
         currentDate,
-        startDate: payload.startDate ? new Date(payload.startDate) : currentDate,
+        startDate: payload.startDate
+          ? new Date(payload.startDate)
+          : currentDate,
         endDate: null,
         period: [newPeriodEntry],
       });
 
-      return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+      return successResponse(
+        res,
+        newRecord,
+        'Period log recorded successfully.',
+        'Successfully recorded period log.'
+      );
     }
 
     // ─── 5. EXPLICIT NEW PERIOD START ────────────────────────────────────────
 
     if (payload.startDate) {
-      const referenceDate = latestPeriod.startDate ? new Date(latestPeriod.startDate) : new Date(latestPeriod.currentDate);
+      const referenceDate = latestPeriod.startDate
+        ? new Date(latestPeriod.startDate)
+        : new Date(latestPeriod.currentDate);
 
       if (!isValidNewPeriodGap(referenceDate, currentDate)) {
-        return badRequestResponse(res, "Frequent period entry detected.", "A new period cannot start this soon after the previous one.");
+        return badRequestResponse(
+          res,
+          'Frequent period entry detected.',
+          'A new period cannot start this soon after the previous one.'
+        );
       }
 
       // Auto-close any period the user forgot to mark as ended.
@@ -182,14 +263,23 @@ export const recordPeriodLog = async (req, res) => {
         period: [newPeriodEntry],
       });
 
-      return successResponse(res, newRecord, "New period started and log recorded successfully.", "Successfully recorded period log.");
+      return successResponse(
+        res,
+        newRecord,
+        'New period started and log recorded successfully.',
+        'Successfully recorded period log.'
+      );
     }
 
     // ─── 6. EXPLICIT PERIOD END ──────────────────────────────────────────────
 
     if (payload.endDate) {
       if (latestPeriod.endDate) {
-        return badRequestResponse(res, "Bad request occurred.", "No open period found to close. Please start a new period first.");
+        return badRequestResponse(
+          res,
+          'Bad request occurred.',
+          'No open period found to close. Please start a new period first.'
+        );
       }
 
       // Check if today already has an entry in this document before pushing
@@ -202,9 +292,18 @@ export const recordPeriodLog = async (req, res) => {
         currentDate,
       };
 
-      const updatedRecord = await PeriodTracker.findByIdAndUpdate(latestPeriod._id, updatePayload, { new: true });
+      const updatedRecord = await PeriodTracker.findByIdAndUpdate(
+        latestPeriod._id,
+        updatePayload,
+        { new: true }
+      );
 
-      return successResponse(res, updatedRecord, "Period ended and log recorded successfully.", "Successfully recorded period log.");
+      return successResponse(
+        res,
+        updatedRecord,
+        'Period ended and log recorded successfully.',
+        'Successfully recorded period log.'
+      );
     }
 
     // ─── 7. DAILY LOG (no startDate, no endDate) ─────────────────────────────
@@ -218,9 +317,18 @@ export const recordPeriodLog = async (req, res) => {
         // otherwise it pushes a new one. No more duplicate entries for the same day.
         const updatePayload = buildPeriodUpdate(latestPeriod.period ?? []);
 
-        const updatedRecord = await PeriodTracker.findByIdAndUpdate(latestPeriod._id, updatePayload, { new: true });
+        const updatedRecord = await PeriodTracker.findByIdAndUpdate(
+          latestPeriod._id,
+          updatePayload,
+          { new: true }
+        );
 
-        return successResponse(res, updatedRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+        return successResponse(
+          res,
+          updatedRecord,
+          'Period log recorded successfully.',
+          'Successfully recorded period log.'
+        );
       } else {
         // Gap too large — auto-close previous, start new implicit period.
         await PeriodTracker.findByIdAndUpdate(latestPeriod._id, {
@@ -235,7 +343,12 @@ export const recordPeriodLog = async (req, res) => {
           period: [newPeriodEntry],
         });
 
-        return successResponse(res, newRecord, "Period log recorded successfully.", "Previous period auto-closed. New period started.");
+        return successResponse(
+          res,
+          newRecord,
+          'Period log recorded successfully.',
+          'Previous period auto-closed. New period started.'
+        );
       }
     }
 
@@ -244,7 +357,11 @@ export const recordPeriodLog = async (req, res) => {
     const referenceDate = new Date(latestPeriod.endDate);
 
     if (!isValidNewPeriodGap(referenceDate, currentDate)) {
-      return badRequestResponse(res, "Frequent period entry detected.", "A new period entry cannot be added this soon after the previous period ended.");
+      return badRequestResponse(
+        res,
+        'Frequent period entry detected.',
+        'A new period entry cannot be added this soon after the previous period ended.'
+      );
     }
 
     const newRecord = await PeriodTracker.create({
@@ -255,7 +372,12 @@ export const recordPeriodLog = async (req, res) => {
       period: [newPeriodEntry],
     });
 
-    return successResponse(res, newRecord, "Period log recorded successfully.", "Successfully recorded period log.");
+    return successResponse(
+      res,
+      newRecord,
+      'Period log recorded successfully.',
+      'Successfully recorded period log.'
+    );
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
@@ -270,7 +392,7 @@ const validateRecordPeriodData = async (res, payload) => {
 
   // Ensure userId is present in the payload
   if (!payload.userId) {
-    notFoundResponse(res, "User not found.", "User ID is missing.");
+    notFoundResponse(res, 'User not found.', 'User ID is missing.');
     return false;
   }
 
@@ -278,27 +400,43 @@ const validateRecordPeriodData = async (res, payload) => {
   const isUserExist = await User.findOne({ userId: payload.userId });
 
   if (!isUserExist) {
-    notFoundResponse(res, "User not found.", "User is not registered.");
+    notFoundResponse(res, 'User not found.', 'User is not registered.');
     return false;
   }
 
   // currentDate is required for all period logging operations
   if (!payload.currentDate) {
-    badRequestResponse(res, "Bad request occurred.", "Current date is required.");
+    badRequestResponse(
+      res,
+      'Bad request occurred.',
+      'Current date is required.'
+    );
     return false;
   }
 
   // At least one of bleeding, spotting, or symptoms must be provided —
   // an entry with no medical data is meaningless
-  if (!payload.period?.bleeding && !payload.period?.spotting?.length && !payload.period?.symptoms?.length) {
-    badRequestResponse(res, "Bad request occurred.", "At least one of bleeding, spotting, or symptoms is required.");
+  if (
+    !payload.period?.bleeding &&
+    !payload.period?.spotting?.length &&
+    !payload.period?.symptoms?.length
+  ) {
+    badRequestResponse(
+      res,
+      'Bad request occurred.',
+      'At least one of bleeding, spotting, or symptoms is required.'
+    );
     return false;
   }
 
   // startDate and endDate together are ambiguous — only one boundary
   // should be set per request (start uses recordPeriodStart, end uses recordPeriodEnd)
   if (payload.startDate && payload.endDate) {
-    badRequestResponse(res, "Bad request occurred.", "startDate and endDate cannot be provided together.");
+    badRequestResponse(
+      res,
+      'Bad request occurred.',
+      'startDate and endDate cannot be provided together.'
+    );
     return false;
   }
 
@@ -310,23 +448,26 @@ const validateRecordPeriodData = async (res, payload) => {
 const parseAsUTCDateOnly = (dateStr) => {
   if (!dateStr) return null;
   // Extract YYYY-MM-DD portion only, then force midnight UTC
-  const datePart = dateStr.toString().split("T")[0];
-  return new Date(datePart + "T00:00:00.000Z");
+  const datePart = dateStr.toString().split('T')[0];
+  return new Date(datePart + 'T00:00:00.000Z');
 };
 
 // Get today as UTC midnight (for future-date comparisons)
 const todayUTC = () => {
   const now = new Date();
-  return new Date(now.toISOString().split("T")[0] + "T00:00:00.000Z");
+  return new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
 };
 
 // Format a Date object back to YYYY-MM-DD string for API responses
-const toDateOnly = (date) => new Date(date).toISOString().split("T")[0];
+const toDateOnly = (date) => new Date(date).toISOString().split('T')[0];
 
 export const getAveragePeriodDuration = (periodDocs) => {
   if (!periodDocs.length) return 0;
 
-  const totalPeriodDuration = periodDocs.reduce((sum, p) => sum + (p.periodDuration || 0), 0);
+  const totalPeriodDuration = periodDocs.reduce(
+    (sum, p) => sum + (p.periodDuration || 0),
+    0
+  );
 
   return Math.round(totalPeriodDuration / periodDocs.length);
 };
@@ -335,7 +476,9 @@ export const getAveragePeriodDuration = (periodDocs) => {
 // // Takes the array of period docs (any order) and returns the rounded average
 // // gap between consecutive cycle start dates
 export const getAverageCycleLength = (periodDocs) => {
-  const sorted = [...periodDocs].sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+  const sorted = [...periodDocs].sort(
+    (a, b) => new Date(a.startDate) - new Date(b.startDate)
+  );
 
   if (sorted.length < 2) return 0;
 
@@ -356,7 +499,7 @@ export const getPeriodData = async (req, res) => {
 
     // ✅ userId required
     if (!userId) {
-      return notFoundResponse(res, "User not found");
+      return notFoundResponse(res, 'User not found');
     }
 
     // ✅ user exist check
@@ -365,7 +508,11 @@ export const getPeriodData = async (req, res) => {
     });
 
     if (!isUserExist) {
-      return notFoundResponse(res, "User not found.", "User email is not registered.");
+      return notFoundResponse(
+        res,
+        'User not found.',
+        'User email is not registered.'
+      );
     }
 
     // ✅ get all period documents by userId
@@ -375,11 +522,20 @@ export const getPeriodData = async (req, res) => {
 
     // ✅ no data found
     if (!periodData || periodData.length === 0) {
-      return notFoundResponse(res, "No period data found.", "This user has no recorded period logs.");
+      return notFoundResponse(
+        res,
+        'No period data found.',
+        'This user has no recorded period logs.'
+      );
     }
 
     // ✅ success response
-    return successResponse(res, periodData, "Period data fetched successfully.", "Successfully fetched period history.");
+    return successResponse(
+      res,
+      periodData,
+      'Period data fetched successfully.',
+      'Successfully fetched period history.'
+    );
   } catch (error) {
     console.error(error);
 
@@ -398,24 +554,6 @@ export const getPeriodData = async (req, res) => {
 // // gap between consecutive cycle start dates
 
 // // ─── Controller ──────────────────────────────────────────────────────────────
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // export const getPeriodBasicInsights = async (req, res) => {
 //   try {
@@ -592,10 +730,10 @@ export const getPeriodData = async (req, res) => {
 //   }
 // };
 
-
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-const toMonthName = (d) => new Date(d).toLocaleString("en-US", { month: "short" }).toUpperCase();
+const toMonthName = (d) =>
+  new Date(d).toLocaleString('en-US', { month: 'short' }).toUpperCase();
 
 /**
  * Splits a single period (with startDate/endDate) into one or more
@@ -606,7 +744,10 @@ export const expandPeriodAcrossMonths = (period) => {
   const startDate = new Date(period.startDate);
   const endDate = new Date(period.endDate);
 
-  if (startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()) {
+  if (
+    startDate.getMonth() === endDate.getMonth() &&
+    startDate.getFullYear() === endDate.getFullYear()
+  ) {
     return [
       {
         monthName: toMonthName(startDate),
@@ -619,7 +760,10 @@ export const expandPeriodAcrossMonths = (period) => {
   const segments = [];
   let cursor = new Date(startDate);
 
-  while (cursor.getMonth() !== endDate.getMonth() || cursor.getFullYear() !== endDate.getFullYear()) {
+  while (
+    cursor.getMonth() !== endDate.getMonth() ||
+    cursor.getFullYear() !== endDate.getFullYear()
+  ) {
     const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
     segments.push({
       monthName: toMonthName(cursor),
@@ -722,8 +866,13 @@ export const computeCycleInsights = (cycles) => {
     const endDate = cycle[cycle.length - 1].date;
 
     const cycleDuration = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
-    const bleedingDuration = cycle.filter((d) => d?.bleeding?.flowLevel >= 1).length;
-    const symptomFrequency = cycle.reduce((acc, day) => acc + (day.symptoms?.length || 0), 0);
+    const bleedingDuration = cycle.filter(
+      (d) => d?.bleeding?.flowLevel >= 1
+    ).length;
+    const symptomFrequency = cycle.reduce(
+      (acc, day) => acc + (day.symptoms?.length || 0),
+      0
+    );
 
     return {
       cycleNumber: index + 1,
@@ -735,36 +884,6 @@ export const computeCycleInsights = (cycles) => {
     };
   });
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // ── Controller ───────────────────────────────────────────────────────────
 
@@ -850,9 +969,8 @@ export const computeCycleInsights = (cycles) => {
 //     (a, b) =>
 //       MONTH_ORDER.indexOf(a.monthName) - MONTH_ORDER.indexOf(b.monthName)
 //   )
-//   .slice(0, 6);        
-  
-  
+//   .slice(0, 6);
+
 //   // console.log("🚀 ~ trackPeriod.js:801 ~ getPeriodBasicInsights ~ result:", result)
 
 //         return successResponse(res, result, "Period insights generated successfully.", "Successfully generated period insights.");
@@ -885,8 +1003,6 @@ export const computeCycleInsights = (cycles) => {
 //   }
 // };
 
-
-
 export const getUserInspectsDetails = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -898,18 +1014,10 @@ export const getUserInspectsDetails = async (req, res) => {
     });
 
     if (!user) {
-      return notFoundResponse(
-        res,
-        "User not found.",
-        "User not found."
-      );
+      return notFoundResponse(res, 'User not found.', 'User not found.');
     }
 
-    const [
-      voteStats,
-      totalComments,
-      totalReplies,
-    ] = await Promise.all([
+    const [voteStats, totalComments, totalReplies] = await Promise.all([
       Vote.aggregate([
         {
           $match: {
@@ -924,20 +1032,12 @@ export const getUserInspectsDetails = async (req, res) => {
             },
             totalUpvotes: {
               $sum: {
-                $cond: [
-                  { $eq: ["$type", "upvote"] },
-                  1,
-                  0,
-                ],
+                $cond: [{ $eq: ['$type', 'upvote'] }, 1, 0],
               },
             },
             totalDownvotes: {
               $sum: {
-                $cond: [
-                  { $eq: ["$type", "downvote"] },
-                  1,
-                  0,
-                ],
+                $cond: [{ $eq: ['$type', 'downvote'] }, 1, 0],
               },
             },
           },
@@ -971,36 +1071,14 @@ export const getUserInspectsDetails = async (req, res) => {
         ...user.toObject(),
         statistics,
       },
-      "User details fetched successfully.",
-      "User details fetched successfully."
+      'User details fetched successfully.',
+      'User details fetched successfully.'
     );
   } catch (error) {
     console.error(error);
-    return somethingWentWrong(res, error, "Something went wrong.");
+    return somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getPeriodBasicInsights = async (req, res) => {
   try {
@@ -1008,22 +1086,16 @@ export const getPeriodBasicInsights = async (req, res) => {
 
     const result = await getPeriodBasicInsightsService(userId);
 
-    return successResponse(
-      res,
-      result.data,
-      result.message,
-      result.logMessage
-    );
+    return successResponse(res, result.data, result.message, result.logMessage);
   } catch (error) {
     console.error(error);
     return somethingWentWrong(
       res,
       error,
-      error.message || "Something went wrong while generating insights."
+      error.message || 'Something went wrong while generating insights.'
     );
   }
 };
-
 
 export const getPeriodBasicInsightsV2 = async (req, res) => {
   try {
@@ -1031,28 +1103,16 @@ export const getPeriodBasicInsightsV2 = async (req, res) => {
 
     const result = await getPeriodBasicInsightsServiceV2(userId);
 
-    return successResponse(
-      res,
-      result.data,
-      result.message,
-      result.logMessage
-    );
+    return successResponse(res, result.data, result.message, result.logMessage);
   } catch (error) {
     console.error(error);
     return somethingWentWrong(
       res,
       error,
-      error.message || "Something went wrong while generating insights."
+      error.message || 'Something went wrong while generating insights.'
     );
   }
 };
-
-
-
-
-
-
-
 
 // export const getPeriodBasicInsights = async (req, res) => {
 //   try {
@@ -1130,34 +1190,6 @@ export const getPeriodBasicInsightsV2 = async (req, res) => {
 //   }
 // };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const addDailyNote = async (req, res) => {
   const payload = req.body;
   const userId = req.params.userId;
@@ -1165,11 +1197,21 @@ export const addDailyNote = async (req, res) => {
   const { time, date, note } = payload;
 
   try {
-    const newDailyNote = await PeriodDateNoteModel.create({ time, date, note, userId: userId });
-    successResponse(res, newDailyNote, "Note has been created successfully.", `Period day note has been added.`);
+    const newDailyNote = await PeriodDateNoteModel.create({
+      time,
+      date,
+      note,
+      userId: userId,
+    });
+    successResponse(
+      res,
+      newDailyNote,
+      'Note has been created successfully.',
+      `Period day note has been added.`
+    );
   } catch (error) {
     console.error(error);
-    somethingWentWrong(res, error, "Something went wrong.");
+    somethingWentWrong(res, error, 'Something went wrong.');
   }
 };
 
@@ -1180,19 +1222,15 @@ export const previousPeriodsInfoService = async (userId) => {
     createdAt: 1,
   });
 
-  const isEndedByUser = periodDocs.every(
-    (doc) => doc.isEndedByUser === true
-  );
+  const isEndedByUser = periodDocs.every((doc) => doc.isEndedByUser === true);
 
-  const activePeriod = periodDocs.find(
-    (doc) => doc.isEndedByUser === false
-  );
+  const activePeriod = periodDocs.find((doc) => doc.isEndedByUser === false);
 
   const activePeriodDate = activePeriod?.startDate
-    ? activePeriod.startDate.toISOString().split("T")[0]
+    ? activePeriod.startDate.toISOString().split('T')[0]
     : null;
 
-  console.log(getTimestamp(), "SUCCESS:", "All period data is fetched.");
+  console.log(getTimestamp(), 'SUCCESS:', 'All period data is fetched.');
 
   return {
     success: true,
@@ -1200,12 +1238,9 @@ export const previousPeriodsInfoService = async (userId) => {
     isEndedByUser,
     data: periodDocs,
     length: periodDocs.length,
-    message: "All period data is fetched successfully.",
+    message: 'All period data is fetched successfully.',
   };
 };
-
-
-
 
 export const previousPeriodsInfo = async (req, res) => {
   try {
@@ -1218,7 +1253,7 @@ export const previousPeriodsInfo = async (req, res) => {
     return somethingWentWrong(
       res,
       error,
-      error.message || "Something went wrong while fetching period data."
+      error.message || 'Something went wrong while fetching period data.'
     );
   }
 };

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const degreeSchema = new mongoose.Schema(
   {
@@ -19,6 +19,6 @@ const degreeSchema = new mongoose.Schema(
   }
 );
 
-const Degree = mongoose.model("Degree", degreeSchema);
+const Degree = mongoose.model('Degree', degreeSchema);
 
 export default Degree;

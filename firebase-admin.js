@@ -1,10 +1,10 @@
-import admin from "firebase-admin";
-import dotenv from "dotenv";
+import admin from 'firebase-admin';
+import dotenv from 'dotenv';
 dotenv.config();
 
 // Make sure the env var exists
 if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-  throw new Error("FIREBASE_SERVICE_ACCOUNT environment variable is not set");
+  throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not set');
 }
 
 // Parse the JSON string from the environment variable

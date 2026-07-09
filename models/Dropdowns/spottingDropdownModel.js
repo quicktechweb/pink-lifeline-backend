@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 /* =========================
    SPOTTING SCHEMA
@@ -15,11 +15,11 @@ export const spottingSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 /* =========================
    MODEL
 ========================= */
 
-export const Spotting = mongoose.model("Spotting", spottingSchema);
+export const Spotting = mongoose.model('Spotting', spottingSchema);

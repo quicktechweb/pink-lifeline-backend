@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const periodDayNoteSchema = new mongoose.Schema(
   {
@@ -16,23 +16,22 @@ const periodDayNoteSchema = new mongoose.Schema(
     time: {
       type: String,
       default: () =>
-        new Date().toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
+        new Date().toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
         }),
     },
 
     note: {
       type: String,
       maxLength: 1000,
-      default: "",
+      default: '',
     },
-
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 /* =========================================================
    🔹 Export Model
 ========================================================= */
 
-export default mongoose.model("PeriodDateNote", periodDayNoteSchema);
+export default mongoose.model('PeriodDateNote', periodDayNoteSchema);

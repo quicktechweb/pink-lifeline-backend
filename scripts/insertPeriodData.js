@@ -1,8 +1,6 @@
-
-
-const URL = "http://localhost:5000/api/period/v1/insert-period";
+const URL = 'http://localhost:5000/api/period/v1/insert-period';
 // const USER_ID = "USR-CHJNB1";
-const USER_ID = "USR-1HQSUU";
+const USER_ID = 'USR-1HQSUU';
 // const USER_ID = "USR-SX0UWB";
 
 // ======================================================
@@ -13,68 +11,66 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const symptomsPool = [
   {
-    id: "6a12ed3a85f3e0ddcd0ad964",
-    title: "meh",
+    id: '6a12ed3a85f3e0ddcd0ad964',
+    title: 'meh',
     isRecent: 1,
-    __v: 0
+    __v: 0,
   },
   {
-    id: "6a12ef120da755ffc1b3c8b7",
-    title: "1231",
+    id: '6a12ef120da755ffc1b3c8b7',
+    title: '1231',
     isRecent: 1,
-    __v: 0
+    __v: 0,
   },
   {
-    id: "6a12ef290da755ffc1b3c8c6",
-    title: "123543534",
+    id: '6a12ef290da755ffc1b3c8c6',
+    title: '123543534',
     isRecent: 0,
-    __v: 0
+    __v: 0,
   },
   {
-    id: "6a12ef6a0da755ffc1b3c8df",
-    title: "54325",
+    id: '6a12ef6a0da755ffc1b3c8df',
+    title: '54325',
     isRecent: 0,
-    __v: 0
-  }
-]
-
-
+    __v: 0,
+  },
+];
 
 const notesPool = [
-  "Flow feels normal today.",
-  "Having mild cramps.",
-  "Energy level is low.",
-  "Heavy flow in the morning.",
-  "Feeling bloated.",
-  "Mood slightly irritated today.",
-  "Mild headache since afternoon.",
-  "Symptoms improving.",
-  "Period almost ending.",
+  'Flow feels normal today.',
+  'Having mild cramps.',
+  'Energy level is low.',
+  'Heavy flow in the morning.',
+  'Feeling bloated.',
+  'Mood slightly irritated today.',
+  'Mild headache since afternoon.',
+  'Symptoms improving.',
+  'Period almost ending.',
 ];
 
 const spottingPool = [
   {
-    id: "6a12ef1e0da755ffc1b3c8bf",
-    title: "123",
-    createdAt: "2026-05-24T12:29:18.279Z",
-    updatedAt: "2026-05-24T12:29:18.279Z",
-    __v: 0
+    id: '6a12ef1e0da755ffc1b3c8bf',
+    title: '123',
+    createdAt: '2026-05-24T12:29:18.279Z',
+    updatedAt: '2026-05-24T12:29:18.279Z',
+    __v: 0,
   },
   {
-    id: "6a12e86efa13c20a31b48e03",
-    title: "asdasd",
-    createdAt: "2026-05-24T12:00:46.629Z",
-    updatedAt: "2026-05-24T12:00:46.629Z",
-    __v: 0
+    id: '6a12e86efa13c20a31b48e03',
+    title: 'asdasd',
+    createdAt: '2026-05-24T12:00:46.629Z',
+    updatedAt: '2026-05-24T12:00:46.629Z',
+    __v: 0,
   },
   {
-    id: "6a117290e04822ffbd3410b6",
-    title: "Light Spotting nope 1",
+    id: '6a117290e04822ffbd3410b6',
+    title: 'Light Spotting nope 1',
     id: 1,
-    createdAt: "2026-05-23T09:25:36.712Z",
-    updatedAt: "2026-05-24T11:57:47.686Z",
-    __v: 0
-  }
+    createdAt: '2026-05-23T09:25:36.712Z',
+    updatedAt: '2026-05-24T11:57:47.686Z',
+    __v: 0,
+  },
 ];
 
 function randomItem(arr) {
@@ -94,26 +90,26 @@ function randomSymptoms(min = 1) {
 
 const bleedingData = [
   {
-    id: "6a11766eb9dec79489ffc050",
-    title: "bleeding 2",
+    id: '6a11766eb9dec79489ffc050',
+    title: 'bleeding 2',
     flowLevel: 2,
     hadFlow: true,
   },
   {
-    id: "6a117675b9dec79489ffc053",
-    title: "bleeding 0",
+    id: '6a117675b9dec79489ffc053',
+    title: 'bleeding 0',
     flowLevel: 3,
     hadFlow: true,
   },
   {
-    id: "6a12ef3a0da755ffc1b3c8cb",
-    title: "new title",
+    id: '6a12ef3a0da755ffc1b3c8cb',
+    title: 'new title',
     flowLevel: 0,
     hadFlow: false,
   },
   {
-    id: "6a12ef550da755ffc1b3c8d8",
-    title: "as3q2q",
+    id: '6a12ef550da755ffc1b3c8d8',
+    title: 'as3q2q',
     flowLevel: 2,
     hadFlow: true,
   },
@@ -123,7 +119,6 @@ const bleedingData = [
 const noFlow = bleedingData.find((b) => !b.hadFlow);
 const mediumFlow = bleedingData.find((b) => b.flowLevel === 2);
 const heavyFlow = bleedingData.find((b) => b.flowLevel === 3);
-
 
 function randomBleeding(day) {
   if (day === 1) return mediumFlow;
@@ -153,7 +148,7 @@ function formatDate(date) {
 // ======================================================
 
 async function generatePeriodData() {
-  let currentCycleStart = new Date("2026-01-05");
+  let currentCycleStart = new Date('2026-01-05');
 
   const totalCycles = 8;
 
@@ -162,7 +157,7 @@ async function generatePeriodData() {
     console.log(`  Cycle ${cycle}`);
     console.log(`==============================\n`);
 
-    const cycleLength = 26 + Math.floor(Math.random() * 5);   // 26–30 days
+    const cycleLength = 26 + Math.floor(Math.random() * 5); // 26–30 days
     const periodDuration = 4 + Math.floor(Math.random() * 3); // 4–6 days
 
     // --------------------------------------------------
@@ -183,8 +178,8 @@ async function generatePeriodData() {
 
     try {
       const response = await fetch(URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(startPayload),
       });
 
@@ -215,9 +210,10 @@ async function generatePeriodData() {
       const spotting = randomSpotting(isLastDay);
 
       // ✅ Ensure at least one of bleeding / spotting / symptoms is present
-      const symptoms = !bleeding && !spotting.length
-        ? randomSymptoms(1)   // force at least 1 symptom
-        : randomSymptoms();
+      const symptoms =
+        !bleeding && !spotting.length
+          ? randomSymptoms(1) // force at least 1 symptom
+          : randomSymptoms();
 
       const payload = {
         userId: USER_ID,
@@ -233,8 +229,8 @@ async function generatePeriodData() {
 
       try {
         const response = await fetch(URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
 
@@ -243,7 +239,9 @@ async function generatePeriodData() {
           throw new Error(JSON.stringify(data));
         }
 
-        console.log(`✅ Cycle ${cycle} — Day ${day}${isLastDay ? " (End)" : ""}`);
+        console.log(
+          `✅ Cycle ${cycle} — Day ${day}${isLastDay ? ' (End)' : ''}`
+        );
         console.log(`   ${data.message}\n`);
       } catch (err) {
         console.log(`❌ Cycle ${cycle} — Day ${day} Error`);
@@ -260,9 +258,9 @@ async function generatePeriodData() {
     currentCycleStart.setDate(currentCycleStart.getDate() + cycleLength);
   }
 
-  console.log("\n====================================");
-  console.log("🎉 REALISTIC PERIOD DATA GENERATED");
-  console.log("====================================\n");
+  console.log('\n====================================');
+  console.log('🎉 REALISTIC PERIOD DATA GENERATED');
+  console.log('====================================\n');
 }
 
 generatePeriodData();

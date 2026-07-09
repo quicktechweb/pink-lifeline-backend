@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const notificationSchema = new mongoose.Schema(
   {
@@ -14,7 +14,7 @@ const notificationSchema = new mongoose.Schema(
       },
     ],
 
-    postId:{
+    postId: {
       type: String,
     },
 
@@ -29,8 +29,6 @@ const notificationSchema = new mongoose.Schema(
     data: {
       type: String,
     },
-
-
 
     body: {
       type: String,
@@ -54,15 +52,14 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
-        "periodDateStart", // it will redirect to period start page
-        "periodDateEnd",  // it will redirect to period end page
-        "missedSelfTest", // it will redirect to self test page
-        "accountVerified", // it will redirect to profile page
+        'periodDateStart', // it will redirect to period start page
+        'periodDateEnd', // it will redirect to period end page
+        'missedSelfTest', // it will redirect to self test page
+        'accountVerified', // it will redirect to profile page
 
-        "post", // it will redirect to post page using postId
-        "doctorAppointment", // it will redirect to doctor appointment page using appointmentId
-        "patientAppointment" // it will redirect to patient appointment page using appointmentId
-
+        'post', // it will redirect to post page using postId
+        'doctorAppointment', // it will redirect to doctor appointment page using appointmentId
+        'patientAppointment', // it will redirect to patient appointment page using appointmentId
       ],
       index: true,
     },
@@ -95,9 +92,9 @@ const notificationSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
-const Notification = mongoose.model("Notification", notificationSchema);
+const Notification = mongoose.model('Notification', notificationSchema);
 
 export default Notification;

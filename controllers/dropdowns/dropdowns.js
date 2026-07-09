@@ -1,7 +1,11 @@
-import { Bleeding } from "../../models/Dropdowns/bleedingDropdownModel.js";
-import { Spotting } from "../../models/Dropdowns/spottingDropdownModel.js";
-import { Symptom } from "../../models/Dropdowns/symptomsDropdownModel.js";
-import { successResponse, somethingWentWrong, badRequestResponse } from "../../utils/utils.js";
+import { Bleeding } from '../../models/Dropdowns/bleedingDropdownModel.js';
+import { Spotting } from '../../models/Dropdowns/spottingDropdownModel.js';
+import { Symptom } from '../../models/Dropdowns/symptomsDropdownModel.js';
+import {
+  successResponse,
+  somethingWentWrong,
+  badRequestResponse,
+} from '../../utils/utils.js';
 
 /* =========================
    ADD SPOTTING
@@ -16,7 +20,7 @@ export const addSpotting = async (req, res) => {
     ========================= */
 
     if (!title) {
-      return badRequestResponse(res, "Title is required", "Title is required");
+      return badRequestResponse(res, 'Title is required', 'Title is required');
     }
 
     /* =========================
@@ -28,7 +32,11 @@ export const addSpotting = async (req, res) => {
     });
 
     if (existingSpotting) {
-      return badRequestResponse(res, "Spotting already exists", "Spotting already exists");
+      return badRequestResponse(
+        res,
+        'Spotting already exists',
+        'Spotting already exists'
+      );
     }
 
     /* =========================
@@ -39,11 +47,21 @@ export const addSpotting = async (req, res) => {
       title: title.trim(),
     });
 
-    return successResponse(res, spotting, "Spotting added successfully", "Spotting added successfully");
+    return successResponse(
+      res,
+      spotting,
+      'Spotting added successfully',
+      'Spotting added successfully'
+    );
   } catch (error) {
-    console.error("addSpotting error:", error);
+    console.error('addSpotting error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to add spotting", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to add spotting',
+      error.message
+    );
   }
 };
 
@@ -58,14 +76,24 @@ export const getAllSpotting = async (req, res) => {
     });
 
     if (!spotting.length) {
-      return badRequestResponse(res, "No spotting found", "No spotting found");
+      return badRequestResponse(res, 'No spotting found', 'No spotting found');
     }
 
-    return successResponse(res, spotting, "Spotting fetched successfully", "Spotting fetched successfully");
+    return successResponse(
+      res,
+      spotting,
+      'Spotting fetched successfully',
+      'Spotting fetched successfully'
+    );
   } catch (error) {
-    console.error("getAllSpotting error:", error);
+    console.error('getAllSpotting error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to fetch spotting", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to fetch spotting',
+      error.message
+    );
   }
 };
 
@@ -85,7 +113,11 @@ export const updateSpotting = async (req, res) => {
     const spotting = await Spotting.findById(spottingId);
 
     if (!spotting) {
-      return badRequestResponse(res, "Spotting not found", "Spotting not found");
+      return badRequestResponse(
+        res,
+        'Spotting not found',
+        'Spotting not found'
+      );
     }
 
     /* =========================
@@ -102,11 +134,21 @@ export const updateSpotting = async (req, res) => {
 
     await spotting.save();
 
-    return successResponse(res, spotting, "Spotting updated successfully", "Spotting updated successfully");
+    return successResponse(
+      res,
+      spotting,
+      'Spotting updated successfully',
+      'Spotting updated successfully'
+    );
   } catch (error) {
-    console.error("updateSpotting error:", error);
+    console.error('updateSpotting error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to update spotting", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to update spotting',
+      error.message
+    );
   }
 };
 
@@ -125,7 +167,11 @@ export const deleteSpotting = async (req, res) => {
     const spotting = await Spotting.findById(spottingId);
 
     if (!spotting) {
-      return badRequestResponse(res, "Spotting not found", "Spotting not found");
+      return badRequestResponse(
+        res,
+        'Spotting not found',
+        'Spotting not found'
+      );
     }
 
     /* =========================
@@ -134,11 +180,21 @@ export const deleteSpotting = async (req, res) => {
 
     const result = await Spotting.findByIdAndDelete(spottingId);
 
-    return successResponse(res, result, "Spotting deleted successfully", "Spotting deleted successfully");
+    return successResponse(
+      res,
+      result,
+      'Spotting deleted successfully',
+      'Spotting deleted successfully'
+    );
   } catch (error) {
-    console.error("deleteSpotting error:", error);
+    console.error('deleteSpotting error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to delete spotting", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to delete spotting',
+      error.message
+    );
   }
 };
 
@@ -148,14 +204,14 @@ export const deleteSpotting = async (req, res) => {
 
 export const addBleeding = async (req, res) => {
   try {
-    const {  title, flowLevel } = req.body;
+    const { title, flowLevel } = req.body;
 
     /* =========================
        VALIDATION
     ========================= */
 
     if (!title) {
-      return badRequestResponse(res, "Title is required", "Title is required");
+      return badRequestResponse(res, 'Title is required', 'Title is required');
     }
 
     /* =========================
@@ -167,7 +223,11 @@ export const addBleeding = async (req, res) => {
     });
 
     if (existingBleeding) {
-      return badRequestResponse(res, "Bleeding already exists", "Bleeding already exists");
+      return badRequestResponse(
+        res,
+        'Bleeding already exists',
+        'Bleeding already exists'
+      );
     }
 
     /* =========================
@@ -179,11 +239,21 @@ export const addBleeding = async (req, res) => {
       flowLevel,
     });
 
-    return successResponse(res, bleeding, "Bleeding added successfully", "Bleeding added successfully");
+    return successResponse(
+      res,
+      bleeding,
+      'Bleeding added successfully',
+      'Bleeding added successfully'
+    );
   } catch (error) {
-    console.error("addBleeding error:", error);
+    console.error('addBleeding error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to add bleeding", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to add bleeding',
+      error.message
+    );
   }
 };
 
@@ -198,14 +268,24 @@ export const getAllBleeding = async (req, res) => {
     });
 
     if (!bleeding.length) {
-      return badRequestResponse(res, "No bleeding found", "No bleeding found");
+      return badRequestResponse(res, 'No bleeding found', 'No bleeding found');
     }
 
-    return successResponse(res, bleeding, "Bleeding fetched successfully", "Bleeding fetched successfully");
+    return successResponse(
+      res,
+      bleeding,
+      'Bleeding fetched successfully',
+      'Bleeding fetched successfully'
+    );
   } catch (error) {
-    console.error("getAllBleeding error:", error);
+    console.error('getAllBleeding error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to fetch bleeding", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to fetch bleeding',
+      error.message
+    );
   }
 };
 
@@ -226,7 +306,11 @@ export const updateBleeding = async (req, res) => {
     const bleeding = await Bleeding.findById(bleedingId);
 
     if (!bleeding) {
-      return badRequestResponse(res, "Bleeding not found", "Bleeding not found");
+      return badRequestResponse(
+        res,
+        'Bleeding not found',
+        'Bleeding not found'
+      );
     }
 
     /* =========================
@@ -247,11 +331,21 @@ export const updateBleeding = async (req, res) => {
 
     await bleeding.save();
 
-    return successResponse(res, bleeding, "Bleeding updated successfully", "Bleeding updated successfully");
+    return successResponse(
+      res,
+      bleeding,
+      'Bleeding updated successfully',
+      'Bleeding updated successfully'
+    );
   } catch (error) {
-    console.error("updateBleeding error:", error);
+    console.error('updateBleeding error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to update bleeding", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to update bleeding',
+      error.message
+    );
   }
 };
 
@@ -270,7 +364,11 @@ export const deleteBleeding = async (req, res) => {
     const bleeding = await Bleeding.findById(bleedingId);
 
     if (!bleeding) {
-      return badRequestResponse(res, "Bleeding not found", "Bleeding not found");
+      return badRequestResponse(
+        res,
+        'Bleeding not found',
+        'Bleeding not found'
+      );
     }
 
     /* =========================
@@ -279,11 +377,21 @@ export const deleteBleeding = async (req, res) => {
 
     const result = await Bleeding.findByIdAndDelete(bleedingId);
 
-    return successResponse(res, result, "Bleeding deleted successfully", "Bleeding deleted successfully");
+    return successResponse(
+      res,
+      result,
+      'Bleeding deleted successfully',
+      'Bleeding deleted successfully'
+    );
   } catch (error) {
-    console.error("deleteBleeding error:", error);
+    console.error('deleteBleeding error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to delete bleeding", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to delete bleeding',
+      error.message
+    );
   }
 };
 
@@ -293,14 +401,14 @@ export const deleteBleeding = async (req, res) => {
 
 export const addSymptom = async (req, res) => {
   try {
-    const { title,  isRecent } = req.body;
+    const { title, isRecent } = req.body;
 
     /* =========================
        VALIDATION
     ========================= */
 
     if (!title) {
-      return badRequestResponse(res, "Title is required", "Title is required");
+      return badRequestResponse(res, 'Title is required', 'Title is required');
     }
 
     /* =========================
@@ -312,7 +420,11 @@ export const addSymptom = async (req, res) => {
     });
 
     if (existingSymptom) {
-      return badRequestResponse(res, "Symptom already exists", "Symptom already exists");
+      return badRequestResponse(
+        res,
+        'Symptom already exists',
+        'Symptom already exists'
+      );
     }
 
     /* =========================
@@ -324,11 +436,21 @@ export const addSymptom = async (req, res) => {
       isRecent,
     });
 
-    return successResponse(res, symptom, "Symptom added successfully", "Symptom added successfully");
+    return successResponse(
+      res,
+      symptom,
+      'Symptom added successfully',
+      'Symptom added successfully'
+    );
   } catch (error) {
-    console.error("addSymptom error:", error);
+    console.error('addSymptom error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to add symptom", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to add symptom',
+      error.message
+    );
   }
 };
 
@@ -343,14 +465,24 @@ export const getAllSymptoms = async (req, res) => {
     });
 
     if (!symptoms.length) {
-      return badRequestResponse(res, "No symptoms found", "No symptoms found");
+      return badRequestResponse(res, 'No symptoms found', 'No symptoms found');
     }
 
-    return successResponse(res, symptoms, "Symptoms fetched successfully", "Symptoms fetched successfully");
+    return successResponse(
+      res,
+      symptoms,
+      'Symptoms fetched successfully',
+      'Symptoms fetched successfully'
+    );
   } catch (error) {
-    console.error("getAllSymptoms error:", error);
+    console.error('getAllSymptoms error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to fetch symptoms", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to fetch symptoms',
+      error.message
+    );
   }
 };
 
@@ -371,7 +503,7 @@ export const updateSymptom = async (req, res) => {
     const symptom = await Symptom.findById(symptomId);
 
     if (!symptom) {
-      return badRequestResponse(res, "Symptom not found", "Symptom not found");
+      return badRequestResponse(res, 'Symptom not found', 'Symptom not found');
     }
 
     /* =========================
@@ -392,11 +524,21 @@ export const updateSymptom = async (req, res) => {
 
     await symptom.save();
 
-    return successResponse(res, symptom, "Symptom updated successfully", "Symptom updated successfully");
+    return successResponse(
+      res,
+      symptom,
+      'Symptom updated successfully',
+      'Symptom updated successfully'
+    );
   } catch (error) {
-    console.error("updateSymptom error:", error);
+    console.error('updateSymptom error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to update symptom", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to update symptom',
+      error.message
+    );
   }
 };
 
@@ -415,7 +557,7 @@ export const deleteSymptom = async (req, res) => {
     const symptom = await Symptom.findById(symptomId);
 
     if (!symptom) {
-      return badRequestResponse(res, "Symptom not found", "Symptom not found");
+      return badRequestResponse(res, 'Symptom not found', 'Symptom not found');
     }
 
     /* =========================
@@ -424,10 +566,20 @@ export const deleteSymptom = async (req, res) => {
 
     const result = await Symptom.findByIdAndDelete(symptomId);
 
-    return successResponse(res, result, "Symptom deleted successfully", "Symptom deleted successfully");
+    return successResponse(
+      res,
+      result,
+      'Symptom deleted successfully',
+      'Symptom deleted successfully'
+    );
   } catch (error) {
-    console.error("deleteSymptom error:", error);
+    console.error('deleteSymptom error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to delete symptom", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to delete symptom',
+      error.message
+    );
   }
 };

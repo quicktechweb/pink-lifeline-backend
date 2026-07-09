@@ -26,15 +26,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/degree/v1/get-all-degrees",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "degree",
-                    "v1",
-                    "get-all-degrees"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "degree", "v1", "get-all-degrees"]
                 }
               },
               "response": []
@@ -55,15 +48,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/degree/v1/add-degree",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "degree",
-                    "v1",
-                    "add-degree"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "degree", "v1", "add-degree"]
                 }
               },
               "response": []
@@ -84,16 +70,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/degree/v1/update-degree/:userId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "degree",
-                    "v1",
-                    "update-degree",
-                    ":userId"
-                  ],
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "degree", "v1", "update-degree", ":userId"],
                   "variable": [
                     {
                       "key": "userId",
@@ -120,16 +98,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/degree/v1/delete-degree/:userId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "degree",
-                    "v1",
-                    "delete-degree",
-                    ":userId"
-                  ],
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "degree", "v1", "delete-degree", ":userId"],
                   "variable": [
                     {
                       "key": "userId",
@@ -221,15 +191,9 @@
             "url": {
               "raw": "http://localhost:5000/api/registration/register",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "5000",
-              "path": [
-                "api",
-                "registration",
-                "register"
-              ]
+              "path": ["api", "registration", "register"]
             }
           },
           "response": []
@@ -304,15 +268,9 @@
             "url": {
               "raw": "http://localhost:5000/api/registration/get-all-doctors",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "5000",
-              "path": [
-                "api",
-                "registration",
-                "get-all-doctors"
-              ]
+              "path": ["api", "registration", "get-all-doctors"]
             }
           },
           "response": []
@@ -387,9 +345,7 @@
             "url": {
               "raw": "http://localhost:5000/api/registration/get-doctor-by-registration-number/:doctorRegistrationNumber",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "5000",
               "path": [
                 "api",
@@ -474,16 +430,9 @@
             "url": {
               "raw": "http://localhost:5000/api/registration/delete-doctor/:userId",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "5000",
-              "path": [
-                "api",
-                "registration",
-                "delete-doctor",
-                ":userId"
-              ],
+              "path": ["api", "registration", "delete-doctor", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -561,16 +510,9 @@
             "url": {
               "raw": "http://localhost:5000/api/registration/verify-doctor/:userId",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "5000",
-              "path": [
-                "api",
-                "registration",
-                "verify-doctor",
-                ":userId"
-              ],
+              "path": ["api", "registration", "verify-doctor", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -598,15 +540,9 @@
             "url": {
               "raw": "http://localhost:5000/api/registration/login",
               "protocol": "http",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "5000",
-              "path": [
-                "api",
-                "registration",
-                "login"
-              ]
+              "path": ["api", "registration", "login"]
             }
           },
           "response": []
@@ -632,15 +568,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/period/v1/insert-period",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "period",
-                "v1",
-                "insert-period"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["api", "period", "v1", "insert-period"]
             }
           },
           "response": []
@@ -661,15 +590,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/period/v1/get-period-info-date-wise",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "period",
-                "v1",
-                "get-period-info-date-wise"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "period", "v1", "get-period-info-date-wise"]
             }
           },
           "response": []
@@ -688,9 +610,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/period/v1/get-period-basics-insights/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "period",
@@ -722,9 +642,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/period/v2/get-period-basics-insights/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "period",
@@ -761,16 +679,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/period/v1/previous-periods/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "period",
-                "v1",
-                "previous-periods",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "period", "v1", "previous-periods", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -797,16 +707,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/period/v1/add-daily-notes/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "period",
-                "v1",
-                "add-daily-notes",
-                ":userId"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "period", "v1", "add-daily-notes", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -833,15 +735,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/period/v1/record-start-data",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "period",
-                "v1",
-                "record-start-data"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["api", "period", "v1", "record-start-data"]
             }
           },
           "response": []
@@ -862,15 +757,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/period/v1/record-current-data",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "period",
-                "v1",
-                "record-current-data"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["api", "period", "v1", "record-current-data"]
             }
           },
           "response": []
@@ -891,15 +779,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/period/v1/record-end-data",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "period",
-                "v1",
-                "record-end-data"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["api", "period", "v1", "record-end-data"]
             }
           },
           "response": []
@@ -928,14 +809,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/register",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "register"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "registration", "register"]
                 }
               },
               "response": []
@@ -1037,15 +912,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/registration/update-profile/:userId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "update-profile",
-                    ":userId"
-                  ],
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "registration", "update-profile", ":userId"],
                   "variable": [
                     {
                       "key": "userId",
@@ -1141,11 +1009,7 @@
                 "url": {
                   "raw": "https://pink-lifeline-backend.onrender.com/api/registration/update-profile/USR-UAL29I",
                   "protocol": "https",
-                  "host": [
-                    "pink-lifeline-backend",
-                    "onrender",
-                    "com"
-                  ],
+                  "host": ["pink-lifeline-backend", "onrender", "com"],
                   "path": [
                     "api",
                     "registration",
@@ -1172,14 +1036,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/login",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "login"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "registration", "login"]
                 }
               },
               "response": []
@@ -1203,15 +1061,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-profile/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "get-profile",
-                    ":userId"
-                  ],
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "registration", "get-profile", ":userId"],
                   "variable": [
                     {
                       "key": "userId",
@@ -1238,9 +1089,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/doctor-details-schedule/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1273,9 +1122,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/add-doctor-daily-schedule/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1308,9 +1155,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/enable-disable-week-day/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1343,9 +1188,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/add-exceptional-day/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1378,9 +1221,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/remove-exceptional-day/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1413,9 +1254,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/remove-doctor-daily-schedule/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1448,9 +1287,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-daily-schedule-by-doctor/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1483,9 +1320,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-daily-doctor-appointments/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1518,9 +1353,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-daily-confirmed-appointments-by-doctor/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1556,15 +1389,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/search-doctors/:query",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "search-doctors",
-                    ":query"
-                  ],
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "registration", "search-doctors", ":query"],
                   "variable": [
                     {
                       "key": "query",
@@ -1594,9 +1420,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-total-comment-patients/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1629,9 +1453,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-daily-schedule-appointments/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1664,9 +1486,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/add-doctor-weekly-schedule/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1699,9 +1519,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-completed-appointments-by-doctor/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1737,9 +1555,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-all-notification/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1772,9 +1588,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/mark-notification-as-read/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1807,9 +1621,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-upcoming-appointments/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -1886,9 +1698,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/update-user-profile/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -1922,9 +1732,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/add-doctor-wish-list/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -1958,9 +1766,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/remove-doctor-wish-list/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -1997,9 +1803,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-user-doctor-list/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2036,15 +1840,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-all-doctors",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "user",
-                    "v1",
-                    "get-all-doctors"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "user", "v1", "get-all-doctors"]
                 }
               },
               "response": []
@@ -2068,9 +1865,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-user-profile-insights/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2104,9 +1899,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-doctor-monthly-schedule/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -2139,9 +1932,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-daily-schedule-by-user/:doctorUserid",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2175,15 +1966,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/book-appointment",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "user",
-                    "v1",
-                    "book-appointment"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "user", "v1", "book-appointment"]
                 }
               },
               "response": []
@@ -2204,9 +1988,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/rate-doctor-by-user/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2243,9 +2025,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-doctor-appointment-details/:appointmentId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2279,9 +2059,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/reschedule-appointment/:appointmentId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2315,9 +2093,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/cancel-appointment-by-user/:appointmentId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2354,9 +2130,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-user-appointments/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2390,9 +2164,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v2/get-user-appointments/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2429,9 +2201,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/complete-appointment-by-user/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2465,9 +2235,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-all-users-inspect-list-by-admin",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2499,9 +2267,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-all-admin-users/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -2534,9 +2300,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/confirm-appointment-by-admin/:id",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -2569,9 +2333,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/get-all-appointments-by-admin",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "registration",
@@ -2597,14 +2359,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/registration/login-by-admin",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "registration",
-                    "login-by-admin"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "registration", "login-by-admin"]
                 }
               },
               "response": []
@@ -2628,9 +2384,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/community/v1/get-user-all-post-title-by-admin/:userid",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "community",
@@ -2667,9 +2421,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/community/v1/get-all-posts-of-user-admin/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "community",
@@ -2706,9 +2458,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-user-specific-selftest-by-admin/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2742,9 +2492,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-user-specific-appointments-by-admin/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2781,9 +2529,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/user/v1/get-user-inspect-by-admin/:userId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "user",
@@ -2819,15 +2565,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/save-fcm-token/:userid",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "registration",
-                "save-fcm-token",
-                ":userid"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "registration", "save-fcm-token", ":userid"],
               "variable": [
                 {
                   "key": "userid",
@@ -2862,15 +2601,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/add-question",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v1",
-                    "add-question"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "self-test", "v1", "add-question"]
                 }
               },
               "response": []
@@ -2894,9 +2626,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/get-questions/:stepNo",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -2921,15 +2651,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/get-all-questions",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v1",
-                    "get-all-questions"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "self-test", "v1", "get-all-questions"]
                 }
               },
               "response": []
@@ -2950,9 +2673,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/update-question/:questionId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -2986,9 +2707,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/delete-question/:questionId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3022,9 +2741,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/delete-step-by-id/6a099bd8cabbbfdf3b659b47",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3066,9 +2783,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/update-step-by-id/:stepId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3123,15 +2838,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/add-step",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v1",
-                    "add-step"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "self-test", "v1", "add-step"]
                 }
               },
               "response": []
@@ -3150,16 +2858,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/video/:videoId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v1",
-                    "video",
-                    ":videoId"
-                  ],
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "self-test", "v1", "video", ":videoId"],
                   "variable": [
                     {
                       "key": "videoId",
@@ -3191,15 +2891,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/add-answer",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v1",
-                    "add-answer"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "self-test", "v1", "add-answer"]
                 }
               },
               "response": []
@@ -3223,9 +2916,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/get-answers/:questionId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3259,9 +2950,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/update-answer/:answerId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3298,15 +2987,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/get-all-answers",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v1",
-                    "get-all-answers"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "self-test", "v1", "get-all-answers"]
                 }
               },
               "response": []
@@ -3327,9 +3009,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/delete-answer/:answerId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3371,9 +3051,7 @@
                     },
                     "url": {
                       "raw": "{{base_url}}/api/self-test/v1/perform-self-test/:userId",
-                      "host": [
-                        "{{base_url}}"
-                      ],
+                      "host": ["{{base_url}}"],
                       "path": [
                         "api",
                         "self-test",
@@ -3407,9 +3085,7 @@
                     },
                     "url": {
                       "raw": "{{base_url}}/api/self-test/v2/doctor-recommendations/:userId",
-                      "host": [
-                        "{{base_url}}"
-                      ],
+                      "host": ["{{base_url}}"],
                       "path": [
                         "api",
                         "self-test",
@@ -3434,15 +3110,8 @@
                     "header": [],
                     "url": {
                       "raw": "{{baseurl}}/api/self-test/v1/get-all-steps",
-                      "host": [
-                        "{{baseurl}}"
-                      ],
-                      "path": [
-                        "api",
-                        "self-test",
-                        "v1",
-                        "get-all-steps"
-                      ]
+                      "host": ["{{baseurl}}"],
+                      "path": ["api", "self-test", "v1", "get-all-steps"]
                     }
                   },
                   "response": []
@@ -3465,15 +3134,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v2/create-self-test-step",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v2",
-                    "create-self-test-step"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "self-test", "v2", "create-self-test-step"]
                 }
               },
               "response": []
@@ -3511,9 +3173,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v2/delete-self-test/:stepId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3538,9 +3198,7 @@
                 "header": [],
                 "url": {
                   "raw": "{{base_url}}/api/self-test/v1/get-all-question-by-steps",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "self-test",
@@ -3558,15 +3216,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseurl}}/api/self-test/v2/get-all-test-steps",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "self-test",
-                    "v2",
-                    "get-all-test-steps"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "self-test", "v2", "get-all-test-steps"]
                 }
               },
               "response": []
@@ -3656,16 +3307,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/create-post/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "create-post",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "create-post", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -3692,16 +3335,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/save-post/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "save-post",
-                ":userId"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "v1", "save-post", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -3748,16 +3383,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/get-all-posts/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "get-all-posts",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "get-all-posts", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -3804,9 +3431,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/get-all-saved-posts/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "community",
@@ -3840,16 +3465,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/post-upvote/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "post-upvote",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "post-upvote", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -3876,16 +3493,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/post-downvote/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "post-downvote",
-                ":userId"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "v1", "post-downvote", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -3912,16 +3521,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/post-comment/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "post-comment",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "post-comment", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -3948,16 +3549,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/get-post-by-id/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "get-post-by-id",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "get-post-by-id", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -3987,16 +3580,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/get-post-by-id/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "get-post-by-id",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "get-post-by-id", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -4023,16 +3608,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/comment-upvote/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "comment-upvote",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "comment-upvote", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -4059,16 +3636,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/community/v1/comment-downvote/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "comment-downvote",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "community", "v1", "comment-downvote", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -4098,9 +3667,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-upvoted-posts/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "community",
@@ -4137,9 +3704,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-upvoted-comments/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "community",
@@ -4176,9 +3741,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-downvoted-posts/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "community",
@@ -4215,9 +3778,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-downvoted-comments/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "community",
@@ -4254,16 +3815,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-user-posts/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "get-user-posts",
-                ":userId"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "v1", "get-user-posts", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -4293,16 +3846,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v2/get-user-posts/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v2",
-                "get-user-posts",
-                ":userId"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "v2", "get-user-posts", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -4332,9 +3877,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-user-comments/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "community",
@@ -4368,9 +3911,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/delete-post/:userId/:postId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "community",
@@ -4412,16 +3953,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/search-posts/:query",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "search-posts",
-                ":query"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "v1", "search-posts", ":query"],
               "variable": [
                 {
                   "key": "query",
@@ -4451,15 +3984,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-all-posts-admin?page=1&limit=5&sortBy=totalPosts&sortOrder=desc",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "community",
-                "v1",
-                "get-all-posts-admin"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "v1", "get-all-posts-admin"],
               "query": [
                 {
                   "key": "page",
@@ -4501,9 +4027,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/community/v1/get-specific-user-posts/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "community",
@@ -4545,15 +4069,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/add-symptom",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "dropdowns",
-                    "v1",
-                    "add-symptom"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "dropdowns", "v1", "add-symptom"]
                 }
               },
               "response": []
@@ -4574,9 +4091,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/update-symptom/:symptomId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "dropdowns",
@@ -4610,9 +4125,7 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/dropdowns/v1/delete-symptom/:symptomId",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
+                  "host": ["{{baseurl}}"],
                   "path": [
                     "api",
                     "dropdowns",
@@ -4649,15 +4162,8 @@
                 },
                 "url": {
                   "raw": "{{baseurl}}/api/dropdowns/v1/get-all-symptoms",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "dropdowns",
-                    "v1",
-                    "get-all-symptoms"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "dropdowns", "v1", "get-all-symptoms"]
                 }
               },
               "response": []
@@ -4683,15 +4189,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/add-bleeding",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "dropdowns",
-                    "v1",
-                    "add-bleeding"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "dropdowns", "v1", "add-bleeding"]
                 }
               },
               "response": []
@@ -4712,9 +4211,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/update-bleeding/:bleedingId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "dropdowns",
@@ -4748,9 +4245,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/delete-bleeding/:bleedingId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "dropdowns",
@@ -4775,15 +4270,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseurl}}/api/dropdowns/v1/get-all-bleeding",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "dropdowns",
-                    "v1",
-                    "get-all-bleeding"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "dropdowns", "v1", "get-all-bleeding"]
                 }
               },
               "response": []
@@ -4800,15 +4288,8 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseurl}}/api/dropdowns/v1/get-all-spotting",
-                  "host": [
-                    "{{baseurl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "dropdowns",
-                    "v1",
-                    "get-all-spotting"
-                  ]
+                  "host": ["{{baseurl}}"],
+                  "path": ["api", "dropdowns", "v1", "get-all-spotting"]
                 }
               },
               "response": []
@@ -4829,15 +4310,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/add-spotting",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "dropdowns",
-                    "v1",
-                    "add-spotting"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "dropdowns", "v1", "add-spotting"]
                 }
               },
               "response": []
@@ -4858,9 +4332,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/update-spotting/:spottingId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "dropdowns",
@@ -4894,9 +4366,7 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/api/dropdowns/v1/delete-spotting/:spottingId",
-                  "host": [
-                    "{{base_url}}"
-                  ],
+                  "host": ["{{base_url}}"],
                   "path": [
                     "api",
                     "dropdowns",
@@ -4928,9 +4398,7 @@
             "header": [],
             "url": {
               "raw": "{{baseurl}}/api/dashboard-stats/v1/get-doctor-patient-appointment-counts",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "dashboard-stats",
@@ -4948,9 +4416,7 @@
             "header": [],
             "url": {
               "raw": "{{baseurl}}/api/dashboard-stats/v1/get-all-types-appointment-counts",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "dashboard-stats",
@@ -4968,9 +4434,7 @@
             "header": [],
             "url": {
               "raw": "{{baseurl}}/api/dashboard-stats/v1/top-doctors-served-patients",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "dashboard-stats",
@@ -4988,9 +4452,7 @@
             "header": [],
             "url": {
               "raw": "{{baseurl}}/api/dashboard-stats/v1/get-all-user-period-cycle-length",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "dashboard-stats",
@@ -5008,15 +4470,8 @@
             "header": [],
             "url": {
               "raw": "{{baseurl}}/api/dashboard-stats/v1/doctor-patient-ration",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "dashboard-stats",
-                "v1",
-                "doctor-patient-ration"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["api", "dashboard-stats", "v1", "doctor-patient-ration"]
             }
           },
           "response": []
@@ -5037,9 +4492,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/dashboard-stats/v1/get-appointment-trends-over-time",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "dashboard-stats",
@@ -5066,14 +4519,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/clear-user-data/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "clear-user-data",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["other", "clear-user-data", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -5100,13 +4547,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/run-script",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "run-script"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["other", "run-script"]
             }
           },
           "response": []
@@ -5127,13 +4569,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/delete-specific-data-form-each-collection",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "delete-specific-data-form-each-collection"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["other", "delete-specific-data-form-each-collection"]
             }
           },
           "response": []
@@ -5154,9 +4591,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/update-property-by-id/:collectionName/:id",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "other",
                 "update-property-by-id",
@@ -5196,14 +4631,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/collection/:collectionName?",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "collection",
-                ":collectionName"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["other", "collection", ":collectionName"],
               "query": [
                 {
                   "key": "",
@@ -5240,13 +4669,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/get-all-connections",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "get-all-connections"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["other", "get-all-connections"]
             }
           },
           "response": []
@@ -5270,14 +4694,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/global-search/:keyword",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "global-search",
-                ":keyword"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["other", "global-search", ":keyword"],
               "variable": [
                 {
                   "key": "keyword",
@@ -5307,13 +4725,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/get-current-time",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "get-current-time"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["other", "get-current-time"]
             }
           },
           "response": []
@@ -5334,13 +4747,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/update-schedule-time",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "update-schedule-time"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["other", "update-schedule-time"]
             }
           },
           "response": []
@@ -5361,13 +4769,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/create-role-route",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "create-role-route"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["other", "create-role-route"]
             }
           },
           "response": []
@@ -5388,14 +4791,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/other/update-role-route/:id",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "other",
-                "update-role-route",
-                ":id"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["other", "update-role-route", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -5422,9 +4819,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/reset-password-by-admin/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "registration",
@@ -5465,15 +4860,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/get-all-doctors",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "v1",
-                "get-all-doctors"
-              ]
+              "host": ["{{baseurl}}"],
+              "path": ["api", "user", "v1", "get-all-doctors"]
             }
           },
           "response": []
@@ -5494,16 +4882,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/add-doctor-wish-list/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "v1",
-                "add-doctor-wish-list",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "user", "v1", "add-doctor-wish-list", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -5530,16 +4910,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/add-doctor-wish-list/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "v1",
-                "add-doctor-wish-list",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "user", "v1", "add-doctor-wish-list", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -5569,16 +4941,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/get-user-doctor-list/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "v1",
-                "get-user-doctor-list",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "user", "v1", "get-user-doctor-list", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -5608,15 +4972,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/get-profile/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "registration",
-                "get-profile",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "registration", "get-profile", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -5643,9 +5000,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/get-doctor-monthly-schedule/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "registration",
@@ -5678,9 +5033,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/get-daily-schedule-by-user/:doctorUserid",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "user",
@@ -5717,16 +5070,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/get-user-appointments/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "user",
-                "v1",
-                "get-user-appointments",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "user", "v1", "get-user-appointments", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -5753,9 +5098,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/cancel-appointment-by-user/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "user",
@@ -5789,9 +5132,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/reschedule-appointment/:appointmentId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "user",
@@ -5825,9 +5166,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/add-doctor-weekly-schedule/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "registration",
@@ -5860,15 +5199,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/add-exceptional-day/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "registration",
-                "add-exceptional-day",
-                ":userId"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "registration", "add-exceptional-day", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -5895,9 +5227,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/remove-exceptional-day/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "registration",
@@ -5930,9 +5260,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/get-daily-doctor-appointments/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "registration",
@@ -5965,9 +5293,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/user/v1/remove-doctor-wish-list/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "user",
@@ -6001,9 +5327,7 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/remove-doctor-daily-schedule/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "registration",
@@ -6036,9 +5360,7 @@
             },
             "url": {
               "raw": "{{base_url}}/api/self-test/v2/doctor-recommendations/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "self-test",
@@ -6075,15 +5397,8 @@
             },
             "url": {
               "raw": "{{baseurl}}/api/registration/search-doctors/:query",
-              "host": [
-                "{{baseurl}}"
-              ],
-              "path": [
-                "api",
-                "registration",
-                "search-doctors",
-                ":query"
-              ],
+              "host": ["{{baseurl}}"],
+              "path": ["api", "registration", "search-doctors", ":query"],
               "variable": [
                 {
                   "key": "query",
@@ -6106,9 +5421,7 @@
             "header": [],
             "url": {
               "raw": "{{baseurl}}/api/registration/add-doctor-weekly-schedule/:userId",
-              "host": [
-                "{{baseurl}}"
-              ],
+              "host": ["{{baseurl}}"],
               "path": [
                 "api",
                 "registration",
@@ -6151,9 +5464,7 @@
         },
         "url": {
           "raw": "{{baseurl}}/api/registration/get-doctor-monthly-schedule/:userId",
-          "host": [
-            "{{baseurl}}"
-          ],
+          "host": ["{{baseurl}}"],
           "path": [
             "api",
             "registration",
@@ -6186,15 +5497,8 @@
         },
         "url": {
           "raw": "{{baseurl}}/api/registration/doctor-details-schedule/:userId",
-          "host": [
-            "{{baseurl}}"
-          ],
-          "path": [
-            "api",
-            "registration",
-            "doctor-details-schedule",
-            ":userId"
-          ],
+          "host": ["{{baseurl}}"],
+          "path": ["api", "registration", "doctor-details-schedule", ":userId"],
           "variable": [
             {
               "key": "userId",
@@ -6221,9 +5525,7 @@
         },
         "url": {
           "raw": "{{baseurl}}/api/registration/get-daily-schedule-appointments/:userId",
-          "host": [
-            "{{baseurl}}"
-          ],
+          "host": ["{{baseurl}}"],
           "path": [
             "api",
             "registration",
@@ -6248,9 +5550,7 @@
         "type": "text/javascript",
         "packages": {},
         "requests": {},
-        "exec": [
-          ""
-        ]
+        "exec": [""]
       }
     },
     {
@@ -6259,9 +5559,7 @@
         "type": "text/javascript",
         "packages": {},
         "requests": {},
-        "exec": [
-          ""
-        ]
+        "exec": [""]
       }
     }
   ],

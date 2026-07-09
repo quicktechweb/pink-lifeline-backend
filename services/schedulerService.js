@@ -1,16 +1,16 @@
-import cron from "node-cron";
-import Notification from "../models/Notification/NotificationModel.js";
-import { sendNotificationToUser } from "./notificationService.js";
-import { getBDCurrentDate, getBDCurrentTime } from "../utils/utils.js";
-import { Appointment } from "../models/Schedule/userBooking.js";
+import cron from 'node-cron';
+import Notification from '../models/Notification/NotificationModel.js';
+import { sendNotificationToUser } from './notificationService.js';
+import { getBDCurrentDate, getBDCurrentTime } from '../utils/utils.js';
+import { Appointment } from '../models/Schedule/userBooking.js';
 
 // import { sendPushNotification } from "../firebase-admin.js";
 
-const getTodayDateString = () => new Date().toISOString().split("T")[0];
+const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
 // Builds today's Date object set to the notification's HH:mm (local time)
 const buildSendDateTime = (notificationSendTime) => {
-  const [hours, minutes] = notificationSendTime.split(":").map(Number);
+  const [hours, minutes] = notificationSendTime.split(':').map(Number);
   const sendDateTime = new Date();
   sendDateTime.setHours(hours, minutes, 0, 0);
   return sendDateTime;
@@ -18,14 +18,14 @@ const buildSendDateTime = (notificationSendTime) => {
 
 const getNextNotificationDate = (type, currentDateStr) => {
   // currentDateStr is "YYYY-MM-DD"
-  const [year, month, day] = currentDateStr.split("-").map(Number);
+  const [year, month, day] = currentDateStr.split('-').map(Number);
 
   // Use UTC to avoid timezone shifting the date by ±1 day
   const date = new Date(Date.UTC(year, month - 1, day));
 
-  if (type === "periodDateStart") {
+  if (type === 'periodDateStart') {
     date.setUTCDate(date.getUTCDate() + 2);
-  } else if (type === "periodDateEnd") {
+  } else if (type === 'periodDateEnd') {
     date.setUTCDate(date.getUTCDate() + 1);
   } else {
     // other types: no date shift
@@ -33,8 +33,8 @@ const getNextNotificationDate = (type, currentDateStr) => {
   }
 
   const newYear = date.getUTCFullYear();
-  const newMonth = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const newDay = String(date.getUTCDate()).padStart(2, "0");
+  const newMonth = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const newDay = String(date.getUTCDate()).padStart(2, '0');
 
   return `${newYear}-${newMonth}-${newDay}`;
 };
@@ -59,26 +59,41 @@ const dispatchNotification = async (notification) => {
       {
         $inc: { autoReminderLimit: -1 },
       },
-      { new: true },
+      { new: true }
     );
 
     if (decremented) {
       if (decremented.autoReminderLimit > 0) {
         // Still has reminders left -> bump the send date forward
-        const nextDate = getNextNotificationDate(decremented.type, decremented.notificationSendDate);
+        const nextDate = getNextNotificationDate(
+          decremented.type,
+          decremented.notificationSendDate
+        );
 
-        updatedNotification = await Notification.findByIdAndUpdate(decremented._id, { notificationSendDate: nextDate }, { new: true });
+        updatedNotification = await Notification.findByIdAndUpdate(
+          decremented._id,
+          { notificationSendDate: nextDate },
+          { new: true }
+        );
       } else {
         // Limit just hit zero -> mark as sent, stop reminders
-        updatedNotification = await Notification.findByIdAndUpdate(decremented._id, { isSent: true }, { new: true });
+        updatedNotification = await Notification.findByIdAndUpdate(
+          decremented._id,
+          { isSent: true },
+          { new: true }
+        );
       }
     }
   }
 
-  console.log(`🔔 [${new Date().toLocaleString()}] | User: ${notification.userId} | Status: ${notificationStatus.success ? "✅ Success" : "❌ Failed"} | Remaining Reminders: ${updatedNotification ? updatedNotification.autoReminderLimit : "null"}`);
+  console.log(
+    `🔔 [${new Date().toLocaleString()}] | User: ${notification.userId} | Status: ${notificationStatus.success ? '✅ Success' : '❌ Failed'} | Remaining Reminders: ${updatedNotification ? updatedNotification.autoReminderLimit : 'null'}`
+  );
 
   if (!notificationStatus.success) {
-    console.error(`🚨 [${new Date().toLocaleString()}] | User: ${notification.userId} | Notification Status: ${notificationStatus.status} | Notification: ${notificationStatus.message}`);
+    console.error(
+      `🚨 [${new Date().toLocaleString()}] | User: ${notification.userId} | Notification Status: ${notificationStatus.status} | Notification: ${notificationStatus.message}`
+    );
   }
 };
 
@@ -101,7 +116,9 @@ const scheduleTodaysNotifications = async () => {
 
       // Already past for today — skip
       if (sendDateTime.getTime() <= now.getTime()) {
-        console.log(`Skipping notification for user ${notification.userId} — send time ${notification.notificationSendTime} already passed.`);
+        console.log(
+          `Skipping notification for user ${notification.userId} — send time ${notification.notificationSendTime} already passed.`
+        );
         continue;
       }
 
@@ -111,15 +128,17 @@ const scheduleTodaysNotifications = async () => {
         dispatchNotification(notification);
       }, delayMs);
 
-      console.log(`Scheduled notification for user ${notification.userId} at ${notification.notificationSendTime} (in ${Math.round(delayMs / 1000)}s)`);
+      console.log(
+        `Scheduled notification for user ${notification.userId} at ${notification.notificationSendTime} (in ${Math.round(delayMs / 1000)}s)`
+      );
     }
 
     const currentDate = getBDCurrentDate();
-    const currentTime = getBDCurrentTime().split(", ")[1]; // "HH:MM"
+    const currentTime = getBDCurrentTime().split(', ')[1]; // "HH:MM"
 
     const result = await Appointment.updateMany(
       {
-        status: "confirmed",
+        status: 'confirmed',
         $or: [
           // Any confirmed appointment before today
           {
@@ -134,34 +153,36 @@ const scheduleTodaysNotifications = async () => {
       },
       {
         $set: {
-          status: "missed",
+          status: 'missed',
         },
-      },
+      }
     );
 
     console.log(`Marked ${result.modifiedCount} appointment(s) as missed.`);
 
-    console.log(`Scheduler set up ${notifications.length} notification(s) for today.`);
+    console.log(
+      `Scheduler set up ${notifications.length} notification(s) for today.`
+    );
   } catch (err) {
-    console.error("Scheduler Error:", err);
+    console.error('Scheduler Error:', err);
   }
 };
 
 const startNotificationScheduler = () => {
-  console.log("✅ Notification Scheduler Started");
+  console.log('✅ Notification Scheduler Started');
 
   // Run immediately on startup
   scheduleTodaysNotifications();
 
   // // gonna run at 1:00 AM everyday
   cron.schedule(
-    "0 1 * * *",
+    '0 1 * * *',
     () => {
-      console.log("⏰ Running notification scheduler...", getBDCurrentTime());
+      console.log('⏰ Running notification scheduler...', getBDCurrentTime());
       scheduleTodaysNotifications();
     },
     {
-      timezone: "Asia/Dhaka",
+      timezone: 'Asia/Dhaka',
     }
   );
 

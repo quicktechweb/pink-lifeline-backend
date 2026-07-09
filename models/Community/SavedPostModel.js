@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const savedPostSchema = new mongoose.Schema(
   {
@@ -11,7 +11,7 @@ const savedPostSchema = new mongoose.Schema(
 
     postId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
+      ref: 'Post',
       required: true,
       index: true,
     },
@@ -28,7 +28,7 @@ const savedPostSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 savedPostSchema.index(
@@ -38,7 +38,7 @@ savedPostSchema.index(
   },
   {
     unique: true,
-  },
+  }
 );
 
-export default mongoose.model("SavedPost", savedPostSchema);
+export default mongoose.model('SavedPost', savedPostSchema);

@@ -1,6 +1,10 @@
-import { SelfTestAnswer } from "../../models/SelfTest/selfTestAnswerModel.js";
-import { SelfTestQuestion } from "../../models/SelfTest/selfTestQuestionModel.js";
-import { badRequestResponse, somethingWentWrong, successResponse } from "../../utils/utils.js";
+import { SelfTestAnswer } from '../../models/SelfTest/selfTestAnswerModel.js';
+import { SelfTestQuestion } from '../../models/SelfTest/selfTestQuestionModel.js';
+import {
+  badRequestResponse,
+  somethingWentWrong,
+  successResponse,
+} from '../../utils/utils.js';
 
 export const addAnswer = async (req, res) => {
   try {
@@ -9,7 +13,11 @@ export const addAnswer = async (req, res) => {
     const question = await SelfTestQuestion.findById({ _id: questionId });
 
     if (!question) {
-      return badRequestResponse(res, "Question not found", "Question not found");
+      return badRequestResponse(
+        res,
+        'Question not found',
+        'Question not found'
+      );
     }
 
     const answer = await SelfTestAnswer.create({
@@ -18,9 +26,19 @@ export const addAnswer = async (req, res) => {
       score,
     });
 
-    return successResponse(res, answer, "Answer created successfully", "Answer created successfully");
+    return successResponse(
+      res,
+      answer,
+      'Answer created successfully',
+      'Answer created successfully'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error.message, "Failed to create answer", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to create answer',
+      error.message
+    );
   }
 };
 
@@ -30,9 +48,19 @@ export const getAnswersByQuestion = async (req, res) => {
 
     const answers = await SelfTestAnswer.find({ questionId });
 
-    return successResponse(res, answers, "Answers fetched successfully", "Answers fetched successfully");
+    return successResponse(
+      res,
+      answers,
+      'Answers fetched successfully',
+      'Answers fetched successfully'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error.message, "Failed to fetch answers", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to fetch answers',
+      error.message
+    );
   }
 };
 
@@ -44,7 +72,7 @@ export const updateAnswer = async (req, res) => {
     const answer = await SelfTestAnswer.findById(answerId);
 
     if (!answer) {
-      return badRequestResponse(res, "Answer not found", "Answer not found");
+      return badRequestResponse(res, 'Answer not found', 'Answer not found');
     }
 
     if (title) answer.title = title;
@@ -52,9 +80,19 @@ export const updateAnswer = async (req, res) => {
 
     await answer.save();
 
-    return successResponse(res, answer, "Answer updated successfully", "Answer updated successfully");
+    return successResponse(
+      res,
+      answer,
+      'Answer updated successfully',
+      'Answer updated successfully'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error.message, "Failed to update answer", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to update answer',
+      error.message
+    );
   }
 };
 
@@ -65,14 +103,24 @@ export const deleteAnswer = async (req, res) => {
     const answer = await SelfTestAnswer.findById(answerId);
 
     if (!answer) {
-      return badRequestResponse(res, "Answer not found", "Answer not found");
+      return badRequestResponse(res, 'Answer not found', 'Answer not found');
     }
 
     await SelfTestAnswer.findByIdAndDelete(answerId);
 
-    return successResponse(res, null, "Answer deleted successfully", "Answer deleted successfully");
+    return successResponse(
+      res,
+      null,
+      'Answer deleted successfully',
+      'Answer deleted successfully'
+    );
   } catch (error) {
-    return somethingWentWrong(res, error.message, "Failed to delete answer", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to delete answer',
+      error.message
+    );
   }
 };
 
@@ -89,13 +137,23 @@ export const getAllAnswers = async (req, res) => {
       .sort({ createdAt: -1 });
 
     if (!answers || answers.length === 0) {
-      return badRequestResponse(res, "No answers found.", "No answers found.");
+      return badRequestResponse(res, 'No answers found.', 'No answers found.');
     }
 
-    return successResponse(res, answers, "Answers fetched successfully.", "Answers fetched successfully.");
+    return successResponse(
+      res,
+      answers,
+      'Answers fetched successfully.',
+      'Answers fetched successfully.'
+    );
   } catch (error) {
-    console.error("🚀 ~ getAllAnswers ~ error:", error);
+    console.error('🚀 ~ getAllAnswers ~ error:', error);
 
-    return somethingWentWrong(res, error.message, "Failed to fetch answers.", error.message);
+    return somethingWentWrong(
+      res,
+      error.message,
+      'Failed to fetch answers.',
+      error.message
+    );
   }
 };

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const voteSchema = new mongoose.Schema(
   {
@@ -10,27 +10,27 @@ const voteSchema = new mongoose.Schema(
 
     postId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
+      ref: 'Post',
       default: null,
       index: true,
     },
 
     commentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
+      ref: 'Comment',
       default: null,
       index: true,
     },
 
     type: {
       type: String,
-      enum: ["upvote", "downvote"],
+      enum: ['upvote', 'downvote'],
       required: true,
     },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 // POST VOTE
@@ -41,7 +41,7 @@ voteSchema.index(
     partialFilterExpression: {
       postId: { $exists: true },
     },
-  },
+  }
 );
 
 // COMMENT VOTE
@@ -52,7 +52,7 @@ voteSchema.index(
     partialFilterExpression: {
       commentId: { $exists: true },
     },
-  },
+  }
 );
 
-export const Vote = mongoose.model("Vote", voteSchema);
+export const Vote = mongoose.model('Vote', voteSchema);

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 /* =========================
    ANSWER SCHEMA
@@ -22,7 +22,7 @@ const selfTestAnswerSchema = new mongoose.Schema(
   },
   {
     _id: true,
-  },
+  }
 );
 
 /* =========================
@@ -41,7 +41,7 @@ const selfTestQuestionSchema = new mongoose.Schema(
   },
   {
     _id: true,
-  },
+  }
 );
 
 /* =========================
@@ -72,7 +72,7 @@ const selfTestStepSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-export const SelfTestStep = mongoose.model("SelfTestStep", selfTestStepSchema);
+export const SelfTestStep = mongoose.model('SelfTestStep', selfTestStepSchema);
